@@ -1,8 +1,14 @@
 import SwiftUI
 import SwiftData
 
+private enum Field {
+    case title
+    case content
+}
+
 struct JournalEntryEditor: View {
     @Bindable var entry: JournalEntry
+    @FocusState private var focusedField: Field?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -10,17 +16,33 @@ struct JournalEntryEditor: View {
                 .textFieldStyle(.plain)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(Theme.textPrimary)
+                .focused($focusedField, equals: .title)
+                .onSubmit {
+                    focusedField = .content
+                }
 
             MoodPicker(selection: Binding(
                 get: { entry.entryMood },
                 set: { entry.entryMood = $0 }
             ))
-
-            TextField("Write freely...", text: $entry.content, axis: .vertical)
-                .textFieldStyle(.plain)
-                .font(Theme.uiFont)
-                .foregroundStyle(Theme.textSecondary)
-                .lineLimit(5...)
+            
+            ZStack(alignment: .topLeading) {
+                if entry.content.isEmpty {
+                    Text("Write freely...")
+                        .font(Theme.uiFont)
+                        .foregroundStyle(Theme.textFaint)
+                        .padding(.top, 8)
+                        .padding(.leading, 5)
+                        .allowsHitTesting(false)
+                }
+                
+                TextEditor(text: $entry.content)
+                    .font(Theme.uiFont)
+                    .foregroundStyle(Theme.textSecondary)
+                    .scrollContentBackground(.hidden)
+                    .background(.clear)
+                    .focused($focusedField, equals: .content)
+            }
         }
         .padding(16)
     }
