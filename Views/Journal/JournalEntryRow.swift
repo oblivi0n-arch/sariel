@@ -3,6 +3,7 @@ import SwiftUI
 struct JournalEntryRow: View {
     let entry: JournalEntry
     let onSelect: () -> Void
+    let onDelete: () -> Void
 
     @State private var isHovering = false
 
@@ -30,5 +31,10 @@ struct JournalEntryRow: View {
         .contentShape(Rectangle())
         .onTapGesture(perform: onSelect)
         .onHover { isHovering = $0 }
+        .contextMenu {
+            Button(role: .destructive, action: onDelete) {
+                Label("Delete", systemImage: "trash")
+            }
+        }
     }
 }

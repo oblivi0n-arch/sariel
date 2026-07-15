@@ -51,9 +51,11 @@ struct JournalView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 2) {
                         ForEach(entries) { entry in
-                            JournalEntryRow(entry: entry) {
-                                activeEntry = entry
-                            }
+                            JournalEntryRow(
+                                entry: entry,
+                                onSelect: { activeEntry = entry },
+                                onDelete: { delete(entry) }
+                            )
                         }
                     }
                     .padding(.horizontal, 8)
@@ -69,6 +71,11 @@ struct JournalView: View {
         modelContext.insert(new)
         try? modelContext.save()
         activeEntry = new
+    }
+    
+    private func delete(_ entry: JournalEntry) {
+        modelContext.delete(entry)
+        try? modelContext.save()
     }
 }
 
