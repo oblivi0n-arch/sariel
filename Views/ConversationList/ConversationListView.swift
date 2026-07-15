@@ -46,6 +46,10 @@ struct ConversationListView: View {
                             },
                             onDelete: {
                                 delete(conversation)
+                            },
+                            onRename: { newTitle in
+                                conversation.title = newTitle
+                                try? modelContext.save()
                             }
                         )
                     }
