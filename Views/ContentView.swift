@@ -36,7 +36,10 @@ struct ContentView: View {
                             }
                         }
 
-                    ConversationListView(conversations: conversations)
+                    ConversationListView(
+                        conversations: conversations,
+                        activeConversation: $activeConversation
+                    )
                         .transition(.move(edge: .leading))
                 }
             }
@@ -44,6 +47,11 @@ struct ContentView: View {
         }
         .background(Theme.background)
         .onAppear(perform: setupConversation)
+        .onChange(of: activeConversation) {
+            if activeConversation == nil {
+                setupConversation()
+            }
+        }
         .animation(.easeInOut(duration: 0.25), value: isConversationListOpen)
     }
 

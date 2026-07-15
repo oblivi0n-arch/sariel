@@ -60,13 +60,6 @@ struct ChatView: View {
             inputBar
         }
         .background(Theme.background)
-        
-        .toolbar {
-            Button(action: clearConversation) {
-                Label("Clear Messages", systemImage: "trash")
-                    .foregroundColor(.gray)
-            }
-        }
     }
 
     private func scrollToBottom(_ proxy: ScrollViewProxy, animated: Bool = true) {
@@ -106,13 +99,5 @@ struct ChatView: View {
         let text = draft
         draft = ""
         Task { await chatService.send(text: text, in: conversation) }
-    }
-    
-    private func clearConversation() {
-        for message in conversation.messages {
-            modelContext.delete(message)
-        }
-        conversation.messages.removeAll()
-        try? modelContext.save()
     }
 }

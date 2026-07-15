@@ -12,7 +12,16 @@ struct PromptBuilder {
 
     Hard boundaries: Do not encourage violence towards others or self-harm. If you sense a genuine mental health crisis, drop the persona immediately and state clearly that they should seek professional help.
     """
+    
+    static let titleSystemPrompt = """
+    Your only task is to generate a short conversation title based on the message exchange below.
 
+    Rules:
+    1. The title must be a maximum of 4-5 words.
+    2. Do not use quotation marks, a trailing period, or any additional commentary.
+    3. Respond with ONLY the title, nothing else.
+    """
+    
     static let maxHistoryMessages = 30
 
     static func buildMessages(history: [ChatMessage]) -> [OllamaMessage] {
@@ -25,5 +34,14 @@ struct PromptBuilder {
         }
 
         return messages
+    }
+    
+    static func buildTitleMessages(userText: String, guideText: String) -> [OllamaMessage] {
+        [
+            OllamaMessage(role: "system", content: titleSystemPrompt),
+            OllamaMessage(role: "user", content: userText),
+            OllamaMessage(role: "assistant", content: guideText),
+            OllamaMessage(role: "user", content: "Generate a title for this conversation.")
+        ]
     }
 }

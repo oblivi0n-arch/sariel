@@ -19,6 +19,8 @@ final class ChatService: ObservableObject {
     func send(text: String, in conversation: Conversation) async {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
+        let isFirstExchange = conversation.messages.isEmpty
+
         let userMessage = ChatMessage(role: .user, content: text)
         userMessage.conversation = conversation
         conversation.messages.append(userMessage)
@@ -54,5 +56,23 @@ final class ChatService: ObservableObject {
 
         try? modelContext.save()
         isGenerating = false
+
+        if isFirstExchange && !guideMessage.content.hasPrefix("⚠️") {
+            await generateTitle(for: conversation, userText: text, guideText: guideMessage.content)
+        }
+    }
+
+    private func generateTitle(for conversation: Conversation, userText: String, guideText: String) async {
+        let titleMessages = PromptBuilder.buildTitleMessages(userText: userText, guideText: guideText)
+        do {
+            let title = try await client.complete(messages: titleMessages)
+            let cleaned = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !cleaned.isEmpty {
+                conversation.title = cleaned
+                try? modelContext.save()
+            }
+        } catch {
+            
+        }
     }
 }

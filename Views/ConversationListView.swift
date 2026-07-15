@@ -1,11 +1,14 @@
 import SwiftUI
+import SwiftData
 
 struct ConversationListView: View {
+    @Environment(\.modelContext) private var modelContext
     let conversations: [Conversation]
+    @Binding var activeConversation: Conversation?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("rozmowy")
+            Text("conversations")
                 .font(.system(size: 11))
                 .foregroundStyle(Theme.textMuted)
                 .padding(.horizontal, 16)
@@ -21,6 +24,13 @@ struct ConversationListView: View {
                             .padding(.horizontal, 16)
                             .padding(.vertical, 10)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    delete(conversation)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                     }
                 }
             }
@@ -33,5 +43,13 @@ struct ConversationListView: View {
         .overlay(alignment: .trailing) {
             Rectangle().fill(Theme.border).frame(width: 0.5)
         }
+    }
+
+    private func delete(_ conversation: Conversation) {
+        if activeConversation?.id == conversation.id {
+            activeConversation = conversations.first { $0.id != conversation.id }
+        }
+        modelContext.delete(conversation)
+        try? modelContext.save()
     }
 }
