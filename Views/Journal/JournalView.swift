@@ -25,20 +25,22 @@ struct JournalView: View {
 
                 Spacer()
 
-                Button(action: createNewEntry) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Theme.textMuted)
-                        .frame(width: 24, height: 24)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(isPlusHovering ? Theme.border : .clear, lineWidth: 1)
-                        )
-                }
-                .buttonStyle(.plain)
-                .onHover { hovering in
-                    isPlusHovering = hovering
+                if activeEntry == nil {
+                    Button(action: createNewEntry) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(Theme.textMuted)
+                            .frame(width: 24, height: 24)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(isPlusHovering ? Theme.border : .clear, lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .onHover { hovering in
+                        isPlusHovering = hovering
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -64,7 +66,7 @@ struct JournalView: View {
                 }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Theme.background)
     }
 
