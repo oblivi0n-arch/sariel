@@ -7,7 +7,7 @@ struct SidebarView: View {
     var body: some View {
         VStack(spacing: 16) {
             statusDot
-            
+
             ForEach(AppSection.allCases) { section in
                 sidebarIcon(for: section)
             }
@@ -17,18 +17,23 @@ struct SidebarView: View {
         .padding(.top, 20)
         .frame(width: 56)
         .frame(maxHeight: .infinity)
-        .background(Theme.surface)
+        .background(Theme.background)
         .overlay(alignment: .trailing) {
             Rectangle()
                 .fill(Theme.border)
                 .frame(width: 0.5)
         }
     }
-    
+
     private var statusDot: some View {
-        Circle()
-            .fill(connectionMonitor.isConnected ? Color.green : Color.red)
-            .frame(width: 8, height: 8)
+        Group {
+            if connectionMonitor.isConnected {
+                Circle().fill(Theme.textPrimary)
+            } else {
+                Circle().stroke(Theme.textFaint, lineWidth: 1)
+            }
+        }
+        .frame(width: 8, height: 8)
     }
 
     private func sidebarIcon(for section: AppSection) -> some View {
@@ -36,10 +41,13 @@ struct SidebarView: View {
 
         return Image(systemName: section.iconName)
             .font(.system(size: 18))
-            .foregroundStyle(isActive ? Theme.accentBright : Theme.textFaint)
+            .foregroundStyle(isActive ? Theme.textPrimary : Theme.textFaint)
             .frame(width: 36, height: 36)
-            .background(isActive ? Theme.accent : .clear)
             .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isActive ? Theme.borderStrong : .clear, lineWidth: 1)
+            )
             .onTapGesture {
                 selectedSection = section
             }
