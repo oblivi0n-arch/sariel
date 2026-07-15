@@ -5,13 +5,12 @@ struct MessageBubble: View {
 
     private var isGuide: Bool { message.messageRole == .guide }
     private var isError: Bool { isGuide && message.content.hasPrefix("⚠️") }
-    private static let errorColor = Color(hex: "E24B4A")
 
     var body: some View {
         VStack(alignment: isGuide ? .leading : .trailing, spacing: 4) {
             Text(isError ? "błąd" : (isGuide ? "sariel" : "ty"))
                 .font(.system(size: 11))
-                .foregroundStyle(isError ? Self.errorColor : Theme.textMuted)
+                .foregroundStyle(isError ? Theme.textPrimary : Theme.textMuted)
 
             if isError {
                 errorBubble
@@ -21,11 +20,11 @@ struct MessageBubble: View {
                     .foregroundStyle(isGuide ? Theme.textPrimary : Theme.textSecondary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
-                    .background(isGuide ? Theme.surface : Theme.surfaceElevated)
                     .clipShape(bubbleShape)
+                    .overlay(bubbleShape.stroke(Theme.border, lineWidth: 0.5))
                     .overlay(alignment: .leading) {
                         if isGuide {
-                            Rectangle().fill(Theme.accent).frame(width: 2)
+                            Rectangle().fill(Theme.borderStrong).frame(width: 2)
                         }
                     }
             }
@@ -38,17 +37,16 @@ struct MessageBubble: View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 12))
-                .foregroundStyle(Self.errorColor)
+                .foregroundStyle(Theme.textPrimary)
 
             Text(message.content.replacingOccurrences(of: "⚠️ ", with: ""))
                 .font(Theme.uiFont)
-                .foregroundStyle(Theme.textSecondary)
+                .foregroundStyle(Theme.textPrimary)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .background(Self.errorColor.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Self.errorColor.opacity(0.4), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.borderStrong, lineWidth: 1))
     }
 
     private var bubbleShape: some Shape {
