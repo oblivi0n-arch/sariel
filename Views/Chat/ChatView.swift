@@ -4,12 +4,14 @@ import SwiftData
 struct ChatView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var conversation: Conversation
+    @Binding var isConversationListOpen: Bool
 
     @StateObject private var chatService: ChatService
     @State private var draft: String = ""
 
-    init(conversation: Conversation, modelContext: ModelContext) {
+    init(conversation: Conversation, modelContext: ModelContext, isConversationListOpen: Binding<Bool>) {
         self.conversation = conversation
+        self._isConversationListOpen = isConversationListOpen
         _chatService = StateObject(wrappedValue: ChatService(modelContext: modelContext))
     }
 
@@ -19,6 +21,21 @@ struct ChatView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            HStack {
+                Button(action: { isConversationListOpen.toggle() }) {
+                    Image(systemName: "line.3.horizontal")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
+                .opacity(isConversationListOpen ? 0 : 1)
+                .disabled(isConversationListOpen)
+                
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 14) {
