@@ -5,13 +5,14 @@ struct JournalView: View {
     @State private var isPlusHovering = false
     @Environment(\.modelContext) private var modelContext
     @State private var activeEntry: JournalEntry?
+    @State private var isEditingEntry = false
     @Query(sort: \JournalEntry.createdAt, order: .reverse) private var entries: [JournalEntry]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 if activeEntry != nil {
-                    Button(action: { activeEntry = nil }) {
+                    Button(action: goBack) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(Theme.textMuted)
@@ -48,7 +49,7 @@ struct JournalView: View {
             .padding(.bottom, 8)
 
             if let entry = activeEntry {
-                JournalEntryEditor(entry: entry)
+                JournalEntryDetailView(entry: entry, isEditing: $isEditingEntry)
             } else if entries.isEmpty {
                 emptyState
             } else {
@@ -57,7 +58,10 @@ struct JournalView: View {
                         ForEach(entries) { entry in
                             JournalEntryRow(
                                 entry: entry,
-                                onSelect: { activeEntry = entry },
+                                onSelect: {
+                                    activeEntry = entry
+                                    isEditingEntry = false
+                                },
                                 onDelete: { delete(entry) }
                             )
                         }
@@ -75,6 +79,7 @@ struct JournalView: View {
         modelContext.insert(new)
         try? modelContext.save()
         activeEntry = new
+        isEditingEntry = true
     }
     
     private func delete(_ entry: JournalEntry) {
@@ -94,10 +99,13 @@ struct JournalView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-}
-
-#Preview {
-    JournalView()
-        .frame(width: 500, height: 500)
-        .background(Theme.background)
+    
+    private func  goBack() {
+        if let entry = activeEntry, entry.title == "New entry", entry.content.isEmpty {
+            modelContext.delete(entry)
+            try? modelContext.save()
+        }
+        activeEntry = nil
+        isEditingEntry = false
+    }
 }
