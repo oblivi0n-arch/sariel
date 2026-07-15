@@ -3,6 +3,7 @@ import SwiftData
 
 struct ConversationListView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var isPlusHovering = false
     let conversations: [Conversation]
     @Binding var activeConversation: Conversation?
     @Binding var isConversationListOpen: Bool
@@ -20,8 +21,14 @@ struct ConversationListView: View {
                     Image(systemName: "plus")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(Theme.textMuted)
+                        .frame(width: 24, height: 24)
+                        .background(isPlusHovering ? Theme.surfaceElevated.opacity(0.5) : .clear)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
                 .buttonStyle(.plain)
+                .onHover { hovering in
+                    isPlusHovering = hovering
+                }
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
@@ -30,28 +37,17 @@ struct ConversationListView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 2) {
                     ForEach(conversations) { conversation in
-                        let isActive = conversation.id == activeConversation?.id
-                        
-                        Text(conversation.title)
-                            .font(Theme.uiFont)
-                            .foregroundStyle(isActive ? Theme.textPrimary : Theme.textSecondary)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(isActive ? Theme.surfaceElevated : .clear)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .contentShape(Rectangle())
-                            .onTapGesture {
+                        ConversationRow(
+                            conversation: conversation,
+                            isActive: conversation.id == activeConversation?.id,
+                            onSelect: {
                                 activeConversation = conversation
                                 isConversationListOpen = false
+                            },
+                            onDelete: {
+                                delete(conversation)
                             }
-                            .contextMenu {
-                                Button(role: .destructive) {
-                                    delete(conversation)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
+                        )
                     }
                 }
             }
