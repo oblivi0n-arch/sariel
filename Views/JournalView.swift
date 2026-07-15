@@ -1,7 +1,10 @@
 import SwiftUI
+import SwiftData
 
 struct JournalView: View {
     @State private var isPlusHovering = false
+    @Environment(\.modelContext) private var modelContext
+    @State private var activeEntry: JournalEntry?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -10,7 +13,11 @@ struct JournalView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(Theme.textMuted)
 
-                Spacer()
+                if let entry = activeEntry {
+                                JournalEntryEditor(entry: entry)
+                            } else {
+                                Spacer()
+                            }
 
                 Button(action: createNewEntry) {
                     Image(systemName: "plus")
@@ -39,7 +46,10 @@ struct JournalView: View {
     }
 
     private func createNewEntry() {
-
+        let new = JournalEntry()
+        modelContext.insert(new)
+        try? modelContext.save()
+        activeEntry = new
     }
 }
 
