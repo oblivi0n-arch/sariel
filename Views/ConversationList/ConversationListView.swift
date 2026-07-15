@@ -22,8 +22,11 @@ struct ConversationListView: View {
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(Theme.textMuted)
                         .frame(width: 24, height: 24)
-                        .background(isPlusHovering ? Theme.surfaceElevated.opacity(0.5) : .clear)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(isPlusHovering ? Theme.border : .clear, lineWidth: 1)
+                        )
                 }
                 .buttonStyle(.plain)
                 .onHover { hovering in
@@ -60,7 +63,7 @@ struct ConversationListView: View {
         }
         .frame(width: 220)
         .frame(maxHeight: .infinity)
-        .background(Theme.surface)
+        .background(Theme.background)
         .overlay(alignment: .trailing) {
             Rectangle().fill(Theme.border).frame(width: 0.5)
         }
@@ -73,7 +76,7 @@ struct ConversationListView: View {
         modelContext.delete(conversation)
         try? modelContext.save()
     }
-    
+
     private func createNewConversation() {
         let new = Conversation()
         modelContext.insert(new)
