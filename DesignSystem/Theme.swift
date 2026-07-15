@@ -1,18 +1,16 @@
 import SwiftUI
 
 struct Theme {
-    static let background = Color(hex: "0A0A0C")
-    static let surface = Color(hex: "141416")
-    static let surfaceElevated = Color(hex: "1B1B1E")
-    static let border = Color(hex: "232326")
+    static let background = Color.black
+    static let fieldBackground = Color(hex: "141416")
 
-    static let accent = Color(hex: "2A2A2D")
-    static let accentBright = Color(hex: "E5E5E5")
+    static let border = Color.white.opacity(0.15)
+    static let borderStrong = Color.white.opacity(0.35)
 
-    static let textPrimary = Color(hex: "D8D5CE")
-    static let textSecondary = Color(hex: "B9B7B1")
-    static let textMuted = Color(hex: "7A7A7E")
-    static let textFaint = Color(hex: "5C5C60")
+    static let textPrimary = Color.white
+    static let textSecondary = Color.white.opacity(0.75)
+    static let textMuted = Color.white.opacity(0.45)
+    static let textFaint = Color.white.opacity(0.28)
 
     static let voiceFont = Font.system(.body, design: .serif)
     static let uiFont = Font.system(.body, design: .default)
