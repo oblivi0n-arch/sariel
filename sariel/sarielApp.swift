@@ -4,6 +4,7 @@ import SwiftData
 @main
 struct SarielApp: App {
     let container: ModelContainer
+    @StateObject private var connectionMonitor = ConnectionMonitor()
 
     init() {
         do {
@@ -16,6 +17,7 @@ struct SarielApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(connectionMonitor)
         }
         .modelContainer(container)
         .defaultSize(width: 700, height: 560)

@@ -1,10 +1,13 @@
 import SwiftUI
 
 struct SidebarView: View {
+    @EnvironmentObject var connectionMonitor: ConnectionMonitor
     @State private var selectedSection: AppSection = .chat
 
     var body: some View {
         VStack(spacing: 16) {
+            statusDot
+            
             ForEach(AppSection.allCases) { section in
                 sidebarIcon(for: section)
             }
@@ -20,6 +23,12 @@ struct SidebarView: View {
                 .fill(Theme.border)
                 .frame(width: 0.5)
         }
+    }
+    
+    private var statusDot: some View {
+        Circle()
+            .fill(connectionMonitor.isConnected ? Color.green : Color.red)
+            .frame(width: 8, height: 8)
     }
 
     private func sidebarIcon(for section: AppSection) -> some View {
@@ -41,4 +50,5 @@ struct SidebarView: View {
     SidebarView()
         .frame(height: 500)
         .background(Theme.background)
+        .environmentObject(ConnectionMonitor())
 }
