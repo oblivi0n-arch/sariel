@@ -5,15 +5,27 @@ struct ConversationListView: View {
     @Environment(\.modelContext) private var modelContext
     let conversations: [Conversation]
     @Binding var activeConversation: Conversation?
+    @Binding var isConversationListOpen: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("conversations")
-                .font(.system(size: 11))
-                .foregroundStyle(Theme.textMuted)
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-                .padding(.bottom, 8)
+            HStack {
+                Text("conversations")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.textMuted)
+
+                Spacer()
+
+                Button(action: createNewConversation) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+            .padding(.bottom, 8)
 
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 2) {
@@ -51,5 +63,13 @@ struct ConversationListView: View {
         }
         modelContext.delete(conversation)
         try? modelContext.save()
+    }
+    
+    private func createNewConversation() {
+        let new = Conversation()
+        modelContext.insert(new)
+        try? modelContext.save()
+        activeConversation = new
+        isConversationListOpen = false
     }
 }
