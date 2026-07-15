@@ -12,6 +12,11 @@ struct JournalEntryEditor: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            MoodPicker(selection: Binding(
+                get: { entry.entryMood },
+                set: { entry.entryMood = $0 }
+            ))
+
             TextField("Title", text: $entry.title)
                 .textFieldStyle(.plain)
                 .font(.system(size: 18, weight: .semibold))
@@ -21,21 +26,16 @@ struct JournalEntryEditor: View {
                     focusedField = .content
                 }
 
-            MoodPicker(selection: Binding(
-                get: { entry.entryMood },
-                set: { entry.entryMood = $0 }
-            ))
-            
             ZStack(alignment: .topLeading) {
                 if entry.content.isEmpty {
                     Text("Write freely...")
                         .font(Theme.uiFont)
                         .foregroundStyle(Theme.textFaint)
-                        .padding(.top, 8)
+                        .padding(.top, 1)
                         .padding(.leading, 5)
                         .allowsHitTesting(false)
                 }
-                
+
                 TextEditor(text: $entry.content)
                     .font(Theme.uiFont)
                     .foregroundStyle(Theme.textSecondary)
