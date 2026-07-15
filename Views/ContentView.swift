@@ -8,13 +8,17 @@ struct ContentView: View {
     @State private var activeConversation: Conversation?
 
     var body: some View {
-        Group {
-            if let conversation = activeConversation {
-                ChatView(conversation: conversation, modelContext: modelContext)
-            } else {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Theme.background)
+        HStack(spacing: 0) {
+            SidebarView()
+
+            Group {
+                if let conversation = activeConversation {
+                    ChatView(conversation: conversation, modelContext: modelContext)
+                } else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Theme.background)
+                }
             }
         }
         .onAppear(perform: setupConversation)
