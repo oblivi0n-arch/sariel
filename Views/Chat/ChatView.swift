@@ -30,12 +30,12 @@ struct ChatView: View {
                 .buttonStyle(.plain)
                 .opacity(isConversationListOpen ? 0 : 1)
                 .disabled(isConversationListOpen)
-                
+
                 Spacer()
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
-            
+
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 14) {
@@ -79,7 +79,7 @@ struct ChatView: View {
                 .foregroundStyle(Theme.textPrimary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 9)
-                .background(Theme.surface)
+                .background(Theme.fieldBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
                 .onSubmit(sendMessage)
@@ -87,7 +87,7 @@ struct ChatView: View {
             Button(action: sendMessage) {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 22))
-                    .foregroundStyle(draft.isEmpty ? Theme.textFaint : Theme.accentBright)
+                    .foregroundStyle(draft.isEmpty ? Theme.textFaint : Theme.textPrimary)
             }
             .buttonStyle(.plain)
             .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty || chatService.isGenerating)
