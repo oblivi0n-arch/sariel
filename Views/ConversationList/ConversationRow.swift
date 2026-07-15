@@ -35,13 +35,11 @@ struct ConversationRow: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(backgroundColor)
+        .background(isEditing ? Theme.fieldBackground : .clear)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay {
-            if isEditing {
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Theme.border, lineWidth: 1)
-            }
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(borderColor, lineWidth: isEditing ? 1 : 0.5)
         }
         .contentShape(Rectangle())
         .onTapGesture {
@@ -65,13 +63,13 @@ struct ConversationRow: View {
         }
     }
 
-    private var backgroundColor: Color {
+    private var borderColor: Color {
         if isEditing {
-            return Theme.accent
+            return Theme.borderStrong
         } else if isActive {
-            return Theme.surfaceElevated
+            return Theme.borderStrong
         } else if isHovering {
-            return Theme.surfaceElevated.opacity(0.5)
+            return Theme.border
         } else {
             return .clear
         }
