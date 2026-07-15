@@ -30,12 +30,21 @@ struct ConversationListView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 2) {
                     ForEach(conversations) { conversation in
+                        let isActive = conversation.id == activeConversation?.id
+                        
                         Text(conversation.title)
                             .font(Theme.uiFont)
-                            .foregroundStyle(Theme.textPrimary)
+                            .foregroundStyle(isActive ? Theme.textPrimary : Theme.textSecondary)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 10)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(isActive ? Theme.surfaceElevated : .clear)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                activeConversation = conversation
+                                isConversationListOpen = false
+                            }
                             .contextMenu {
                                 Button(role: .destructive) {
                                     delete(conversation)
