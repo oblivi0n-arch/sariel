@@ -47,6 +47,8 @@ struct JournalView: View {
 
             if let entry = activeEntry {
                 JournalEntryEditor(entry: entry)
+            } else if entries.isEmpty {
+                emptyState
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 2) {
@@ -76,6 +78,19 @@ struct JournalView: View {
     private func delete(_ entry: JournalEntry) {
         modelContext.delete(entry)
         try? modelContext.save()
+    }
+    
+    private var emptyState: some View {
+        VStack(spacing: 6) {
+            Text("No entries yet")
+                .font(Theme.uiFont)
+                .foregroundStyle(Theme.textMuted)
+
+            Text("Tap + to write your first one")
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.textFaint)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
