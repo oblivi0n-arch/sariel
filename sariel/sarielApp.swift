@@ -19,6 +19,7 @@ struct SarielApp: App {
             ContentView()
                 .environmentObject(connectionMonitor)
         }
+        .windowStyle(.hiddenTitleBar)
         .modelContainer(container)
         .defaultSize(width: 700, height: 560)
     }

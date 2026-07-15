@@ -46,7 +46,7 @@ struct ContentView: View {
             }
             .clipped()
         }
-        .background(Theme.background)
+        .background(Theme.background.ignoresSafeArea())
         .onAppear(perform: setupConversation)
         .onChange(of: activeConversation) {
             if activeConversation == nil {
