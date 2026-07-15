@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SidebarView: View {
     @EnvironmentObject var connectionMonitor: ConnectionMonitor
-    @State private var selectedSection: AppSection = .chat
+    @Binding var selectedSection: AppSection
 
     var body: some View {
         VStack(spacing: 16) {
@@ -52,11 +52,4 @@ struct SidebarView: View {
                 selectedSection = section
             }
     }
-}
-
-#Preview {
-    SidebarView()
-        .frame(height: 500)
-        .background(Theme.background)
-        .environmentObject(ConnectionMonitor())
 }

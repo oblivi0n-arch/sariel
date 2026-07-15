@@ -7,44 +7,53 @@ struct ContentView: View {
 
     @State private var activeConversation: Conversation?
     @State private var isConversationListOpen = false
+    @State private var selectedSection: AppSection = .chat
 
     var body: some View {
         HStack(spacing: 0) {
-            SidebarView()
+            SidebarView(selectedSection: $selectedSection)
 
-            ZStack(alignment: .leading) {
-                Group {
-                    if let conversation = activeConversation {
-                        ChatView(
-                            conversation: conversation,
-                            modelContext: modelContext,
-                            isConversationListOpen: $isConversationListOpen
-                        )
-                    } else {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Theme.background)
-                    }
-                }
-
-                if isConversationListOpen {
-                    Color.black.opacity(0.25)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                isConversationListOpen = false
+            Group {
+                switch selectedSection {
+                case .chat:
+                    ZStack(alignment: .leading) {
+                        Group {
+                            if let conversation = activeConversation {
+                                ChatView(
+                                    conversation: conversation,
+                                    modelContext: modelContext,
+                                    isConversationListOpen: $isConversationListOpen
+                                )
+                            } else {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .background(Theme.background)
                             }
                         }
 
-                    ConversationListView(
-                        conversations: conversations,
-                        activeConversation: $activeConversation,
-                        isConversationListOpen: $isConversationListOpen
-                    )
-                        .transition(.move(edge: .leading))
+                        if isConversationListOpen {
+                            Color.black.opacity(0.25)
+                                .ignoresSafeArea()
+                                .onTapGesture {
+                                    withAnimation(.easeInOut(duration: 0.25)) {
+                                        isConversationListOpen = false
+                                    }
+                                }
+
+                            ConversationListView(
+                                conversations: conversations,
+                                activeConversation: $activeConversation,
+                                isConversationListOpen: $isConversationListOpen
+                            )
+                                .transition(.move(edge: .leading))
+                        }
+                    }
+                    .clipped()
+
+                case .journal:
+                    JournalView()
                 }
             }
-            .clipped()
         }
         .background(Theme.background.ignoresSafeArea())
         .onAppear(perform: setupConversation)
