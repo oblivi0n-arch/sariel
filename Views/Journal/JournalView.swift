@@ -5,19 +5,25 @@ struct JournalView: View {
     @State private var isPlusHovering = false
     @Environment(\.modelContext) private var modelContext
     @State private var activeEntry: JournalEntry?
+    @Query(sort: \JournalEntry.createdAt, order: .reverse) private var entries: [JournalEntry]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
+                if activeEntry != nil {
+                    Button(action: { activeEntry = nil }) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(Theme.textMuted)
+                    }
+                    .buttonStyle(.plain)
+                }
+
                 Text("journal")
                     .font(.system(size: 11))
                     .foregroundStyle(Theme.textMuted)
 
-                if let entry = activeEntry {
-                                JournalEntryEditor(entry: entry)
-                            } else {
-                                Spacer()
-                            }
+                Spacer()
 
                 Button(action: createNewEntry) {
                     Image(systemName: "plus")
@@ -39,7 +45,20 @@ struct JournalView: View {
             .padding(.top, 16)
             .padding(.bottom, 8)
 
-            Spacer()
+            if let entry = activeEntry {
+                JournalEntryEditor(entry: entry)
+            } else {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 2) {
+                        ForEach(entries) { entry in
+                            JournalEntryRow(entry: entry) {
+                                activeEntry = entry
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 8)
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.background)
