@@ -29,6 +29,7 @@ struct ContentView: View {
                                         selectedSection = .journal
                                     }
                                 )
+                                .id(conversation.id)
                             } else {
                                 ProgressView()
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
