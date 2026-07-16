@@ -77,9 +77,10 @@ final class ChatService: ObservableObject {
         }
     }
     
-    func endConversation(for conversation: Conversation) async {
+    func endConversation(for conversation: Conversation) async -> JournalEntry? {
         isEndingConversation = true
         lastError = nil
+        defer { isEndingConversation = false }
 
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
@@ -97,10 +98,12 @@ final class ChatService: ObservableObject {
             conversation.journalEntry = entry
             modelContext.insert(entry)
             try? modelContext.save()
+            
+            return entry
         } catch {
             lastError = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
+            
+            return nil
         }
-
-        isEndingConversation = false
     }
 }

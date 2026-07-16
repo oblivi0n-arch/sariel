@@ -4,7 +4,7 @@ import SwiftData
 struct JournalView: View {
     @State private var isPlusHovering = false
     @Environment(\.modelContext) private var modelContext
-    @State private var activeEntry: JournalEntry?
+    @Binding var activeEntry: JournalEntry?
     @State private var isEditingEntry = false
     @Query(sort: \JournalEntry.createdAt, order: .reverse) private var entries: [JournalEntry]
 

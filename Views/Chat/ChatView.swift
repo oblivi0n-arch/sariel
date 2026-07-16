@@ -10,11 +10,13 @@ struct ChatView: View {
     @State private var draft: String = ""
     @State private var isHoveringEndButton = false
     private var isEnded: Bool { conversation.journalEntry != nil }
+    var onJournalEntryCreated: (JournalEntry) -> Void
 
-    init(conversation: Conversation, modelContext: ModelContext, isConversationListOpen: Binding<Bool>) {
+    init(conversation: Conversation, modelContext: ModelContext, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void) {
         self.conversation = conversation
         self._isConversationListOpen = isConversationListOpen
         _chatService = StateObject(wrappedValue: ChatService(modelContext: modelContext))
+        self.onJournalEntryCreated = onJournalEntryCreated
     }
 
     private var sortedMessages: [ChatMessage] {
@@ -159,6 +161,10 @@ struct ChatView: View {
     }
     
     private func endConversation() {
-        Task { await chatService.endConversation(for: conversation) }
+        Task {
+            if let entry = await chatService.endConversation(for: conversation) {
+                onJournalEntryCreated(entry)
+            }
+        }
     }
 }
