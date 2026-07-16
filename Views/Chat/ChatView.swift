@@ -34,20 +34,25 @@ struct ChatView: View {
 
                 Spacer()
                 
-                Button(action: { endConversation() }) {
-                    Text("end conversation")
+                if chatService.isEndingConversation {
+                    EndConversationLoadingBar()
+                        .frame(width: 100)
+                } else {
+                    Button(action: { endConversation() }) {
+                        Text("end conversation")
+                    }
+                    .padding(10)
+                    .buttonStyle(.plain)
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.textMuted)
+                    .contentShape(Rectangle())
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(isHoveringEndButton ? Theme.border : .clear, lineWidth: 0.5)
+                    )
+                    .onHover { hovering in isHoveringEndButton = hovering }
+                    .disabled(chatService.isEndingConversation == true || chatService.isGenerating || conversation.messages.isEmpty)
                 }
-                .padding(10)
-                .buttonStyle(.plain)
-                .font(.system(size: 11))
-                .foregroundStyle(Theme.textMuted)
-                .contentShape(Rectangle())
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(isHoveringEndButton ? Theme.border : .clear, lineWidth: 0.5)
-                )
-                .onHover { hovering in isHoveringEndButton = hovering }
-                .disabled(chatService.isEndingConversation == true || chatService.isGenerating || conversation.messages.isEmpty)
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
