@@ -9,6 +9,7 @@ struct ChatView: View {
     @StateObject private var chatService: ChatService
     @State private var draft: String = ""
     @State private var isHoveringEndButton = false
+    private var isEnded: Bool { conversation.journalEntry != nil }
 
     init(conversation: Conversation, modelContext: ModelContext, isConversationListOpen: Binding<Bool>) {
         self.conversation = conversation
@@ -33,8 +34,15 @@ struct ChatView: View {
                 .disabled(isConversationListOpen)
 
                 Spacer()
-                
-                if chatService.isEndingConversation {
+                if isEnded {
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.circle")
+                            .font(.system(size: 11))
+                        Text("saved to journal")
+                            .font(.system(size: 11))
+                    }
+                    .foregroundStyle(Theme.textMuted)
+                } else if chatService.isEndingConversation {
                     EndConversationLoadingBar()
                         .frame(width: 100)
                 } else {
@@ -51,7 +59,7 @@ struct ChatView: View {
                             .stroke(isHoveringEndButton ? Theme.border : .clear, lineWidth: 0.5)
                     )
                     .onHover { hovering in isHoveringEndButton = hovering }
-                    .disabled(chatService.isEndingConversation == true || chatService.isGenerating || conversation.messages.isEmpty)
+                    .disabled(chatService.isGenerating || conversation.messages.isEmpty)
                 }
             }
             .padding(.horizontal, 16)
@@ -77,8 +85,12 @@ struct ChatView: View {
                     scrollToBottom(proxy, animated: false)
                 }
             }
-
-            inputBar
+            
+            if isEnded {
+                endedFooter
+            } else {
+                inputBar
+            }
         }
         .background(Theme.background)
     }
@@ -113,6 +125,18 @@ struct ChatView: View {
             .buttonStyle(.plain)
             .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty || chatService.isGenerating)
         }
+        .padding(16)
+    }
+    
+    private var endedFooter: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "bubble.circle.fill")
+                .font(.system(size: 14))
+            Text("This conversation has ended.")
+                .font(Theme.uiFont)
+        }
+        .foregroundStyle(Theme.textFaint)
+        .frame(maxWidth: .infinity)
         .padding(16)
     }
 

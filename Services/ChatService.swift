@@ -94,6 +94,7 @@ final class ChatService: ObservableObject {
                 content: content.trimmingCharacters(in: .whitespacesAndNewlines)
             )
             entry.sourceConversation = conversation
+            conversation.journalEntry = entry
             modelContext.insert(entry)
             try? modelContext.save()
         } catch {
