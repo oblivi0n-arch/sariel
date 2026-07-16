@@ -98,6 +98,7 @@ final class ChatService: ObservableObject {
             entry.sourceConversation = conversation
             conversation.journalEntry = entry
             modelContext.insert(entry)
+            entry.tags.append(generatedTag(modelContext: modelContext))
             try? modelContext.save()
             
             return entry
@@ -105,5 +106,18 @@ final class ChatService: ObservableObject {
             endConversationErrors[conversation.id] = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
                     return nil
         }
+    }
+    
+    private func generatedTag(modelContext: ModelContext) -> JournalEntryTag {
+        let descriptor = FetchDescriptor<JournalEntryTag>(
+            predicate: #Predicate { $0.name == "generated" }
+        )
+        if let existing = try? modelContext.fetch(descriptor).first {
+            return existing
+        }
+        let tag = JournalEntryTag(name: "generated")
+        modelContext.insert(tag)
+        return tag
+
     }
 }
