@@ -22,7 +22,7 @@ struct JournalEntryEditor: View {
 
             TextField("Title", text: $entry.title)
                 .textFieldStyle(.plain)
-                .font(.system(size: 18, weight: .semibold))
+                .font(Typography.title)
                 .foregroundStyle(Theme.textPrimary)
                 .focused($focusedField, equals: .title)
                 .onSubmit {
@@ -58,7 +58,7 @@ struct JournalEntryEditor: View {
                                 }
                                 .buttonStyle(.plain)
                             }
-                            .font(.system(size: 11))
+                            .font(Typography.caption)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(Theme.fieldBackground)
@@ -70,7 +70,7 @@ struct JournalEntryEditor: View {
 
                 TextField("Add tag", text: $newTagText)
                     .textFieldStyle(.plain)
-                    .font(.system(size: 12))
+                    .font(Typography.label)
                     .onSubmit(addTag)
             }
         }
@@ -108,7 +108,7 @@ struct MoodPicker: View {
         HStack(spacing: 8) {
             ForEach(Mood.allCases, id: \.self) { mood in
                 Image(systemName: mood.symbolName)
-                    .font(.system(size: 16, weight: .medium))
+                    .font(Typography.icon)
                     .foregroundStyle(selection == mood ? Theme.textPrimary : Theme.textFaint)
                     .frame(width: 32, height: 32)
                     .background(selection == mood ? Theme.fieldBackground : .clear)

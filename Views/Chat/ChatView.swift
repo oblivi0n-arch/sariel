@@ -45,9 +45,9 @@ struct ChatView: View {
                 if isEnded {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark.circle")
-                            .font(.system(size: 11))
+                            .font(Typography.caption)
                         Text("saved to journal")
-                            .font(.system(size: 11))
+                            .font(Typography.caption)
                     }
                     .foregroundStyle(Theme.textMuted)
                 } else if isEndingConversation {
@@ -57,9 +57,9 @@ struct ChatView: View {
                     Button(action: { endConversation() }) {
                         HStack(spacing: 6) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 12))
+                                .font(Typography.label)
                             Text("something went wrong – tap to retry")
-                                .font(.system(size: 11))
+                                .font(Typography.caption)
                         }
                     }
                     .buttonStyle(.plain)

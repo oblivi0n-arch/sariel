@@ -9,7 +9,7 @@ struct MessageBubble: View {
     var body: some View {
         VStack(alignment: isGuide ? .leading : .trailing, spacing: 4) {
             Text(isError ? "error" : (isGuide ? "sariel" : "you"))
-                .font(.system(size: 11))
+                .font(Typography.caption)
                 .foregroundStyle(isError ? Theme.textPrimary : Theme.textMuted)
 
             if isError {
@@ -36,7 +36,7 @@ struct MessageBubble: View {
     private var errorBubble: some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 12))
+                .font(Typography.label)
                 .foregroundStyle(Theme.textPrimary)
 
             Text(message.content.replacingOccurrences(of: "⚠️ ", with: ""))

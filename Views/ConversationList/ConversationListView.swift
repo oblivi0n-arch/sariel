@@ -12,14 +12,14 @@ struct ConversationListView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("conversations")
-                    .font(.system(size: 11))
+                    .font(Typography.caption)
                     .foregroundStyle(Theme.textMuted)
 
                 Spacer()
 
                 Button(action: createNewConversation) {
                     Image(systemName: "plus")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(Typography.iconButton)
                         .foregroundStyle(Theme.textMuted)
                         .frame(width: 24, height: 24)
                         .clipShape(RoundedRectangle(cornerRadius: 6))

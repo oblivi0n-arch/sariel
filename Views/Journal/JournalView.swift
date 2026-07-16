@@ -26,14 +26,14 @@ struct JournalView: View {
                 if activeEntry != nil {
                     Button(action: goBack) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(Typography.iconButton)
                             .foregroundStyle(Theme.textMuted)
                     }
                     .buttonStyle(.plain)
                 }
 
                 Text("journal")
-                    .font(.system(size: 11))
+                    .font(Typography.caption)
                     .foregroundStyle(Theme.textMuted)
                 
                 if activeEntry == nil {
@@ -52,7 +52,7 @@ struct JournalView: View {
                 if activeEntry == nil {
                     Button(action: createNewEntry) {
                         Image(systemName: "plus")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(Typography.iconButton)
                             .foregroundStyle(Theme.textMuted)
                             .frame(width: 24, height: 24)
                             .clipShape(RoundedRectangle(cornerRadius: 6))
@@ -117,7 +117,7 @@ struct JournalView: View {
                 .foregroundStyle(Theme.textMuted)
 
             Text("Tap + to write your first one")
-                .font(.system(size: 12))
+                .font(Typography.label)
                 .foregroundStyle(Theme.textFaint)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

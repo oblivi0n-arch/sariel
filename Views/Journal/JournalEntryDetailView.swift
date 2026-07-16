@@ -22,17 +22,17 @@ struct JournalEntryReader: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Image(systemName: entry.entryMood.symbolName)
-                .font(.system(size: 16, weight: .medium))
+                .font(Typography.icon)
                 .foregroundStyle(Theme.textFaint)
 
             HStack(spacing: 8) {
                 Text(entry.title)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(Typography.title)
                     .foregroundStyle(Theme.textPrimary)
 
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(Typography.iconButton)
                         .foregroundStyle(Theme.textMuted)
                 }
                 .buttonStyle(.plain)

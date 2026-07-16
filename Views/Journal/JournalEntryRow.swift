@@ -10,7 +10,7 @@ struct JournalEntryRow: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             Image(systemName: entry.entryMood.symbolName)
-                .font(.system(size: 13))
+                .font(Typography.iconSmall)
                 .foregroundStyle(Theme.textFaint)
 
             Text(entry.title)
@@ -19,7 +19,7 @@ struct JournalEntryRow: View {
             
             if !entry.tags.isEmpty {
                 Text(entry.tags.map { "#\($0.name)" }.joined(separator: " "))
-                    .font(.system(size: 10))
+                    .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)
                     .lineLimit(1)
             }
@@ -27,7 +27,7 @@ struct JournalEntryRow: View {
             Spacer()
 
             Text(entry.createdAt, style: .date)
-                .font(.system(size: 11))
+                .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
         }
         .padding(.horizontal, 16)
