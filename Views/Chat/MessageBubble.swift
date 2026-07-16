@@ -4,11 +4,15 @@ struct MessageBubble: View {
     let message: ChatMessage
     var showActions: Bool = false
     var onDelete: (() -> Void)? = nil
+    var isEditing: Bool = false
+    var onStartEdit: (() -> Void)? = nil
+    var onSaveEdit: ((String) -> Void)? = nil
+    var onCancelEdit: (() -> Void)? = nil
     var showRewind: Bool = false
     var onRewind: (() -> Void)? = nil
-    var onEdit: (() -> Void)? = nil
-    
+
     @State private var isHovering = false
+    @State private var editedText: String = ""
 
     private var isGuide: Bool { message.messageRole == .guide }
     private var isError: Bool { isGuide && message.content.hasPrefix("⚠️") }
@@ -19,7 +23,9 @@ struct MessageBubble: View {
                 .font(Typography.caption)
                 .foregroundStyle(isError ? Theme.textPrimary : Theme.textMuted)
 
-            if isError {
+            if isEditing {
+                editingBubble
+            } else if isError {
                 errorBubble
             } else {
                 Text(message.content.isEmpty ? "…" : message.content)
@@ -40,38 +46,66 @@ struct MessageBubble: View {
         .frame(maxWidth: .infinity, alignment: isGuide ? .leading : .trailing)
         .padding(.bottom, isGuide ? 0 : 22)
         .overlay(alignment: isGuide ? .bottomLeading : .bottomTrailing) {
-            if showActions, isHovering {
-                HStack(spacing: 10) {
-                    if let onEdit {
-                        Button(action: onEdit) {
+            if !isEditing, isHovering {
+                if showActions {
+                    HStack(spacing: 10) {
+                        Button(action: { onStartEdit?() }) {
                             Image(systemName: "pencil")
                                 .font(.system(size: 11))
                                 .foregroundStyle(Theme.textMuted)
                         }
                         .buttonStyle(.plain)
-                    }
-                    if let onDelete {
-                        Button(action: onDelete) {
-                            Image(systemName: "trash")
-                                .font(.system(size: 11))
-                                .foregroundStyle(Theme.textMuted)
+
+                        if let onDelete {
+                            Button(action: onDelete) {
+                                Image(systemName: "trash")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(Theme.textMuted)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
+                    .padding(6)
+                } else if showRewind, let onRewind {
+                    Button(action: onRewind) {
+                        Image(systemName: "arrow.uturn.backward")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textMuted)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(6)
                 }
-                .padding(6)
-            } else if showRewind, isHovering, let onRewind {
-                Button(action: onRewind) {
-                    Image(systemName: "arrow.uturn.backward")
-                        .font(.system(size: 11))
-                        .foregroundStyle(Theme.textMuted)
-                }
-                .buttonStyle(.plain)
-                .padding(6)
             }
         }
         .contentShape(Rectangle())
         .onHover { hovering in isHovering = hovering }
+        .onChange(of: isEditing) { _, editing in
+            if editing { editedText = message.content }
+        }
+    }
+
+    private var editingBubble: some View {
+        VStack(alignment: .trailing, spacing: 6) {
+            TextField("", text: $editedText, axis: .vertical)
+                .textFieldStyle(.plain)
+                .font(Theme.uiFont)
+                .foregroundStyle(Theme.textSecondary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(Theme.fieldBackground)
+                .clipShape(bubbleShape)
+                .overlay(bubbleShape.stroke(Theme.borderStrong, lineWidth: 0.5))
+
+            HStack(spacing: 12) {
+                Button("cancel") { onCancelEdit?() }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Theme.textMuted)
+                Button("save") { onSaveEdit?(editedText) }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Theme.textPrimary)
+            }
+            .font(Typography.caption)
+        }
     }
 
     private var errorBubble: some View {

@@ -10,6 +10,7 @@ struct ChatView: View {
     @State private var draft: String = ""
     @FocusState private var isInputFocused: Bool
     @State private var isHoveringEndButton = false
+    @State private var editingMessageID: UUID?
     private var isEnded: Bool { conversation.journalEntry != nil }
     private var successfulExchangeCount: Int {
         conversation.messages.filter { $0.messageRole == .guide && !$0.content.hasPrefix("⚠️") }.count
@@ -21,6 +22,7 @@ struct ChatView: View {
     private var lastUserMessage: ChatMessage? {
         sortedMessages.last(where: { $0.messageRole == .user })
     }
+    
     var onJournalEntryCreated: (JournalEntry) -> Void
 
     init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void) {
@@ -102,11 +104,14 @@ struct ChatView: View {
                             let isLastUser = message.id == lastUserMessage?.id
                             MessageBubble(
                                 message: message,
-                                showActions: message.id == lastUserMessage?.id && !isGenerating && !isEndingConversation,
+                                showActions: isLastUser && !isGenerating && !isEndingConversation,
                                 onDelete: { deleteLastExchange() },
+                                isEditing: editingMessageID == message.id,
+                                onStartEdit: { editingMessageID = message.id },
+                                onSaveEdit: { newText in saveEdit(for: message, newText: newText) },
+                                onCancelEdit: { editingMessageID = nil },
                                 showRewind: message.messageRole == .user && !isLastUser && !isGenerating && !isEndingConversation,
-                                onRewind: { rewind(to: message) },
-                                onEdit: { editLastMessage() }
+                                onRewind: { rewind(to: message) }
                             )
                             .id(message.id)
                         }
@@ -227,11 +232,11 @@ struct ChatView: View {
         chatService.deleteMessages(after: cutoffMessage, in: conversation, modelContext: modelContext)
     }
     
-    private func editLastMessage() {
-        guard let last = lastUserMessage else { return }
-        let text = last.content
-        chatService.deleteMessages(from: last, in: conversation, modelContext: modelContext)
-        draft = text
-        isInputFocused = true
+    private func saveEdit(for message: ChatMessage, newText: String) {
+        let trimmed = newText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        editingMessageID = nil
+        chatService.deleteMessages(from: message, in: conversation, modelContext: modelContext)
+        Task { await chatService.send(text: trimmed, in: conversation, modelContext: modelContext) }
     }
 }
