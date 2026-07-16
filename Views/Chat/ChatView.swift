@@ -18,6 +18,9 @@ struct ChatView: View {
     private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
     private var isInputLocked: Bool { isGenerating || isEndingConversation }
     private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
+    private var lastUserMessage: ChatMessage? {
+        sortedMessages.last(where: { $0.messageRole == .user })
+    }
     var onJournalEntryCreated: (JournalEntry) -> Void
 
     init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void) {
@@ -96,8 +99,12 @@ struct ChatView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 14) {
                         ForEach(sortedMessages) { message in
-                            MessageBubble(message: message)
-                                .id(message.id)
+                            MessageBubble(
+                                message: message,
+                                showActions: message.id == lastUserMessage?.id && !isGenerating && !isEndingConversation,
+                                onDelete: { deleteLastExchange() }
+                            )
+                            .id(message.id)
                         }
                     }
                     .padding(20)
@@ -196,4 +203,10 @@ struct ChatView: View {
             }
         }
     }
+    
+    private func deleteLastExchange() {
+        guard let last = lastUserMessage else { return }
+        chatService.deleteMessages(from: last, in: conversation, modelContext: modelContext)
+    }
+
 }

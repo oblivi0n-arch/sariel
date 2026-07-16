@@ -2,6 +2,10 @@ import SwiftUI
 
 struct MessageBubble: View {
     let message: ChatMessage
+    var showActions: Bool = false
+    var onDelete: (() -> Void)? = nil
+    
+    @State private var isHovering = false
 
     private var isGuide: Bool { message.messageRole == .guide }
     private var isError: Bool { isGuide && message.content.hasPrefix("⚠️") }
@@ -31,6 +35,20 @@ struct MessageBubble: View {
         }
         .frame(maxWidth: 420, alignment: isGuide ? .leading : .trailing)
         .frame(maxWidth: .infinity, alignment: isGuide ? .leading : .trailing)
+        .padding(.bottom, showActions ? 22 : 0)
+        .overlay(alignment: isGuide ? .bottomLeading : .bottomTrailing) {
+            if showActions, isHovering, let onDelete {
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
+                .padding(6)
+            }
+        }
+        .contentShape(Rectangle())
+        .onHover { hovering in isHovering = hovering }
     }
 
     private var errorBubble: some View {

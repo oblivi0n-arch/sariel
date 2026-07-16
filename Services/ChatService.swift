@@ -120,4 +120,15 @@ final class ChatService: ObservableObject {
         return tag
 
     }
+    
+    func deleteMessages(from message: ChatMessage, in conversation: Conversation, modelContext: ModelContext) {
+        let cutoff = message.timestamp
+        let toRemove = conversation.messages.filter { $0.timestamp >= cutoff }
+
+        for msg in toRemove {
+            conversation.messages.removeAll { $0.id == msg.id }
+            modelContext.delete(msg)
+        }
+        try? modelContext.save()
+    }
 }
