@@ -6,6 +6,7 @@ struct MessageBubble: View {
     var onDelete: (() -> Void)? = nil
     var showRewind: Bool = false
     var onRewind: (() -> Void)? = nil
+    var onEdit: (() -> Void)? = nil
     
     @State private var isHovering = false
 
@@ -39,24 +40,34 @@ struct MessageBubble: View {
         .frame(maxWidth: .infinity, alignment: isGuide ? .leading : .trailing)
         .padding(.bottom, isGuide ? 0 : 22)
         .overlay(alignment: isGuide ? .bottomLeading : .bottomTrailing) {
-            if isHovering {
-                if showActions, let onDelete {
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 11))
-                            .foregroundStyle(Theme.textMuted)
+            if showActions, isHovering {
+                HStack(spacing: 10) {
+                    if let onEdit {
+                        Button(action: onEdit) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 11))
+                                .foregroundStyle(Theme.textMuted)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
-                    .padding(6)
-                } else if showRewind, let onRewind {
-                    Button(action: onRewind) {
-                        Image(systemName: "arrow.uturn.backward")
-                            .font(.system(size: 11))
-                            .foregroundStyle(Theme.textMuted)
+                    if let onDelete {
+                        Button(action: onDelete) {
+                            Image(systemName: "trash")
+                                .font(.system(size: 11))
+                                .foregroundStyle(Theme.textMuted)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
-                    .padding(6)
                 }
+                .padding(6)
+            } else if showRewind, isHovering, let onRewind {
+                Button(action: onRewind) {
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
+                .padding(6)
             }
         }
         .contentShape(Rectangle())

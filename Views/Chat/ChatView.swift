@@ -105,7 +105,8 @@ struct ChatView: View {
                                 showActions: message.id == lastUserMessage?.id && !isGenerating && !isEndingConversation,
                                 onDelete: { deleteLastExchange() },
                                 showRewind: message.messageRole == .user && !isLastUser && !isGenerating && !isEndingConversation,
-                                onRewind: { rewind(to: message) }
+                                onRewind: { rewind(to: message) },
+                                onEdit: { editLastMessage() }
                             )
                             .id(message.id)
                         }
@@ -224,5 +225,13 @@ struct ChatView: View {
         guard message.messageRole == .user else { return }
         let cutoffMessage = replyMessage(for: message) ?? message
         chatService.deleteMessages(after: cutoffMessage, in: conversation, modelContext: modelContext)
+    }
+    
+    private func editLastMessage() {
+        guard let last = lastUserMessage else { return }
+        let text = last.content
+        chatService.deleteMessages(from: last, in: conversation, modelContext: modelContext)
+        draft = text
+        isInputFocused = true
     }
 }
