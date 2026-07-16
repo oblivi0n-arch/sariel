@@ -5,6 +5,7 @@ import SwiftData
 @MainActor
 final class ChatService: ObservableObject {
     @Published var isGenerating = false
+    @Published var isEndingConversation = false
     @Published var lastError: String?
 
     private let client: OllamaClient
@@ -74,5 +75,31 @@ final class ChatService: ObservableObject {
         } catch {
             
         }
+    }
+    
+    func endConversation(for conversation: Conversation) async {
+        isEndingConversation = true
+        lastError = nil
+
+        let history = conversation.messages
+            .sorted { $0.timestamp < $1.timestamp }
+            .filter { !$0.content.isEmpty }
+
+        do {
+            let content = try await client.complete(messages: PromptBuilder.buildJournalMessages(history: history))
+            let title = try await client.complete(messages: PromptBuilder.buildJournalTitleMessages(entryContent: content))
+
+            let entry = JournalEntry(
+                title: title.trimmingCharacters(in: .whitespacesAndNewlines),
+                content: content.trimmingCharacters(in: .whitespacesAndNewlines)
+            )
+            entry.sourceConversation = conversation
+            modelContext.insert(entry)
+            try? modelContext.save()
+        } catch {
+            lastError = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
+        }
+
+        isEndingConversation = false
     }
 }
