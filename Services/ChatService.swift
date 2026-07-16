@@ -84,7 +84,7 @@ final class ChatService: ObservableObject {
 
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
-            .filter { !$0.content.isEmpty }
+            .filter { !$0.content.isEmpty && !$0.content.hasPrefix("⚠️") }
         
         do {
             let content = try await client.complete(messages: PromptBuilder.buildJournalMessages(history: history))
