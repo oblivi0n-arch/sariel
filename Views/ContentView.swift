@@ -58,7 +58,7 @@ struct ContentView: View {
                     .clipped()
 
                 case .journal:
-                    JournalView(activeEntry: $activeEntry)
+                    JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation)
                 }
             }
         }
@@ -82,5 +82,10 @@ struct ContentView: View {
             try? modelContext.save()
             activeConversation = new
         }
+    }
+    
+    private func openConversation(_ conversation: Conversation) {
+        activeConversation = conversation
+        selectedSection = .chat
     }
 }

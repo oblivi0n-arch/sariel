@@ -7,6 +7,8 @@ struct JournalView: View {
     @Binding var activeEntry: JournalEntry?
     @State private var isEditingEntry = false
     @Query(sort: \JournalEntry.createdAt, order: .reverse) private var entries: [JournalEntry]
+    
+    let onOpenConversation: (Conversation) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -49,7 +51,7 @@ struct JournalView: View {
             .padding(.bottom, 8)
 
             if let entry = activeEntry {
-                JournalEntryDetailView(entry: entry, isEditing: $isEditingEntry)
+                JournalEntryDetailView(entry: entry, isEditing: $isEditingEntry, onOpenConversation: onOpenConversation)
             } else if entries.isEmpty {
                 emptyState
             } else {

@@ -3,12 +3,13 @@ import SwiftUI
 struct JournalEntryDetailView: View {
     @Bindable var entry: JournalEntry
     @Binding var isEditing: Bool
+    let onOpenConversation: (Conversation) -> Void
 
     var body: some View {
         if isEditing {
             JournalEntryEditor(entry: entry)
         } else {
-            JournalEntryReader(entry: entry, onEdit: { isEditing = true })
+            JournalEntryReader(entry: entry, onEdit: { isEditing = true }, onOpenConversation: onOpenConversation)
         }
     }
 }
@@ -16,6 +17,7 @@ struct JournalEntryDetailView: View {
 struct JournalEntryReader: View {
     let entry: JournalEntry
     let onEdit: () -> Void
+    let onOpenConversation: (Conversation) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -39,6 +41,18 @@ struct JournalEntryReader: View {
             Text(entry.content)
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textSecondary)
+
+            if let conversation = entry.sourceConversation {
+                Button(action: { onOpenConversation(conversation) }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.up.right")
+                        Text("View conversation")
+                    }
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
+            }
         }
         .padding(16)
     }
