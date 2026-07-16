@@ -10,6 +10,9 @@ struct ChatView: View {
     @State private var draft: String = ""
     @State private var isHoveringEndButton = false
     private var isEnded: Bool { conversation.journalEntry != nil }
+    private var userMessageCount: Int {
+        conversation.messages.filter { $0.messageRole == .user }.count
+    }
     var onJournalEntryCreated: (JournalEntry) -> Void
 
     init(conversation: Conversation, modelContext: ModelContext, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void) {
@@ -60,8 +63,12 @@ struct ChatView: View {
                     .foregroundStyle(Theme.textPrimary)
                     .help(error)
                 } else {
-                    Button(action: { endConversation() }) {
-                        Text("end conversation")
+                    Button(action: {
+                        guard !chatService.isGenerating && userMessageCount >= 2 else { return }
+                        endConversation()
+                    }) {
+                            Text("end conversation")
+                        
                     }
                     .padding(10)
                     .buttonStyle(.plain)
@@ -73,7 +80,8 @@ struct ChatView: View {
                             .stroke(isHoveringEndButton ? Theme.border : .clear, lineWidth: 0.5)
                     )
                     .onHover { hovering in isHoveringEndButton = hovering }
-                    .disabled(chatService.isGenerating || conversation.messages.isEmpty)
+                    .opacity(userMessageCount < 2 ? 0.4 : 1)
+                    .help(userMessageCount < 2 ? "conversation is too short to save" : "")
                 }
             }
             .padding(.horizontal, 16)
