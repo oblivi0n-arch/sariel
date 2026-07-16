@@ -10,6 +10,8 @@ struct MessageBubble: View {
     var onCancelEdit: (() -> Void)? = nil
     var showRewind: Bool = false
     var onRewind: (() -> Void)? = nil
+    var showRetry: Bool = false
+    var onRetry: (() -> Void)? = nil
 
     @State private var isHovering = false
     @State private var editedText: String = ""
@@ -45,7 +47,7 @@ struct MessageBubble: View {
         }
         .frame(maxWidth: 420, alignment: isGuide ? .leading : .trailing)
         .frame(maxWidth: .infinity, alignment: isGuide ? .leading : .trailing)
-        .padding(.bottom, isGuide ? 0 : 22)
+        .padding(.bottom, 22)
         .overlay(alignment: isGuide ? .bottomLeading : .bottomTrailing) {
             if !isEditing, isHovering {
                 if showActions {
@@ -56,7 +58,16 @@ struct MessageBubble: View {
                                 .foregroundStyle(Theme.textMuted)
                         }
                         .buttonStyle(.plain)
-
+                        
+                        if let onRetry {
+                            Button(action: onRetry) {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(Theme.textMuted)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        
                         if let onDelete {
                             Button(action: onDelete) {
                                 Image(systemName: "trash")
@@ -66,14 +77,6 @@ struct MessageBubble: View {
                             .buttonStyle(.plain)
                         }
                     }
-                    .padding(6)
-                } else if showRewind, let onRewind {
-                    Button(action: onRewind) {
-                        Image(systemName: "arrow.uturn.backward")
-                            .font(.system(size: 11))
-                            .foregroundStyle(Theme.textMuted)
-                    }
-                    .buttonStyle(.plain)
                     .padding(6)
                 }
             }

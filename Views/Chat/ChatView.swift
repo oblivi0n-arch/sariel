@@ -22,6 +22,9 @@ struct ChatView: View {
     private var lastUserMessage: ChatMessage? {
         sortedMessages.last(where: { $0.messageRole == .user })
     }
+    private var lastGuideMessage: ChatMessage? {
+        sortedMessages.last(where: { $0.messageRole == .guide })
+    }
     
     var onJournalEntryCreated: (JournalEntry) -> Void
 
@@ -111,7 +114,8 @@ struct ChatView: View {
                                 onSaveEdit: { newText in saveEdit(for: message, newText: newText) },
                                 onCancelEdit: { editingMessageID = nil },
                                 showRewind: message.messageRole == .user && !isLastUser && !isGenerating && !isEndingConversation,
-                                onRewind: { rewind(to: message) }
+                                onRewind: { rewind(to: message) },
+                                onRetry: { retryLastResponse() }
                             )
                             .id(message.id)
                         }
@@ -238,5 +242,9 @@ struct ChatView: View {
         editingMessageID = nil
         chatService.deleteMessages(from: message, in: conversation, modelContext: modelContext)
         Task { await chatService.send(text: trimmed, in: conversation, modelContext: modelContext) }
+    }
+    
+    private func retryLastResponse() {
+        Task { await chatService.retryLastResponse(for: conversation, modelContext: modelContext) }
     }
 }

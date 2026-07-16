@@ -35,35 +35,19 @@ final class ChatService: ObservableObject {
 
         generatingConversationIDs.insert(conversation.id)
         lastErrors[conversation.id] = nil
-        
-        
 
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
             .filter { !$0.content.isEmpty }
 
-        let messages = PromptBuilder.buildMessages(history: Array(history))
+        await streamGuideResponse(into: guideMessage, history: Array(history), conversation: conversation, modelContext: modelContext)
 
-        do {
-            for try await chunk in client.streamChat(messages: messages) {
-                guideMessage.content += chunk
-            }
-        } catch {
-            let message = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
-            lastErrors[conversation.id] = message
-            if guideMessage.content.isEmpty {
-                guideMessage.content = "⚠️ \(message)"
-            }
-        }
-
-        try? modelContext.save()
         generatingConversationIDs.remove(conversation.id)
 
         if isFirstExchange && !guideMessage.content.hasPrefix("⚠️") {
             await generateTitle(for: conversation, userText: text, guideText: guideMessage.content, modelContext: modelContext)
         }
     }
-
     private func generateTitle(for conversation: Conversation, userText: String, guideText: String, modelContext: ModelContext) async {
         let titleMessages = PromptBuilder.buildTitleMessages(userText: userText, guideText: guideText)
         do {
@@ -141,5 +125,40 @@ final class ChatService: ObservableObject {
             modelContext.delete(msg)
         }
         try? modelContext.save()
+    }
+    
+    private func streamGuideResponse(into guideMessage: ChatMessage, history: [ChatMessage], conversation: Conversation, modelContext: ModelContext) async {
+        let messages = PromptBuilder.buildMessages(history: history)
+        do {
+            for try await chunk in client.streamChat(messages: messages) {
+                guideMessage.content += chunk
+            }
+        } catch {
+            let message = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
+            lastErrors[conversation.id] = message
+            if guideMessage.content.isEmpty {
+                guideMessage.content = "⚠️ \(message)"
+            }
+        }
+        try? modelContext.save()
+    }
+    
+    func retryLastResponse(for conversation: Conversation, modelContext: ModelContext) async {
+        guard let guideMessage = conversation.messages
+            .sorted(by: { $0.timestamp < $1.timestamp })
+            .last(where: { $0.messageRole == .guide }) else { return }
+
+        guideMessage.content = ""
+
+        generatingConversationIDs.insert(conversation.id)
+        lastErrors[conversation.id] = nil
+
+        let history = conversation.messages
+            .sorted { $0.timestamp < $1.timestamp }
+            .filter { !$0.content.isEmpty }
+
+        await streamGuideResponse(into: guideMessage, history: Array(history), conversation: conversation, modelContext: modelContext)
+
+        generatingConversationIDs.remove(conversation.id)
     }
 }
