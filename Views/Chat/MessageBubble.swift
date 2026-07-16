@@ -13,6 +13,7 @@ struct MessageBubble: View {
 
     @State private var isHovering = false
     @State private var editedText: String = ""
+    @FocusState private var isEditFieldFocused: Bool
 
     private var isGuide: Bool { message.messageRole == .guide }
     private var isError: Bool { isGuide && message.content.hasPrefix("⚠️") }
@@ -80,7 +81,12 @@ struct MessageBubble: View {
         .contentShape(Rectangle())
         .onHover { hovering in isHovering = hovering }
         .onChange(of: isEditing) { _, editing in
-            if editing { editedText = message.content }
+            if editing {
+                editedText = message.content
+                DispatchQueue.main.async {
+                    isEditFieldFocused = true
+                }
+            }
         }
     }
 
@@ -95,6 +101,8 @@ struct MessageBubble: View {
                 .background(Theme.fieldBackground)
                 .clipShape(bubbleShape)
                 .overlay(bubbleShape.stroke(Theme.borderStrong, lineWidth: 0.5))
+                .focused($isEditFieldFocused)
+                .onSubmit { onSaveEdit?(editedText) }
 
             HStack(spacing: 12) {
                 Button("cancel") { onCancelEdit?() }
