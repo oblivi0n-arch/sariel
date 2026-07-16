@@ -6,19 +6,22 @@ struct ChatView: View {
     @Bindable var conversation: Conversation
     @Binding var isConversationListOpen: Bool
 
-    @StateObject private var chatService: ChatService
+    @ObservedObject private var chatService: ChatService
     @State private var draft: String = ""
     @State private var isHoveringEndButton = false
     private var isEnded: Bool { conversation.journalEntry != nil }
     private var successfulExchangeCount: Int {
         conversation.messages.filter { $0.messageRole == .guide && !$0.content.hasPrefix("⚠️") }.count
     }
+    private var isGenerating: Bool { chatService.generatingConversationIDs.contains(conversation.id) }
+    private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
+    private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
     var onJournalEntryCreated: (JournalEntry) -> Void
 
-    init(conversation: Conversation, modelContext: ModelContext, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void) {
+    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void) {
         self.conversation = conversation
         self._isConversationListOpen = isConversationListOpen
-        _chatService = StateObject(wrappedValue: ChatService(modelContext: modelContext))
+        self.chatService = chatService
         self.onJournalEntryCreated = onJournalEntryCreated
     }
 
@@ -47,10 +50,10 @@ struct ChatView: View {
                             .font(.system(size: 11))
                     }
                     .foregroundStyle(Theme.textMuted)
-                } else if chatService.isEndingConversation {
+                } else if isEndingConversation {
                     EndConversationLoadingBar()
                         .frame(width: 100)
-                } else if let error = chatService.endConversationError {
+                } else if let error = endConversationError {
                     Button(action: { endConversation() }) {
                         HStack(spacing: 6) {
                             Image(systemName: "exclamationmark.triangle.fill")
@@ -64,7 +67,7 @@ struct ChatView: View {
                     .help(error)
                 } else {
                     Button(action: {
-                        guard !chatService.isGenerating && successfulExchangeCount >= 2 else { return }
+                        guard !isGenerating && successfulExchangeCount >= 2 else { return }
                         endConversation()
                     }) {
                             Text("end conversation")
@@ -145,7 +148,7 @@ struct ChatView: View {
                     .foregroundStyle(draft.isEmpty ? Theme.textFaint : Theme.textPrimary)
             }
             .buttonStyle(.plain)
-            .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty || chatService.isGenerating)
+            .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty || isGenerating)
         }
         .padding(16)
     }
@@ -172,12 +175,12 @@ struct ChatView: View {
     private func sendMessage() {
         let text = draft
         draft = ""
-        Task { await chatService.send(text: text, in: conversation) }
+        Task { await chatService.send(text: text, in: conversation, modelContext: modelContext) }
     }
     
     private func endConversation() {
         Task {
-            if let entry = await chatService.endConversation(for: conversation) {
+            if let entry = await chatService.endConversation(for: conversation, modelContext: modelContext) {
                 onJournalEntryCreated(entry)
             }
         }

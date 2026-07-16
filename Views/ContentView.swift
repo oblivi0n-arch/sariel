@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var isConversationListOpen = false
     @State private var selectedSection: AppSection = .chat
     @State private var activeEntry: JournalEntry?
+    @StateObject private var chatService = ChatService()
 
     var body: some View {
         HStack(spacing: 0) {
@@ -22,14 +23,14 @@ struct ContentView: View {
                             if let conversation = activeConversation {
                                 ChatView(
                                     conversation: conversation,
-                                    modelContext: modelContext,
+                                    chatService: chatService,
                                     isConversationListOpen: $isConversationListOpen,
-                                    onJournalEntryCreated: {entry in
+                                    onJournalEntryCreated: { entry in
                                         activeEntry = entry
                                         selectedSection = .journal
                                     }
+
                                 )
-                                .id(conversation.id)
                             } else {
                                 ProgressView()
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)

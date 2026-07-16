@@ -4,21 +4,19 @@ import SwiftData
 
 @MainActor
 final class ChatService: ObservableObject {
-    @Published var isGenerating = false
-    @Published var isEndingConversation = false
-    @Published var lastError: String?
-    @Published var endConversationError: String?
+    @Published var generatingConversationIDs: Set<UUID> = []
+    @Published var endingConversationIDs: Set<UUID> = []
+    @Published var lastErrors: [UUID: String] = [:]
+    @Published var endConversationErrors: [UUID: String] = [:]
 
     private let client: OllamaClient
-    private let modelContext: ModelContext
     
     @MainActor
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    init() {
         self.client = OllamaClient()
     }
 
-    func send(text: String, in conversation: Conversation) async {
+    func send(text: String, in conversation: Conversation, modelContext: ModelContext) async {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
         let isFirstExchange = conversation.messages.isEmpty
@@ -35,8 +33,10 @@ final class ChatService: ObservableObject {
 
         try? modelContext.save()
 
-        isGenerating = true
-        lastError = nil
+        generatingConversationIDs.insert(conversation.id)
+        lastErrors[conversation.id] = nil
+        
+        
 
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
@@ -50,21 +50,21 @@ final class ChatService: ObservableObject {
             }
         } catch {
             let message = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
-            lastError = message
+            lastErrors[conversation.id] = message
             if guideMessage.content.isEmpty {
                 guideMessage.content = "⚠️ \(message)"
             }
         }
 
         try? modelContext.save()
-        isGenerating = false
+        generatingConversationIDs.remove(conversation.id)
 
         if isFirstExchange && !guideMessage.content.hasPrefix("⚠️") {
-            await generateTitle(for: conversation, userText: text, guideText: guideMessage.content)
+            await generateTitle(for: conversation, userText: text, guideText: guideMessage.content, modelContext: modelContext)
         }
     }
 
-    private func generateTitle(for conversation: Conversation, userText: String, guideText: String) async {
+    private func generateTitle(for conversation: Conversation, userText: String, guideText: String, modelContext: ModelContext) async {
         let titleMessages = PromptBuilder.buildTitleMessages(userText: userText, guideText: guideText)
         do {
             let title = try await client.complete(messages: titleMessages)
@@ -78,10 +78,10 @@ final class ChatService: ObservableObject {
         }
     }
     
-    func endConversation(for conversation: Conversation) async -> JournalEntry? {
-        isEndingConversation = true
-        endConversationError = nil
-        defer { isEndingConversation = false }
+    func endConversation(for conversation: Conversation, modelContext: ModelContext) async -> JournalEntry? {
+        endingConversationIDs.insert(conversation.id)
+        endConversationErrors[conversation.id] = nil
+        defer { endingConversationIDs.remove(conversation.id) }
 
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
@@ -102,9 +102,8 @@ final class ChatService: ObservableObject {
             
             return entry
         } catch {
-            endConversationError = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
-            
-            return nil
+            endConversationErrors[conversation.id] = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
+                    return nil
         }
     }
 }
