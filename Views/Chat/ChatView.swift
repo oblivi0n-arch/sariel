@@ -15,6 +15,7 @@ struct ChatView: View {
     }
     private var isGenerating: Bool { chatService.generatingConversationIDs.contains(conversation.id) }
     private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
+    private var isInputLocked: Bool { isGenerating || isEndingConversation }
     private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
     var onJournalEntryCreated: (JournalEntry) -> Void
 
@@ -141,6 +142,7 @@ struct ChatView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
                 .onSubmit(sendMessage)
+                .disabled(isInputLocked)
 
             Button(action: sendMessage) {
                 Image(systemName: "arrow.up.circle.fill")
@@ -148,7 +150,7 @@ struct ChatView: View {
                     .foregroundStyle(draft.isEmpty ? Theme.textFaint : Theme.textPrimary)
             }
             .buttonStyle(.plain)
-            .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty || isGenerating)
+            .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty || isInputLocked)
         }
         .padding(16)
     }
@@ -173,6 +175,7 @@ struct ChatView: View {
         .buttonStyle(.plain)
     }
     private func sendMessage() {
+        guard !isInputLocked else { return }
         let text = draft
         draft = ""
         Task { await chatService.send(text: text, in: conversation, modelContext: modelContext) }
