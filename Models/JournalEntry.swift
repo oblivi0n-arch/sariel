@@ -9,6 +9,7 @@ final class JournalEntry {
     var createdAt: Date
     var mood: String
     var sourceConversation: Conversation?
+    @Relationship(inverse: \JournalEntryTag.entries) var tags: [JournalEntryTag] = []
 
     init(title: String = "New entry", content: String = "", mood: Mood = .neutral) {
         self.id = UUID()
