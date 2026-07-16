@@ -8,6 +8,7 @@ struct ChatView: View {
 
     @StateObject private var chatService: ChatService
     @State private var draft: String = ""
+    @State private var isHoveringEndButton = false
 
     init(conversation: Conversation, modelContext: ModelContext, isConversationListOpen: Binding<Bool>) {
         self.conversation = conversation
@@ -34,8 +35,18 @@ struct ChatView: View {
                 Spacer()
                 
                 Button(action: { endConversation() }) {
-                    Text("End conversation")
+                    Text("end conversation")
                 }
+                .padding(10)
+                .buttonStyle(.plain)
+                .font(.system(size: 11))
+                .foregroundStyle(Theme.textMuted)
+                .contentShape(Rectangle())
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(isHoveringEndButton ? Theme.border : .clear, lineWidth: 0.5)
+                )
+                .onHover { hovering in isHoveringEndButton = hovering }
                 .disabled(chatService.isEndingConversation == true || chatService.isGenerating || conversation.messages.isEmpty)
             }
             .padding(.horizontal, 16)
