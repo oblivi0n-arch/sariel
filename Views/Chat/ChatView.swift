@@ -23,7 +23,7 @@ struct ChatView: View {
         VStack(spacing: 0) {
             HStack {
                 Button(action: { isConversationListOpen.toggle() }) {
-                    Image(systemName: "line.3.horizontal")
+                    Image(systemName: "sidebar.left")
                         .font(.system(size: 16))
                         .foregroundStyle(Theme.textMuted)
                 }

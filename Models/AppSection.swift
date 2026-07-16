@@ -9,9 +9,9 @@ enum AppSection: String, CaseIterable, Identifiable {
     var iconName: String {
         switch self {
         case .chat:
-            return "bubble.left.and.bubble.right.fill"
+            return "text.bubble.fill"
         case .journal:
-            return "book.closed.fill"
+            return "bookmark.fill"
         }
     }
 }
