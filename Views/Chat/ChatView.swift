@@ -8,6 +8,7 @@ struct ChatView: View {
 
     @ObservedObject private var chatService: ChatService
     @State private var draft: String = ""
+    @FocusState private var isInputFocused: Bool
     @State private var isHoveringEndButton = false
     private var isEnded: Bool { conversation.journalEntry != nil }
     private var successfulExchangeCount: Int {
@@ -107,8 +108,14 @@ struct ChatView: View {
                 .onChange(of: sortedMessages.last?.content) {
                     scrollToBottom(proxy)
                 }
+                .onChange(of: isGenerating) { _, newValue in
+                    if !newValue {
+                        isInputFocused = true
+                    }
+                }
                 .onAppear {
                     scrollToBottom(proxy, animated: false)
+                    isInputFocused = true
                 }
             }
             
@@ -143,6 +150,7 @@ struct ChatView: View {
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
                 .onSubmit(sendMessage)
                 .disabled(isInputLocked)
+                .focused($isInputFocused)
 
             Button(action: sendMessage) {
                 Image(systemName: "arrow.up.circle.fill")
