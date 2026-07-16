@@ -123,6 +123,14 @@ struct ChatView: View {
                         isInputFocused = true
                     }
                 }
+                .onChange(of: isGenerating) { _, newValue in
+                    if !newValue {
+                        isInputFocused = true
+                        DispatchQueue.main.async {
+                            scrollToBottom(proxy)
+                        }
+                    }
+                }
                 .onAppear {
                     scrollToBottom(proxy, animated: false)
                     isInputFocused = true
@@ -212,12 +220,17 @@ struct ChatView: View {
         chatService.deleteMessages(from: last, in: conversation, modelContext: modelContext)
     }
     
-    private func rewind(to message: ChatMessage) {
-        guard message.messageRole == .user else { return }
-        let text = message.content
-        chatService.deleteMessages(from: message, in: conversation, modelContext: modelContext)
-        draft = text
-        isInputFocused = true
+    private func replyMessage(for userMessage: ChatMessage) -> ChatMessage? {
+        let sorted = conversation.messages.sorted { $0.timestamp < $1.timestamp }
+        guard let idx = sorted.firstIndex(where: { $0.id == userMessage.id }) else { return nil }
+        let nextIdx = sorted.index(after: idx)
+        guard nextIdx < sorted.count, sorted[nextIdx].messageRole == .guide else { return nil }
+        return sorted[nextIdx]
     }
 
+    private func rewind(to message: ChatMessage) {
+        guard message.messageRole == .user else { return }
+        let cutoffMessage = replyMessage(for: message) ?? message
+        chatService.deleteMessages(after: cutoffMessage, in: conversation, modelContext: modelContext)
+    }
 }
