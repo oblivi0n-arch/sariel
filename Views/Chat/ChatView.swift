@@ -45,6 +45,18 @@ struct ChatView: View {
                 } else if chatService.isEndingConversation {
                     EndConversationLoadingBar()
                         .frame(width: 100)
+                } else if let error = chatService.lastError {
+                    Button(action: { endConversation() }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 12))
+                            Text("something went wrong – tap to retry")
+                                .font(.system(size: 11))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Theme.textPrimary)
+                    .help(error)
                 } else {
                     Button(action: { endConversation() }) {
                         Text("end conversation")
