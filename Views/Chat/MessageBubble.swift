@@ -37,7 +37,7 @@ struct MessageBubble: View {
         }
         .frame(maxWidth: 420, alignment: isGuide ? .leading : .trailing)
         .frame(maxWidth: .infinity, alignment: isGuide ? .leading : .trailing)
-        .padding(.bottom, (showActions || showRewind) ? 22 : 0)
+        .padding(.bottom, isGuide ? 0 : 22)
         .overlay(alignment: isGuide ? .bottomLeading : .bottomTrailing) {
             if isHovering {
                 if showActions, let onDelete {

@@ -76,7 +76,7 @@ struct ChatView: View {
                         endConversation()
                     }) {
                             Text("end conversation")
-                        
+
                     }
                     .padding(10)
                     .buttonStyle(.plain)
@@ -116,19 +116,11 @@ struct ChatView: View {
                     scrollToBottom(proxy)
                 }
                 .onChange(of: sortedMessages.last?.content) {
-                    scrollToBottom(proxy)
+                    scrollToBottom(proxy, animated: false)
                 }
                 .onChange(of: isGenerating) { _, newValue in
                     if !newValue {
                         isInputFocused = true
-                    }
-                }
-                .onChange(of: isGenerating) { _, newValue in
-                    if !newValue {
-                        isInputFocused = true
-                        DispatchQueue.main.async {
-                            scrollToBottom(proxy)
-                        }
                     }
                 }
                 .onAppear {
@@ -136,7 +128,7 @@ struct ChatView: View {
                     isInputFocused = true
                 }
             }
-            
+
             if isEnded {
                 endedFooter
             } else {
@@ -180,7 +172,7 @@ struct ChatView: View {
         }
         .padding(16)
     }
-    
+
     private var endedFooter: some View {
         Button(action: {
             if let entry = conversation.journalEntry {
@@ -206,7 +198,7 @@ struct ChatView: View {
         draft = ""
         Task { await chatService.send(text: text, in: conversation, modelContext: modelContext) }
     }
-    
+
     private func endConversation() {
         Task {
             if let entry = await chatService.endConversation(for: conversation, modelContext: modelContext) {
@@ -214,12 +206,12 @@ struct ChatView: View {
             }
         }
     }
-    
+
     private func deleteLastExchange() {
         guard let last = lastUserMessage else { return }
         chatService.deleteMessages(from: last, in: conversation, modelContext: modelContext)
     }
-    
+
     private func replyMessage(for userMessage: ChatMessage) -> ChatMessage? {
         let sorted = conversation.messages.sorted { $0.timestamp < $1.timestamp }
         guard let idx = sorted.firstIndex(where: { $0.id == userMessage.id }) else { return nil }
