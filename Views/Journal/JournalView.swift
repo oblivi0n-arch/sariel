@@ -8,6 +8,16 @@ struct JournalView: View {
     @State private var isEditingEntry = false
     @Query(sort: \JournalEntry.createdAt, order: .reverse) private var entries: [JournalEntry]
     
+    @State private var searchText: String = ""
+    
+    private var filteredEntries: [JournalEntry] {
+        guard !searchText.isEmpty else { return entries }
+        return entries.filter {
+            $0.title.localizedCaseInsensitiveContains(searchText) ||
+            $0.content.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+    
     let onOpenConversation: (Conversation) -> Void
 
     var body: some View {
@@ -25,6 +35,17 @@ struct JournalView: View {
                 Text("journal")
                     .font(.system(size: 11))
                     .foregroundStyle(Theme.textMuted)
+                
+                if activeEntry == nil {
+                    TextField("Search", text: $searchText)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.textSecondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Theme.fieldBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                }
 
                 Spacer()
 
@@ -57,7 +78,7 @@ struct JournalView: View {
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 2) {
-                        ForEach(entries) { entry in
+                        ForEach(filteredEntries) { entry in
                             JournalEntryRow(
                                 entry: entry,
                                 onSelect: {
