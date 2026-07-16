@@ -22,6 +22,25 @@ struct PromptBuilder {
     3. Respond with ONLY the title, nothing else.
     """
     
+    static let journalSystemPrompt = """
+    Based on the conversation below, write a first-person journal entry, as if the user is writing it themselves right after the conversation.
+
+    Rules:
+    1. Write in first person ("I felt...", "I realized...", "I decided..."), never address the reader as "you".
+    2. Focus on the key realization or decision from the conversation, not a transcript of it.
+    3. Keep it to 3-6 short sentences. No headers, no bullet points, no closing signature.
+    4. Do not mention Sariel or the assistant — this is the user's own private reflection.
+    """
+
+    static let journalTitleSystemPrompt = """
+    Your only task is to generate a short journal entry title based on the entry text below.
+
+    Rules:
+    1. The title must be a maximum of 4-5 words.
+    2. Do not use quotation marks, a trailing period, or any additional commentary.
+    3. Respond with ONLY the title, nothing else.
+    """
+    
     static let maxHistoryMessages = 30
 
     static func buildMessages(history: [ChatMessage]) -> [OllamaMessage] {
@@ -42,6 +61,24 @@ struct PromptBuilder {
             OllamaMessage(role: "user", content: userText),
             OllamaMessage(role: "assistant", content: guideText),
             OllamaMessage(role: "user", content: "Generate a title for this conversation.")
+        ]
+    }
+    
+    static func buildJournalMessages(history: [ChatMessage]) -> [OllamaMessage] {
+        var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: journalSystemPrompt)]
+
+        for message in history {
+            let role = message.messageRole == .user ? "user" : "assistant"
+            messages.append(OllamaMessage(role: role, content: message.content))
+        }
+
+        return messages
+    }
+
+    static func buildJournalTitleMessages(entryContent: String) -> [OllamaMessage] {
+        [
+            OllamaMessage(role: "system", content: journalTitleSystemPrompt),
+            OllamaMessage(role: "user", content: entryContent)
         ]
     }
 }
