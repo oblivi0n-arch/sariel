@@ -8,7 +8,7 @@ struct MessageBubble: View {
 
     var body: some View {
         VStack(alignment: isGuide ? .leading : .trailing, spacing: 4) {
-            Text(isError ? "błąd" : (isGuide ? "sariel" : "ty"))
+            Text(isError ? "error" : (isGuide ? "sariel" : "you"))
                 .font(.system(size: 11))
                 .foregroundStyle(isError ? Theme.textPrimary : Theme.textMuted)
 
