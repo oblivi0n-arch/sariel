@@ -32,6 +32,11 @@ struct ChatView: View {
                 .disabled(isConversationListOpen)
 
                 Spacer()
+                
+                Button(action: { endConversation() }) {
+                    Text("End conversation")
+                }
+                .disabled(chatService.isEndingConversation == true || chatService.isGenerating || conversation.messages.isEmpty)
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
@@ -99,5 +104,9 @@ struct ChatView: View {
         let text = draft
         draft = ""
         Task { await chatService.send(text: text, in: conversation) }
+    }
+    
+    private func endConversation() {
+        Task { await chatService.endConversation(for: conversation) }
     }
 }

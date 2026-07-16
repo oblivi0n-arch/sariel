@@ -71,6 +71,8 @@ struct PromptBuilder {
             let role = message.messageRole == .user ? "user" : "assistant"
             messages.append(OllamaMessage(role: role, content: message.content))
         }
+        
+        messages.append(OllamaMessage(role: "user", content: "Write the journal entry now, based on our conversation above."))
 
         return messages
     }
