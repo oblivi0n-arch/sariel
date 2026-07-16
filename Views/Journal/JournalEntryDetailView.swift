@@ -41,6 +41,16 @@ struct JournalEntryReader: View {
             Text(entry.content)
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textSecondary)
+            
+            if !entry.tags.isEmpty {
+                HStack(spacing: 6) {
+                    ForEach(entry.tags) { tag in
+                        Text("#\(tag.name)")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textMuted)
+                    }
+                }
+            }
 
             if let conversation = entry.sourceConversation {
                 Button(action: { onOpenConversation(conversation) }) {

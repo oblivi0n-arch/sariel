@@ -8,7 +8,7 @@ struct JournalEntryRow: View {
     @State private var isHovering = false
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
             Image(systemName: entry.entryMood.symbolName)
                 .font(.system(size: 13))
                 .foregroundStyle(Theme.textFaint)
@@ -16,6 +16,13 @@ struct JournalEntryRow: View {
             Text(entry.title)
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textSecondary)
+            
+            if !entry.tags.isEmpty {
+                Text(entry.tags.map { "#\($0.name)" }.joined(separator: " "))
+                    .font(.system(size: 10))
+                    .foregroundStyle(Theme.textFaint)
+                    .lineLimit(1)
+            }
 
             Spacer()
 
