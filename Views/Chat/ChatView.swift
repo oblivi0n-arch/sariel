@@ -99,10 +99,13 @@ struct ChatView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 14) {
                         ForEach(sortedMessages) { message in
+                            let isLastUser = message.id == lastUserMessage?.id
                             MessageBubble(
                                 message: message,
                                 showActions: message.id == lastUserMessage?.id && !isGenerating && !isEndingConversation,
-                                onDelete: { deleteLastExchange() }
+                                onDelete: { deleteLastExchange() },
+                                showRewind: message.messageRole == .user && !isLastUser && !isGenerating && !isEndingConversation,
+                                onRewind: { rewind(to: message) }
                             )
                             .id(message.id)
                         }
@@ -207,6 +210,14 @@ struct ChatView: View {
     private func deleteLastExchange() {
         guard let last = lastUserMessage else { return }
         chatService.deleteMessages(from: last, in: conversation, modelContext: modelContext)
+    }
+    
+    private func rewind(to message: ChatMessage) {
+        guard message.messageRole == .user else { return }
+        let text = message.content
+        chatService.deleteMessages(from: message, in: conversation, modelContext: modelContext)
+        draft = text
+        isInputFocused = true
     }
 
 }

@@ -4,6 +4,8 @@ struct MessageBubble: View {
     let message: ChatMessage
     var showActions: Bool = false
     var onDelete: (() -> Void)? = nil
+    var showRewind: Bool = false
+    var onRewind: (() -> Void)? = nil
     
     @State private var isHovering = false
 
@@ -35,16 +37,26 @@ struct MessageBubble: View {
         }
         .frame(maxWidth: 420, alignment: isGuide ? .leading : .trailing)
         .frame(maxWidth: .infinity, alignment: isGuide ? .leading : .trailing)
-        .padding(.bottom, showActions ? 22 : 0)
+        .padding(.bottom, (showActions || showRewind) ? 22 : 0)
         .overlay(alignment: isGuide ? .bottomLeading : .bottomTrailing) {
-            if showActions, isHovering, let onDelete {
-                Button(action: onDelete) {
-                    Image(systemName: "trash")
-                        .font(.system(size: 11))
-                        .foregroundStyle(Theme.textMuted)
+            if isHovering {
+                if showActions, let onDelete {
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textMuted)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(6)
+                } else if showRewind, let onRewind {
+                    Button(action: onRewind) {
+                        Image(systemName: "arrow.uturn.backward")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textMuted)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(6)
                 }
-                .buttonStyle(.plain)
-                .padding(6)
             }
         }
         .contentShape(Rectangle())
