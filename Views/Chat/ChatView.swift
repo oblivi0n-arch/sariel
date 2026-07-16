@@ -50,7 +50,7 @@ struct ChatView: View {
                 } else if chatService.isEndingConversation {
                     EndConversationLoadingBar()
                         .frame(width: 100)
-                } else if let error = chatService.lastError {
+                } else if let error = chatService.endConversationError {
                     Button(action: { endConversation() }) {
                         HStack(spacing: 6) {
                             Image(systemName: "exclamationmark.triangle.fill")

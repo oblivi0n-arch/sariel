@@ -7,6 +7,7 @@ final class ChatService: ObservableObject {
     @Published var isGenerating = false
     @Published var isEndingConversation = false
     @Published var lastError: String?
+    @Published var endConversationError: String?
 
     private let client: OllamaClient
     private let modelContext: ModelContext
@@ -79,7 +80,7 @@ final class ChatService: ObservableObject {
     
     func endConversation(for conversation: Conversation) async -> JournalEntry? {
         isEndingConversation = true
-        lastError = nil
+        endConversationError = nil
         defer { isEndingConversation = false }
 
         let history = conversation.messages
@@ -101,7 +102,7 @@ final class ChatService: ObservableObject {
             
             return entry
         } catch {
-            lastError = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
+            endConversationError = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
             
             return nil
         }
