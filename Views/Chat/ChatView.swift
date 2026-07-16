@@ -143,17 +143,24 @@ struct ChatView: View {
     }
     
     private var endedFooter: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "bubble.circle.fill")
-                .font(.system(size: 14))
-            Text("This conversation has ended.")
-                .font(Theme.uiFont)
+        Button(action: {
+            if let entry = conversation.journalEntry {
+                onJournalEntryCreated(entry)
+            }
+        }) {
+            HStack(spacing: 8) {
+                Image(systemName: "bubble.circle.fill")
+                    .font(.system(size: 14))
+                Text("This conversation is saved – tap to view")
+                    .font(Theme.uiFont)
+            }
+            .foregroundStyle(Theme.textFaint)
+            .frame(maxWidth: .infinity)
+            .padding(16)
+            .contentShape(Rectangle())
         }
-        .foregroundStyle(Theme.textFaint)
-        .frame(maxWidth: .infinity)
-        .padding(16)
+        .buttonStyle(.plain)
     }
-
     private func sendMessage() {
         let text = draft
         draft = ""
