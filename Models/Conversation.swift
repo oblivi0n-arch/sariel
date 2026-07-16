@@ -9,6 +9,9 @@ final class Conversation {
 
     @Relationship(deleteRule: .cascade, inverse: \ChatMessage.conversation)
     var messages: [ChatMessage] = []
+    
+    @Relationship(deleteRule: .nullify, inverse: \JournalEntry.sourceConversation)
+    var journalEntry: JournalEntry?
 
     init(title: String = "New conversation") {
         self.id = UUID()

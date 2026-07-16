@@ -8,6 +8,7 @@ final class JournalEntry {
     var content: String
     var createdAt: Date
     var mood: String
+    var sourceConversation: Conversation?
 
     init(title: String = "New entry", content: String = "", mood: Mood = .neutral) {
         self.id = UUID()
