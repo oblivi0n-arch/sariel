@@ -41,6 +41,17 @@ struct PromptBuilder {
     3. Respond with ONLY the title, nothing else.
     """
     
+    static let summarySystemPrompt = """
+    Your task is to maintain a running summary of an ongoing conversation between a user and Sariel, a personal growth mentor.
+
+    Rules:
+    1. Write in third person, neutral and factual (e.g. "The user is working on...", "They decided to...").
+    2. Preserve concrete facts, decisions, goals, and commitments the user made — these matter more than emotional tone.
+    3. Keep it dense and short: aim for 5-10 sentences regardless of how long the conversation gets.
+    4. This summary is internal context for the mentor, not something the user will read directly. No commentary, no preamble.
+    5. If given an existing summary plus new messages, merge them into a single updated summary — do not just describe the new messages in isolation.
+    """
+    
     static let maxHistoryMessages = 30
 
     static func buildMessages(history: [ChatMessage]) -> [OllamaMessage] {
@@ -82,5 +93,22 @@ struct PromptBuilder {
             OllamaMessage(role: "system", content: journalTitleSystemPrompt),
             OllamaMessage(role: "user", content: entryContent)
         ]
+    }
+    
+    static func buildSummaryMessages(existingSummary: String, newMessages: [ChatMessage]) -> [OllamaMessage] {
+        var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: summarySystemPrompt)]
+
+        if !existingSummary.isEmpty {
+            messages.append(OllamaMessage(role: "user", content: "Existing summary so far:\n\(existingSummary)"))
+        }
+
+        var transcript = ""
+        for message in newMessages {
+            let speaker = message.messageRole == .user ? "User" : "Sariel"
+            transcript += "\(speaker): \(message.content)\n"
+        }
+        messages.append(OllamaMessage(role: "user", content: "New messages to incorporate:\n\(transcript)\nWrite the updated summary now."))
+
+        return messages
     }
 }
