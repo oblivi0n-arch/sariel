@@ -49,12 +49,12 @@ final class ChatService: ObservableObject {
         if !hasSuccessfulExchange && !guideMessage.content.hasPrefix("⚠️") {
             await generateTitle(for: conversation, userText: text, guideText: guideMessage.content, modelContext: modelContext)
         }
-        
+
         if !guideMessage.content.hasPrefix("⚠️") {
             Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
         }
     }
-    
+
     private func refreshSummaryIfNeeded(for conversation: Conversation, modelContext: ModelContext) async {
         let sortedMessages = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
@@ -80,7 +80,7 @@ final class ChatService: ObservableObject {
 
         }
     }
-    
+
     private func generateTitle(for conversation: Conversation, userText: String, guideText: String, modelContext: ModelContext) async {
         let titleMessages = PromptBuilder.buildTitleMessages(userText: userText, guideText: guideText)
         do {
@@ -134,6 +134,14 @@ final class ChatService: ObservableObject {
         let tag = JournalEntryTag(name: "generated")
         modelContext.insert(tag)
         return tag
+    }
+
+    private func reconcileSummary(for conversation: Conversation) {
+        let remainingCount = conversation.messages.count
+        if remainingCount < conversation.summarizedMessageCount {
+            conversation.summarizedMessageCount = remainingCount
+            conversation.summary = ""
+        }
     }
     
     func deleteMessages(from message: ChatMessage, in conversation: Conversation, modelContext: ModelContext) {
@@ -204,14 +212,6 @@ final class ChatService: ObservableObject {
 
         if !guideMessage.content.hasPrefix("⚠️") {
             Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
-        }
-    }
-    
-    private func reconcileSummary(for conversation: Conversation) {
-        let remainingCount = conversation.messages.count
-        if remainingCount < conversation.summarizedMessageCount {
-            conversation.summarizedMessageCount = remainingCount
-            conversation.summary = ""
         }
     }
 }

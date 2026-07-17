@@ -40,7 +40,7 @@ struct PromptBuilder {
     2. Do not use quotation marks, a trailing period, or any additional commentary.
     3. Respond with ONLY the title, nothing else.
     """
-    
+
     static let summarySystemPrompt = """
     Your task is to maintain a running summary of an ongoing conversation between a user and Sariel, a personal growth mentor.
 
@@ -82,8 +82,12 @@ struct PromptBuilder {
         ]
     }
     
-    static func buildJournalMessages(history: [ChatMessage]) -> [OllamaMessage] {
+    static func buildJournalMessages(history: [ChatMessage], summary: String = "") -> [OllamaMessage] {
         var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: journalSystemPrompt)]
+
+        if !summary.isEmpty {
+            messages.append(OllamaMessage(role: "user", content: "Summary of the earlier part of the conversation: \(summary)"))
+        }
 
         for message in history {
             let role = message.messageRole == .user ? "user" : "assistant"
@@ -101,7 +105,7 @@ struct PromptBuilder {
             OllamaMessage(role: "user", content: entryContent)
         ]
     }
-    
+
     static func buildSummaryMessages(existingSummary: String, newMessages: [ChatMessage]) -> [OllamaMessage] {
         var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: summarySystemPrompt)]
 
