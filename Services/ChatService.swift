@@ -177,9 +177,13 @@ final class ChatService: ObservableObject {
     }
     
     func retryLastResponse(for conversation: Conversation, modelContext: ModelContext) async {
-        guard let guideMessage = conversation.messages
-            .sorted(by: { $0.timestamp < $1.timestamp })
-            .last(where: { $0.messageRole == .guide }) else { return }
+        let sorted = conversation.messages.sorted { $0.timestamp < $1.timestamp }
+        guard let guideMessage = sorted.last(where: { $0.messageRole == .guide }) else { return }
+
+        let hasSuccessfulExchange = sorted.contains {
+            $0.messageRole == .guide && $0.id != guideMessage.id && !$0.content.isEmpty && !$0.content.hasPrefix("⚠️")
+        }
+        let precedingUserText = sorted.last(where: { $0.messageRole == .user && $0.timestamp < guideMessage.timestamp })?.content
 
         guideMessage.content = ""
 
@@ -193,7 +197,11 @@ final class ChatService: ObservableObject {
         await streamGuideResponse(into: guideMessage, history: Array(history), conversation: conversation, modelContext: modelContext)
 
         generatingConversationIDs.remove(conversation.id)
-        
+
+        if !hasSuccessfulExchange, !guideMessage.content.hasPrefix("⚠️"), let userText = precedingUserText {
+            await generateTitle(for: conversation, userText: userText, guideText: guideMessage.content, modelContext: modelContext)
+        }
+
         if !guideMessage.content.hasPrefix("⚠️") {
             Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
         }
