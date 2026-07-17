@@ -5,6 +5,7 @@ struct ChatView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var conversation: Conversation
     @Binding var isConversationListOpen: Bool
+    let isActive: Bool
 
     @ObservedObject private var chatService: ChatService
     @State private var draft: String = ""
@@ -28,11 +29,12 @@ struct ChatView: View {
     
     var onJournalEntryCreated: (JournalEntry) -> Void
 
-    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void) {
+    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, isActive: Bool) {
         self.conversation = conversation
         self._isConversationListOpen = isConversationListOpen
         self.chatService = chatService
         self.onJournalEntryCreated = onJournalEntryCreated
+        self.isActive = isActive
     }
 
     private var sortedMessages: [ChatMessage] {
@@ -133,9 +135,18 @@ struct ChatView: View {
                         isInputFocused = true
                     }
                 }
+                .onChange(of: isActive) { _, newValue in
+                    if newValue {
+                        DispatchQueue.main.async {
+                            isInputFocused = true
+                        }
+                    }
+                }
                 .onAppear {
                     scrollToBottom(proxy, animated: false)
-                    isInputFocused = true
+                    DispatchQueue.main.async {
+                        isInputFocused = true
+                    }
                 }
             }
 

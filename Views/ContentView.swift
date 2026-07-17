@@ -28,7 +28,8 @@ struct ContentView: View {
                                     onJournalEntryCreated: { entry in
                                         activeEntry = entry
                                         selectedSection = .journal
-                                    }
+                                    },
+                                    isActive: selectedSection == .chat
 
                                 )
                                 .id(conversation.id)
