@@ -31,7 +31,7 @@ struct MessageBubble: View {
             } else if isError {
                 errorBubble
             } else {
-                Text(message.content.isEmpty ? "…" : message.content)
+                Text(message.content.isEmpty ? AttributedString("…") : formattedContent(message.content))
                     .font(isGuide ? Theme.voiceFont : Theme.uiFont)
                     .foregroundStyle(isGuide ? Theme.textPrimary : Theme.textSecondary)
                     .padding(.horizontal, 14)
@@ -149,5 +149,12 @@ struct MessageBubble: View {
             bottomTrailingRadius: 10,
             topTrailingRadius: isGuide ? 10 : 0
         )
+    }
+    
+    private func formattedContent(_ text: String) -> AttributedString {
+        (try? AttributedString(
+            markdown: text,
+            options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+        )) ?? AttributedString(text)
     }
 }
