@@ -144,6 +144,7 @@ final class ChatService: ObservableObject {
             conversation.messages.removeAll { $0.id == msg.id }
             modelContext.delete(msg)
         }
+        reconcileSummary(for: conversation)
         try? modelContext.save()
     }
     
@@ -155,6 +156,7 @@ final class ChatService: ObservableObject {
             conversation.messages.removeAll { $0.id == msg.id }
             modelContext.delete(msg)
         }
+        reconcileSummary(for: conversation)
         try? modelContext.save()
     }
     
@@ -194,6 +196,14 @@ final class ChatService: ObservableObject {
         
         if !guideMessage.content.hasPrefix("⚠️") {
             Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
+        }
+    }
+    
+    private func reconcileSummary(for conversation: Conversation) {
+        let remainingCount = conversation.messages.count
+        if remainingCount < conversation.summarizedMessageCount {
+            conversation.summarizedMessageCount = remainingCount
+            conversation.summary = ""
         }
     }
 }
