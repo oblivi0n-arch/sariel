@@ -10,7 +10,6 @@ struct MessageBubble: View {
     var onCancelEdit: (() -> Void)? = nil
     var showRewind: Bool = false
     var onRewind: (() -> Void)? = nil
-    var showRetry: Bool = false
     var onRetry: (() -> Void)? = nil
 
     @State private var isHovering = false

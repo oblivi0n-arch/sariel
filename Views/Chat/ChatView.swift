@@ -20,6 +20,7 @@ struct ChatView: View {
     private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
     private var isInputLocked: Bool { isGenerating || isEndingConversation }
     private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
+    private var lastStreamError: String? { chatService.lastErrors[conversation.id] }
     private var lastUserMessage: ChatMessage? {
         sortedMessages.last(where: { $0.messageRole == .user })
     }
@@ -54,6 +55,17 @@ struct ChatView: View {
                 .disabled(isConversationListOpen)
 
                 Spacer()
+                if let error = lastStreamError, !isEnded {
+                    HStack(spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(Typography.label)
+                        Text(error)
+                            .font(Typography.caption)
+                    }
+                    .foregroundStyle(Theme.textMuted)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                }
                 if isEnded {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark.circle")
