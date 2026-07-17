@@ -109,13 +109,13 @@ struct ChatView: View {
                             let isLastUser = message.id == lastUserMessage?.id
                             MessageBubble(
                                 message: message,
-                                showActions: isLastUser && !isGenerating && !isEndingConversation,
+                                showActions: isLastUser && !isGenerating && !isEndingConversation && !isEnded,
                                 onDelete: { deleteLastExchange() },
                                 isEditing: editingMessageID == message.id,
                                 onStartEdit: { editingMessageID = message.id },
                                 onSaveEdit: { newText in saveEdit(for: message, newText: newText) },
                                 onCancelEdit: { editingMessageID = nil },
-                                showRewind: message.messageRole == .user && !isLastUser && !isGenerating && !isEndingConversation,
+                                showRewind: message.messageRole == .user && !isLastUser && !isGenerating && !isEndingConversation && !isEnded,
                                 onRewind: { rewind(to: message) },
                                 onRetry: { retryLastResponse() }
                             )
