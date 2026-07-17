@@ -78,6 +78,13 @@ struct MessageBubble: View {
                         }
                     }
                     .padding(6)
+                } else if showRewind, let onRewind {
+                    Button(action: onRewind) {
+                        Image(systemName: "arrow.uturn.backward")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textMuted)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
