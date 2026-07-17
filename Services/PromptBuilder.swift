@@ -53,11 +53,18 @@ struct PromptBuilder {
     """
     
     static let maxHistoryMessages = 30
+    static let summaryRefreshThreshold = 10
+    static let keepRawMessages = 8
 
-    static func buildMessages(history: [ChatMessage]) -> [OllamaMessage] {
+    static func buildMessages(history: [ChatMessage], summary: String = "") -> [OllamaMessage] {
         var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: systemPrompt)]
 
-        let trimmedHistory = history.suffix(maxHistoryMessages)
+        if !summary.isEmpty {
+            messages.append(OllamaMessage(role: "system", content: "Summary of the conversation so far: \(summary)"))
+        }
+
+        let windowSize = summary.isEmpty ? maxHistoryMessages : keepRawMessages
+        let trimmedHistory = history.suffix(windowSize)
         for message in trimmedHistory {
             let role = message.messageRole == .user ? "user" : "assistant"
             messages.append(OllamaMessage(role: role, content: message.content))

@@ -49,7 +49,38 @@ final class ChatService: ObservableObject {
         if !hasSuccessfulExchange && !guideMessage.content.hasPrefix("⚠️") {
             await generateTitle(for: conversation, userText: text, guideText: guideMessage.content, modelContext: modelContext)
         }
+        
+        if !guideMessage.content.hasPrefix("⚠️") {
+            Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
+        }
     }
+    
+    private func refreshSummaryIfNeeded(for conversation: Conversation, modelContext: ModelContext) async {
+        let sortedMessages = conversation.messages
+            .sorted { $0.timestamp < $1.timestamp }
+            .filter { !$0.content.isEmpty && !$0.content.hasPrefix("⚠️") }
+
+        let unsummarizedCount = sortedMessages.count - conversation.summarizedMessageCount
+        guard unsummarizedCount > PromptBuilder.summaryRefreshThreshold else { return }
+
+        let newSummarizedCount = sortedMessages.count - PromptBuilder.keepRawMessages
+        guard newSummarizedCount > conversation.summarizedMessageCount else { return }
+
+        let messagesToIncorporate = Array(sortedMessages[conversation.summarizedMessageCount..<newSummarizedCount])
+        guard !messagesToIncorporate.isEmpty else { return }
+
+        do {
+            let updatedSummary = try await client.complete(
+                messages: PromptBuilder.buildSummaryMessages(existingSummary: conversation.summary, newMessages: messagesToIncorporate)
+            )
+            conversation.summary = updatedSummary.trimmingCharacters(in: .whitespacesAndNewlines)
+            conversation.summarizedMessageCount = newSummarizedCount
+            try? modelContext.save()
+        } catch {
+
+        }
+    }
+    
     private func generateTitle(for conversation: Conversation, userText: String, guideText: String, modelContext: ModelContext) async {
         let titleMessages = PromptBuilder.buildTitleMessages(userText: userText, guideText: guideText)
         do {
@@ -130,7 +161,7 @@ final class ChatService: ObservableObject {
     }
     
     private func streamGuideResponse(into guideMessage: ChatMessage, history: [ChatMessage], conversation: Conversation, modelContext: ModelContext) async {
-        let messages = PromptBuilder.buildMessages(history: history)
+        let messages = PromptBuilder.buildMessages(history: history, summary: conversation.summary)
         do {
             for try await chunk in client.streamChat(messages: messages) {
                 guideMessage.content += chunk
@@ -162,5 +193,9 @@ final class ChatService: ObservableObject {
         await streamGuideResponse(into: guideMessage, history: Array(history), conversation: conversation, modelContext: modelContext)
 
         generatingConversationIDs.remove(conversation.id)
+        
+        if !guideMessage.content.hasPrefix("⚠️") {
+            Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
+        }
     }
 }
