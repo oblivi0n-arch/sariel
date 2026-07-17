@@ -19,7 +19,9 @@ final class ChatService: ObservableObject {
     func send(text: String, in conversation: Conversation, modelContext: ModelContext) async {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
-        let isFirstExchange = conversation.messages.isEmpty
+        let hasSuccessfulExchange = conversation.messages.contains {
+            $0.messageRole == .guide && !$0.content.isEmpty && !$0.content.hasPrefix("⚠️")
+        }
 
         let userMessage = ChatMessage(role: .user, content: text)
         userMessage.conversation = conversation
@@ -44,7 +46,7 @@ final class ChatService: ObservableObject {
 
         generatingConversationIDs.remove(conversation.id)
 
-        if isFirstExchange && !guideMessage.content.hasPrefix("⚠️") {
+        if !hasSuccessfulExchange && !guideMessage.content.hasPrefix("⚠️") {
             await generateTitle(for: conversation, userText: text, guideText: guideMessage.content, modelContext: modelContext)
         }
     }
