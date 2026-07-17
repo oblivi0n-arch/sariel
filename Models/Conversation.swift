@@ -6,6 +6,8 @@ final class Conversation {
     var id: UUID
     var startedAt: Date
     var title: String
+    var summary: String = ""
+    var summarizedMessageCount: Int = 0
 
     @Relationship(deleteRule: .cascade, inverse: \ChatMessage.conversation)
     var messages: [ChatMessage] = []
