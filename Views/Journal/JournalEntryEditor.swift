@@ -47,7 +47,8 @@ struct JournalEntryEditor: View {
                             .foregroundStyle(Theme.textSecondary)
                             .scrollContentBackground(.hidden)
                             .padding(.horizontal, 9)
-                            .padding(.vertical, 7)
+                            .padding(.top, 10)
+                            .padding(.bottom, 7)
                             .focused($focusedField, equals: .content)
                     }
                     .frame(height: 280)
