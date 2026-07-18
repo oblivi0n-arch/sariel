@@ -161,10 +161,14 @@ struct JournalView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    private func  goBack() {
-        if let entry = activeEntry, entry.title == "New entry", entry.content.isEmpty {
-            modelContext.delete(entry)
-            try? modelContext.save()
+    private func goBack() {
+        if let entry = activeEntry {
+            let trimmedTitle = entry.title.trimmingCharacters(in: .whitespacesAndNewlines)
+            let isEffectivelyEmpty = (trimmedTitle.isEmpty || trimmedTitle == "New entry") && entry.content.isEmpty
+            if isEffectivelyEmpty {
+                modelContext.delete(entry)
+                try? modelContext.save()
+            }
         }
         activeEntry = nil
         isEditingEntry = false
