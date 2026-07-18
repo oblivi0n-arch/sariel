@@ -8,14 +8,22 @@ struct ToastView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 Image(systemName: "book.closed")
                     .font(Typography.iconSmall)
                     .foregroundStyle(Theme.textPrimary)
 
-                Text("Saved — tap to view")
-                    .font(Typography.label)
-                    .foregroundStyle(Theme.textPrimary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(toast.entry.title)
+                        .font(Typography.label)
+                        .foregroundStyle(Theme.textPrimary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+
+                    Text("entry saved")
+                        .font(Typography.caption)
+                        .foregroundStyle(Theme.textMuted)
+                }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)

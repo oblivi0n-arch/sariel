@@ -3,5 +3,5 @@ import Foundation
 struct Toast: Identifiable {
     let id = UUID()
     let entry: JournalEntry
-    let duration: TimeInterval = 4.0
+    let duration: TimeInterval = 7.0
 }
