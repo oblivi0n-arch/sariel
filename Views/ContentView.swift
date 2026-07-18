@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var selectedSection: AppSection = .chat
     @State private var activeEntry: JournalEntry?
     @StateObject private var chatService = ChatService()
+    @StateObject private var toastManager = ToastManager()
 
     var body: some View {
         HStack(spacing: 0) {
@@ -28,8 +29,7 @@ struct ContentView: View {
                                         chatService: chatService,
                                         isConversationListOpen: $isConversationListOpen,
                                         onJournalEntryCreated: { entry in
-                                            activeEntry = entry
-                                            selectedSection = .journal
+                                            toastManager.show(entry: entry)
                                         },
                                         isActive: selectedSection == .chat
 
@@ -81,6 +81,20 @@ struct ContentView: View {
                         .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
                         .transition(.opacity.combined(with: .scale(scale: 0.96)))
                 }
+            }
+            .overlay(alignment: .topTrailing) {
+                VStack(alignment: .trailing, spacing: 8) {
+                    ForEach(toastManager.toasts) { toast in
+                        ToastView(toast: toast) {
+                            activeEntry = toast.entry
+                            selectedSection = .journal
+                            toastManager.dismiss(toast)
+                        }
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                    }
+                }
+                .padding(16)
+                .animation(.easeInOut(duration: 0.25), value: toastManager.toasts.map(\.id))
             }
         }
         .frame(minWidth: 760, minHeight: 660)
