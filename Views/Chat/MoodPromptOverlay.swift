@@ -2,11 +2,14 @@ import SwiftUI
 
 struct MoodPromptOverlay: View {
     let onSelect: (Mood) -> Void
+    let onCancel: () -> Void
 
     var body: some View {
         ZStack {
             Color.black.opacity(0.5)
                 .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture(perform: onCancel)
 
             VStack(spacing: 16) {
                 Text("How are you feeling?")
@@ -24,6 +27,7 @@ struct MoodPromptOverlay: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
             .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
+            .onTapGesture {} // pochłania tapnięcie, żeby nie przechodziło do tła pod spodem
         }
         .transition(.opacity.combined(with: .scale(scale: 0.96)))
     }

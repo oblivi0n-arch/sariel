@@ -182,10 +182,15 @@ struct ChatView: View {
         }
         .overlay {
             if isMoodPromptShown {
-                MoodPromptOverlay(onSelect: { mood in
-                    isMoodPromptShown = false
-                    endConversation(mood: mood)
-                })
+                MoodPromptOverlay(
+                    onSelect: { mood in
+                        isMoodPromptShown = false
+                        endConversation(mood: mood)
+                    },
+                    onCancel: {
+                        isMoodPromptShown = false
+                    }
+                )
             }
         }
         .animation(.easeInOut(duration: 0.2), value: isMoodPromptShown)
