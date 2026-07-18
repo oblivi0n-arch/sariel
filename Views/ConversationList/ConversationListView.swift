@@ -12,8 +12,8 @@ struct ConversationListView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("conversations")
-                    .font(Typography.caption)
-                    .foregroundStyle(Theme.textMuted)
+                    .font(Typography.subsectionTitle)
+                    .foregroundStyle(Theme.textPrimary)
 
                 Spacer()
 
