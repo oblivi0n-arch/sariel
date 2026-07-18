@@ -25,6 +25,13 @@ struct JournalEntryRow: View {
                     .foregroundStyle(Theme.textFaint)
             }
 
+            if !entry.content.isEmpty {
+                Text(entry.content)
+                    .font(Theme.uiFont)
+                    .foregroundStyle(Theme.textSecondary)
+                    .lineLimit(2)
+            }
+
             if !entry.tags.isEmpty {
                 Text(entry.tags.map { "#\($0.name)" }.joined(separator: " "))
                     .font(Typography.caption)
