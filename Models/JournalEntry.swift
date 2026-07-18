@@ -37,4 +37,14 @@ enum Mood: String, CaseIterable {
         case .awful:   "cloud.bolt.rain"
         }
     }
+    
+    var accentOpacity: Double {
+        switch self {
+        case .great:   1.0
+        case .good:    0.75
+        case .neutral: 0.5
+        case .bad:     0.3
+        case .awful:   0.15
+        }
+    }
 }

@@ -42,11 +42,20 @@ struct JournalEntryRow: View {
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.fieldBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(isHovering ? Theme.borderStrong : Theme.border, lineWidth: 0.5)
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isHovering ? Theme.borderStrong : Theme.border, lineWidth: 0.5)
+        )
+        .overlay(alignment: .leading) {
+            Rectangle()
+                .fill(Theme.textPrimary.opacity(entry.entryMood.accentOpacity))
+                .frame(width: 3)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .contentShape(Rectangle())
         .onTapGesture(perform: onSelect)
         .onHover { isHovering = $0 }
