@@ -37,7 +37,6 @@ struct ContentView: View {
                                     .id(conversation.id)
                                 } else {
                                     ProgressView()
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                                         .background(Theme.background)
                                 }
                             }

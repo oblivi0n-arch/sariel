@@ -29,6 +29,20 @@ struct ChatView: View {
         sortedMessages.last(where: { $0.messageRole == .guide })
     }
     
+    private var emptyConversationState: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "circle.dashed")
+                .font(.system(size: 26))
+                .foregroundStyle(Theme.textFaint)
+
+            Text("The mirror is empty.\nSay something true.")
+                .font(Theme.voiceFont)
+                .foregroundStyle(Theme.textMuted)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: 260)
+    }
+    
     var onJournalEntryCreated: (JournalEntry) -> Void
 
     init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, isActive: Bool) {
@@ -121,6 +135,11 @@ struct ChatView: View {
                         }
                     }
                     .padding(20)
+                }
+                .overlay {
+                    if sortedMessages.isEmpty {
+                        emptyConversationState
+                    }
                 }
                 .onChange(of: conversation.messages.count) {
                     scrollToBottom(proxy)
