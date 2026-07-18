@@ -1,6 +1,9 @@
 import SwiftUI
+import SwiftData
+import AppKit
 
 struct SettingsView: View {
+    @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var connectionMonitor: ConnectionMonitor
     @Binding var isPresented: Bool
 
@@ -11,6 +14,7 @@ struct SettingsView: View {
     @State private var availableModels: [String] = []
     @State private var isLoadingModels = false
     @State private var modelsLoadError: String?
+    @State private var showResetConfirmation = false
 
     private var isHostValid: Bool {
         guard let url = URL(string: host), let scheme = url.scheme else { return false }
@@ -33,6 +37,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     ollamaSection
                     personalitySection
+                    dangerZone
                 }
                 .padding(20)
             }
@@ -137,6 +142,42 @@ struct SettingsView: View {
         }
     }
 
+    private var dangerZone: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(icon: "exclamationmark.triangle", title: "DANGER ZONE") {
+                EmptyView()
+            }
+
+            Button(action: { showResetConfirmation = true }) {
+                Text("RESET")
+                    .font(Typography.label)
+                    .foregroundStyle(Color.red.opacity(0.9))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.red.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.4), lineWidth: 0.5))
+            }
+            .buttonStyle(.plain)
+
+            Text("This option resets everything, including all conversations, journal entries, and your Ollama settings. The app will restart. This cannot be undone.")
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+        }
+        .confirmationDialog(
+            "Reset Sariel?",
+            isPresented: $showResetConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Reset everything", role: .destructive) {
+                resetEverything()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This permanently deletes all conversations, journal entries, and settings, then restarts the app. This cannot be undone.")
+        }
+    }
+
     private func sectionHeader<Accessory: View>(
         icon: String,
         title: String,
@@ -232,6 +273,39 @@ struct SettingsView: View {
 
     private func resetPrompt() {
         customPrompt = ""
+    }
+
+    private func resetEverything() {
+        deleteAll(JournalEntry.self)
+        deleteAll(JournalEntryTag.self)
+        deleteAll(Conversation.self)
+
+        try? modelContext.save()
+
+        host = "http://localhost:11434"
+        model = "gemma3:12b"
+        customPrompt = ""
+
+        relaunchApp()
+    }
+
+    private func deleteAll<T: PersistentModel>(_ type: T.Type) {
+        guard let objects = try? modelContext.fetch(FetchDescriptor<T>()) else { return }
+        for object in objects {
+            modelContext.delete(object)
+        }
+    }
+
+    private func relaunchApp() {
+        let url = Bundle.main.bundleURL
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.createsNewApplicationInstance = true
+
+        NSWorkspace.shared.openApplication(at: url, configuration: configuration) { _, _ in
+            DispatchQueue.main.async {
+                NSApp.terminate(nil)
+            }
+        }
     }
 
     private func fetchAvailableModels() async {

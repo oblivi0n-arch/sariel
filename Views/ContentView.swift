@@ -84,7 +84,7 @@ struct ContentView: View {
                 }
             }
         }
-        .frame(minWidth: 760, minHeight: 460)
+        .frame(minWidth: 760, minHeight: 660)
         .background(Theme.background.ignoresSafeArea())
         .onAppear(perform: setupConversation)
         .onChange(of: activeConversation) {
