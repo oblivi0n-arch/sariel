@@ -20,28 +20,65 @@ struct JournalEntryReader: View {
     let onOpenConversation: (Conversation) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Image(systemName: entry.entryMood.symbolName)
-                .font(Typography.icon)
-                .foregroundStyle(Theme.textFaint)
+        VStack(alignment: .leading, spacing: 16) {
+            header
 
-            HStack(spacing: 8) {
-                Text(entry.title)
-                    .font(Typography.title)
-                    .foregroundStyle(Theme.textPrimary)
-
-                Button(action: onEdit) {
-                    Image(systemName: "pencil")
-                        .font(Typography.iconButton)
-                        .foregroundStyle(Theme.textMuted)
-                }
-                .buttonStyle(.plain)
-            }
+            Rectangle().fill(Theme.border).frame(height: 0.5)
 
             Text(entry.content)
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textSecondary)
-            
+                .lineSpacing(4)
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Theme.fieldBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.border, lineWidth: 0.5))
+
+            if !entry.tags.isEmpty || entry.sourceConversation != nil {
+                Rectangle().fill(Theme.border).frame(height: 0.5)
+                footer
+            }
+        }
+        .padding(16)
+    }
+
+    private var header: some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Image(systemName: entry.entryMood.symbolName)
+                        .font(Typography.iconSmall)
+                    Text(entry.entryMood.rawValue)
+                        .font(Typography.caption)
+                }
+                .foregroundStyle(Theme.textFaint)
+
+                Text(entry.title)
+                    .font(Typography.title)
+                    .foregroundStyle(Theme.textPrimary)
+
+                Text(entry.createdAt, style: .date)
+                    .font(Typography.caption)
+                    .foregroundStyle(Theme.textFaint)
+            }
+
+            Spacer()
+
+            Button(action: onEdit) {
+                Image(systemName: "pencil")
+                    .font(Typography.iconButton)
+                    .foregroundStyle(Theme.textMuted)
+                    .frame(width: 28, height: 28)
+                    .background(Theme.fieldBackground)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private var footer: some View {
+        HStack {
             if !entry.tags.isEmpty {
                 HStack(spacing: 6) {
                     ForEach(entry.tags) { tag in
@@ -51,6 +88,8 @@ struct JournalEntryReader: View {
                     }
                 }
             }
+
+            Spacer()
 
             if let conversation = entry.sourceConversation {
                 Button(action: { onOpenConversation(conversation) }) {
@@ -64,6 +103,5 @@ struct JournalEntryReader: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(16)
     }
 }
