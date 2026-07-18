@@ -13,6 +13,7 @@ struct ChatView: View {
     @FocusState private var isInputFocused: Bool
     @State private var isHoveringSavedPill = false
     @State private var editingMessageID: UUID?
+    @State private var isMoodPromptShown = false
     private var isEnded: Bool { conversation.journalEntry != nil }
     private var successfulExchangeCount: Int {
         conversation.messages.filter { $0.messageRole == .guide && !$0.content.hasPrefix("⚠️") }.count
@@ -85,7 +86,7 @@ struct ChatView: View {
                     EndConversationLoadingBar()
                         .frame(width: 90, height: 3)
                 } else if let error = endConversationError {
-                    Button(action: { endConversation() }) {
+                    Button(action: { isMoodPromptShown = true }) {
                         statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
                     }
                     .buttonStyle(.plain)
@@ -98,7 +99,7 @@ struct ChatView: View {
                     } else {
                         Button(action: {
                             guard !isGenerating && canEndConversation else { return }
-                            endConversation()
+                            isMoodPromptShown = true
                         }) {
                             statusPill(icon: "book.closed", text: "End conversation")
                         }
@@ -179,6 +180,15 @@ struct ChatView: View {
             guard lastStreamError != nil, !isInputLocked else { return }
             retryLastResponse()
         }
+        .overlay {
+            if isMoodPromptShown {
+                MoodPromptOverlay(onSelect: { mood in
+                    isMoodPromptShown = false
+                    endConversation(mood: mood)
+                })
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isMoodPromptShown)
     }
 
     private func scrollToBottom(_ proxy: ScrollViewProxy, animated: Bool = true) {
@@ -278,9 +288,9 @@ struct ChatView: View {
         Task { await chatService.send(text: text, in: conversation, modelContext: modelContext) }
     }
 
-    private func endConversation() {
+    private func endConversation(mood: Mood) {
         Task {
-            if let entry = await chatService.endConversation(for: conversation, modelContext: modelContext) {
+            if let entry = await chatService.endConversation(for: conversation, mood: mood, modelContext: modelContext) {
                 onJournalEntryCreated(entry)
             }
         }

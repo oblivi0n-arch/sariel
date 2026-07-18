@@ -95,7 +95,7 @@ final class ChatService: ObservableObject {
         }
     }
     
-    func endConversation(for conversation: Conversation, modelContext: ModelContext) async -> JournalEntry? {
+    func endConversation(for conversation: Conversation, mood: Mood, modelContext: ModelContext) async -> JournalEntry? {
         endingConversationIDs.insert(conversation.id)
         endConversationErrors[conversation.id] = nil
         defer { endingConversationIDs.remove(conversation.id) }
@@ -110,7 +110,8 @@ final class ChatService: ObservableObject {
 
             let entry = JournalEntry(
                 title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-                content: content.trimmingCharacters(in: .whitespacesAndNewlines)
+                content: content.trimmingCharacters(in: .whitespacesAndNewlines),
+                mood: mood
             )
             entry.sourceConversation = conversation
             conversation.journalEntry = entry

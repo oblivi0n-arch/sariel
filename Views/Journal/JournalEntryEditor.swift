@@ -177,7 +177,7 @@ struct MoodPicker: View {
     }
 }
 
-private struct MoodOption: View {
+struct MoodOption: View {
     let mood: Mood
     let isSelected: Bool
     let onTap: () -> Void
