@@ -1,6 +1,11 @@
 import Foundation
 
 struct PromptBuilder {
+    
+    static var activeSystemPrompt: String {
+        let custom = UserDefaults.standard.string(forKey: "customSystemPrompt") ?? ""
+        return custom.isEmpty ? systemPrompt : custom
+    }
 
     static let systemPrompt = """
     You are Sariel. You are a pragmatic personal growth guide and mentor. You are not a therapist, nor a fake, overly sweet virtual assistant. Your goal is to help the user move from planning to real action using the method of small steps (micro-steps).
@@ -57,7 +62,7 @@ struct PromptBuilder {
     static let keepRawMessages = 8
 
     static func buildMessages(history: [ChatMessage], summary: String = "") -> [OllamaMessage] {
-        var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: systemPrompt)]
+        var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: activeSystemPrompt)]
 
         if !summary.isEmpty {
             messages.append(OllamaMessage(role: "system", content: "Summary of the conversation so far: \(summary)"))

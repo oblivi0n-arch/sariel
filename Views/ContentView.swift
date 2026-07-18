@@ -76,7 +76,7 @@ struct ContentView: View {
                         }
 
                     SettingsView()
-                        .frame(maxWidth: 480, maxHeight: 400)
+                        .frame(maxWidth: 560, maxHeight: 620)
                         .background(Theme.fieldBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))

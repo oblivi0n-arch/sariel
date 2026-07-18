@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage("ollamaHost") private var host: String = "http://localhost:11434"
     @AppStorage("ollamaModel") private var model: String = "gemma3:12b"
+    @AppStorage("customSystemPrompt") private var customPrompt: String = ""
     @State private var availableModels: [String] = []
     @State private var isLoadingModels = false
     @State private var modelsLoadError: String?
@@ -63,28 +64,70 @@ struct SettingsView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("settings")
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textMuted)
-            
-            VStack(alignment: .leading, spacing: 10) {
-                Text("OLLAMA CLIENT")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("settings")
                     .font(Typography.caption)
-                    .foregroundStyle(Theme.textFaint)
-                
-                labeledField(
-                    title: "Host",
-                    text: $host,
-                    isValid: host.isEmpty || isHostValid,
-                    errorMessage: "Enter a valid URL, e.g. http://localhost:11434"
-                )
-                modelPicker
+                    .foregroundStyle(Theme.textMuted)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("OLLAMA CLIENT")
+                        .font(Typography.caption)
+                        .foregroundStyle(Theme.textFaint)
+
+                    labeledField(
+                        title: "Host",
+                        text: $host,
+                        isValid: host.isEmpty || isHostValid,
+                        errorMessage: "Enter a valid URL, e.g. http://localhost:11434"
+                    )
+                    modelPicker
+                }
+
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text("SARIEL PERSONALITY")
+                            .font(Typography.caption)
+                            .foregroundStyle(Theme.textFaint)
+
+                        Spacer()
+
+                        Button(action: resetPrompt) {
+                            Text("restore default")
+                                .font(Typography.caption)
+                                .foregroundStyle(Theme.textMuted)
+                                .underline()
+                        }
+                        .buttonStyle(.plain)
+                        .opacity(customPrompt.isEmpty ? 0.4 : 1)
+                        .disabled(customPrompt.isEmpty)
+                    }
+
+                    ZStack(alignment: .topLeading) {
+                        if customPrompt.isEmpty {
+                            Text(PromptBuilder.systemPrompt)
+                                .font(Typography.caption)
+                                .foregroundStyle(Theme.textFaint)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
+                                .allowsHitTesting(false)
+                        }
+
+                        TextEditor(text: $customPrompt)
+                            .font(Typography.caption)
+                            .foregroundStyle(Theme.textPrimary)
+                            .scrollContentBackground(.hidden)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                    }
+                    .frame(height: 260)
+                    .background(Theme.fieldBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
+                }
             }
-            
-            Spacer()
+            .padding(20)
         }
-        .padding(20)
         .task {
             await fetchAvailableModels()
         }
@@ -139,5 +182,9 @@ struct SettingsView: View {
         }
 
         isLoadingModels = false
+    }
+    
+    private func resetPrompt() {
+        customPrompt = ""
     }
 }
