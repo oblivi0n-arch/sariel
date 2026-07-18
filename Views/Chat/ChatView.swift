@@ -187,31 +187,42 @@ struct ChatView: View {
     }
 
     private var inputBar: some View {
-        HStack(spacing: 10) {
-            TextField("write a message...", text: $draft, axis: .vertical)
+        HStack(alignment: .bottom, spacing: 10) {
+            TextField("Write a message...", text: $draft, axis: .vertical)
                 .textFieldStyle(.plain)
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textPrimary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 9)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
                 .background(Theme.fieldBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(isInputFocused ? Theme.borderStrong : Theme.border,
+                                lineWidth: isInputFocused ? 1 : 0.5)
+                )
                 .onSubmit(sendMessage)
                 .disabled(isInputLocked)
                 .focused($isInputFocused)
 
             Button(action: sendMessage) {
-                Image(systemName: "arrow.up.circle.fill")
-                    .font(.system(size: 22))
-                    .foregroundStyle(draft.isEmpty ? Theme.textFaint : Theme.textPrimary)
+                Image(systemName: "arrow.up")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(canSend ? Theme.background : Theme.textFaint)
+                    .frame(width: 32, height: 32)
+                    .background(canSend ? Theme.textPrimary : Theme.fieldBackground)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Theme.border, lineWidth: 0.5))
             }
             .buttonStyle(.plain)
-            .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty || isInputLocked)
+            .disabled(!canSend)
         }
         .padding(16)
     }
 
+    private var canSend: Bool {
+        !draft.trimmingCharacters(in: .whitespaces).isEmpty && !isInputLocked
+    }
     private var endedFooter: some View {
         Button(action: {
             if let entry = conversation.journalEntry {
