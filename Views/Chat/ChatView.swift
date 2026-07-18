@@ -9,6 +9,7 @@ struct ChatView: View {
 
     @ObservedObject private var chatService: ChatService
     @State private var draft: String = ""
+    @EnvironmentObject private var connectionMonitor: ConnectionMonitor
     @FocusState private var isInputFocused: Bool
     @State private var isHoveringEndButton = false
     @State private var editingMessageID: UUID?
@@ -169,6 +170,11 @@ struct ChatView: View {
             }
         }
         .background(Theme.background)
+        .onChange(of: connectionMonitor.isConnected) { oldValue, newValue in
+            guard newValue, !oldValue else { return }
+            guard lastStreamError != nil, !isInputLocked else { return }
+            retryLastResponse()
+        }
     }
 
     private func scrollToBottom(_ proxy: ScrollViewProxy, animated: Bool = true) {
