@@ -43,7 +43,7 @@ struct ContentView: View {
                             }
 
                             if isConversationListOpen {
-                                Color.black.opacity(0.5)
+                                Color.black.opacity(0.25)
                                     .ignoresSafeArea()
                                     .onTapGesture {
                                         withAnimation(.easeInOut(duration: 0.25)) {
@@ -67,7 +67,7 @@ struct ContentView: View {
                 }
 
                 if isSettingsOpen {
-                    Color.black.opacity(0.25)
+                    Color.black.opacity(0.5)
                         .ignoresSafeArea()
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: 0.25)) {
@@ -75,14 +75,16 @@ struct ContentView: View {
                             }
                         }
 
-                    SettingsView()
+                    SettingsView(isPresented: $isSettingsOpen)
                         .frame(maxWidth: 560, maxHeight: 620)
-                        .background(Theme.fieldBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
+                        .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
+                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
                 }
             }
         }
+        .frame(minWidth: 760, minHeight: 460)
         .background(Theme.background.ignoresSafeArea())
         .onAppear(perform: setupConversation)
         .onChange(of: activeConversation) {
