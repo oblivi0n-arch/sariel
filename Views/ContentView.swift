@@ -75,10 +75,11 @@ struct ContentView: View {
                             }
                         }
 
-                    Text("Settings")
-                        .foregroundStyle(Theme.textPrimary)
+                    SettingsView()
                         .frame(maxWidth: 480, maxHeight: 400)
                         .background(Theme.fieldBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
                 }
             }
         }

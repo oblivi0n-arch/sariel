@@ -18,8 +18,14 @@ struct OllamaMessage: Codable {
 }
 
 struct OllamaClient {
-    let url = URL(string: "http://localhost:11434/api/chat")!
-    var model: String = "gemma3:12b"
+    var url: URL {
+        let host = UserDefaults.standard.string(forKey: "ollamaHost") ?? "http://localhost:11434"
+        return URL(string: "\(host)/api/chat") ?? URL(string: "http://localhost:11434/api/chat")!
+    }
+
+    var model: String {
+        UserDefaults.standard.string(forKey: "ollamaModel") ?? "gemma3:12b"
+    }
 
     func streamChat(messages: [OllamaMessage]) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
