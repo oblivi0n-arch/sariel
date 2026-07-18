@@ -57,14 +57,34 @@ struct PromptBuilder {
     static let maxHistoryMessages = 30
     static let summaryRefreshThreshold = 10
     static let keepRawMessages = 8
+    static let journalContextEntryCount = 5
+    static let journalContextExcerptLength = 200
 
     static var activeSystemPrompt: String {
         let custom = UserDefaults.standard.string(forKey: "customSystemPrompt") ?? ""
         return custom.isEmpty ? systemPrompt : custom
     }
 
-    static func buildMessages(history: [ChatMessage], summary: String = "") -> [OllamaMessage] {
+    static func buildJournalContextText(entries: [JournalEntry]) -> String {
+        guard !entries.isEmpty else { return "" }
+
+        return entries.map { entry in
+            let excerpt = entry.content.count > journalContextExcerptLength
+                ? String(entry.content.prefix(journalContextExcerptLength)) + "…"
+                : entry.content
+            return "- [\(entry.entryMood.rawValue)] \(entry.title): \(excerpt)"
+        }.joined(separator: "\n")
+    }
+
+    static func buildMessages(history: [ChatMessage], summary: String = "", journalContext: String = "") -> [OllamaMessage] {
         var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: activeSystemPrompt)]
+
+        if !journalContext.isEmpty {
+            messages.append(OllamaMessage(
+                role: "system",
+                content: "Recent journal entries from the user, for spotting recurring patterns. Use them only if relevant — don't force references to them:\n\(journalContext)"
+            ))
+        }
 
         if !summary.isEmpty {
             messages.append(OllamaMessage(role: "system", content: "Summary of the conversation so far: \(summary)"))

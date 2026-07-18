@@ -10,6 +10,7 @@ struct SettingsView: View {
     @AppStorage("ollamaHost") private var host: String = "http://localhost:11434"
     @AppStorage("ollamaModel") private var model: String = "gemma3:12b"
     @AppStorage("customSystemPrompt") private var customPrompt: String = ""
+    @AppStorage("useJournalContext") private var useJournalContext: Bool = false
 
     @State private var availableModels: [String] = []
     @State private var isLoadingModels = false
@@ -37,6 +38,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     ollamaSection
                     personalitySection
+                    contextSection
                     dangerZone
                 }
                 .padding(20)
@@ -139,6 +141,26 @@ struct SettingsView: View {
             .background(Theme.fieldBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
+        }
+    }
+
+    private var contextSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(icon: "book.closed", title: "JOURNAL CONTEXT") {
+                EmptyView()
+            }
+
+            Toggle(isOn: $useJournalContext) {
+                Text("Let Sariel read your recent journal entries")
+                    .font(Theme.uiFont)
+                    .foregroundStyle(Theme.textPrimary)
+            }
+            .toggleStyle(.switch)
+            .tint(Theme.textPrimary)
+
+            Text("When enabled, your last \(PromptBuilder.journalContextEntryCount) journal entries are sent as context in every conversation, so Sariel can notice patterns over time. Entries never leave your device.")
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
         }
     }
 
@@ -285,6 +307,7 @@ struct SettingsView: View {
         host = "http://localhost:11434"
         model = "gemma3:12b"
         customPrompt = ""
+        useJournalContext = false
 
         relaunchApp()
     }

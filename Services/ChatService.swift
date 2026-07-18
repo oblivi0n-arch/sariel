@@ -168,8 +168,19 @@ final class ChatService: ObservableObject {
         try? modelContext.save()
     }
     
+    private func fetchJournalContextIfEnabled(modelContext: ModelContext) -> String {
+        guard UserDefaults.standard.bool(forKey: "useJournalContext") else { return "" }
+
+        var descriptor = FetchDescriptor<JournalEntry>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        descriptor.fetchLimit = PromptBuilder.journalContextEntryCount
+
+        guard let entries = try? modelContext.fetch(descriptor) else { return "" }
+        return PromptBuilder.buildJournalContextText(entries: entries)
+    }
+
     private func streamGuideResponse(into guideMessage: ChatMessage, history: [ChatMessage], conversation: Conversation, modelContext: ModelContext) async {
-        let messages = PromptBuilder.buildMessages(history: history, summary: conversation.summary)
+        let journalContext = fetchJournalContextIfEnabled(modelContext: modelContext)
+        let messages = PromptBuilder.buildMessages(history: history, summary: conversation.summary, journalContext: journalContext)
         do {
             for try await chunk in client.streamChat(messages: messages) {
                 guideMessage.content += chunk
