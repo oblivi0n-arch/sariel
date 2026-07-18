@@ -10,103 +10,112 @@ struct ContentView: View {
     @State private var isSettingsOpen = false
     @State private var selectedSection: AppSection = .chat
     @State private var activeEntry: JournalEntry?
+    @State private var showSplash = true
     @StateObject private var chatService = ChatService()
     @StateObject private var toastManager = ToastManager()
 
     var body: some View {
-        HStack(spacing: 0) {
-            SidebarView(selectedSection: $selectedSection, isSettingsOpen: $isSettingsOpen)
-
-            ZStack {
-                Group {
-                    switch selectedSection {
-                    case .chat:
-                        ZStack(alignment: .leading) {
-                            Group {
-                                if let conversation = activeConversation {
-                                    ChatView(
-                                        conversation: conversation,
-                                        chatService: chatService,
-                                        isConversationListOpen: $isConversationListOpen,
-                                        onJournalEntryCreated: { entry in
-                                            toastManager.show(entry: entry)
-                                        },
-                                        isActive: selectedSection == .chat
-
+        ZStack {
+            HStack(spacing: 0) {
+                SidebarView(selectedSection: $selectedSection, isSettingsOpen: $isSettingsOpen)
+                
+                ZStack {
+                    Group {
+                        switch selectedSection {
+                        case .chat:
+                            ZStack(alignment: .leading) {
+                                Group {
+                                    if let conversation = activeConversation {
+                                        ChatView(
+                                            conversation: conversation,
+                                            chatService: chatService,
+                                            isConversationListOpen: $isConversationListOpen,
+                                            onJournalEntryCreated: { entry in
+                                                toastManager.show(entry: entry)
+                                            },
+                                            isActive: selectedSection == .chat
+                                            
+                                        )
+                                        .id(conversation.id)
+                                    } else {
+                                        ProgressView()
+                                            .background(Theme.background)
+                                    }
+                                }
+                                
+                                if isConversationListOpen {
+                                    Color.black.opacity(0.25)
+                                        .ignoresSafeArea()
+                                        .onTapGesture {
+                                            withAnimation(.easeInOut(duration: 0.25)) {
+                                                isConversationListOpen = false
+                                            }
+                                        }
+                                    
+                                    ConversationListView(
+                                        conversations: conversations,
+                                        activeConversation: $activeConversation,
+                                        isConversationListOpen: $isConversationListOpen
                                     )
-                                    .id(conversation.id)
-                                } else {
-                                    ProgressView()
-                                        .background(Theme.background)
+                                    .transition(.move(edge: .leading))
                                 }
                             }
-
-                            if isConversationListOpen {
-                                Color.black.opacity(0.25)
-                                    .ignoresSafeArea()
-                                    .onTapGesture {
-                                        withAnimation(.easeInOut(duration: 0.25)) {
-                                            isConversationListOpen = false
-                                        }
-                                    }
-
-                                ConversationListView(
-                                    conversations: conversations,
-                                    activeConversation: $activeConversation,
-                                    isConversationListOpen: $isConversationListOpen
-                                )
-                                    .transition(.move(edge: .leading))
-                            }
+                            .clipped()
+                            
+                        case .journal:
+                            JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation)
                         }
-                        .clipped()
-
-                    case .journal:
-                        JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation)
+                    }
+                    
+                    if isSettingsOpen {
+                        Color.black.opacity(0.5)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    isSettingsOpen = false
+                                }
+                            }
+                        
+                        SettingsView(isPresented: $isSettingsOpen)
+                            .frame(maxWidth: 560, maxHeight: 620)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
+                            .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
+                            .transition(.opacity.combined(with: .scale(scale: 0.96)))
                     }
                 }
-
-                if isSettingsOpen {
-                    Color.black.opacity(0.5)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                isSettingsOpen = false
+                .overlay(alignment: .topTrailing) {
+                    VStack(alignment: .trailing, spacing: 8) {
+                        ForEach(toastManager.toasts) { toast in
+                            ToastView(toast: toast) {
+                                activeEntry = toast.entry
+                                selectedSection = .journal
+                                toastManager.dismiss(toast)
                             }
+                            .transition(.move(edge: .trailing).combined(with: .opacity))
                         }
-
-                    SettingsView(isPresented: $isSettingsOpen)
-                        .frame(maxWidth: 560, maxHeight: 620)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
-                        .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
-                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
-                }
-            }
-            .overlay(alignment: .topTrailing) {
-                VStack(alignment: .trailing, spacing: 8) {
-                    ForEach(toastManager.toasts) { toast in
-                        ToastView(toast: toast) {
-                            activeEntry = toast.entry
-                            selectedSection = .journal
-                            toastManager.dismiss(toast)
-                        }
-                        .transition(.move(edge: .trailing).combined(with: .opacity))
                     }
+                    .padding(16)
+                    .animation(.easeInOut(duration: 0.25), value: toastManager.toasts.map(\.id))
                 }
-                .padding(16)
-                .animation(.easeInOut(duration: 0.25), value: toastManager.toasts.map(\.id))
+            }
+            .frame(minWidth: 760, minHeight: 660)
+            .background(Theme.background.ignoresSafeArea())
+            .onAppear(perform: setupConversation)
+            .onChange(of: activeConversation) {
+                if activeConversation == nil {
+                    setupConversation()
+                }
+            }
+            .animation(.easeInOut(duration: 0.25), value: isConversationListOpen)
+            .animation(.easeInOut(duration: 0.25), value: isSettingsOpen)
+            
+            if showSplash {
+                SplashView {
+                    showSplash = false
+                }
             }
         }
-        .frame(minWidth: 760, minHeight: 660)
-        .background(Theme.background.ignoresSafeArea())
-        .onAppear(perform: setupConversation)
-        .onChange(of: activeConversation) {
-            if activeConversation == nil {
-                setupConversation()
-            }
-        }
-        .animation(.easeInOut(duration: 0.25), value: isConversationListOpen)
-        .animation(.easeInOut(duration: 0.25), value: isSettingsOpen)
     }
 
     private func setupConversation() {
