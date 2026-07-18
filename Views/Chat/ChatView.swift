@@ -77,15 +77,21 @@ struct ChatView: View {
                     .buttonStyle(.plain)
                     .help(error)
                 } else {
-                    Button(action: {
-                        guard !isGenerating && successfulExchangeCount >= 2 else { return }
-                        endConversation()
-                    }) {
-                        statusPill(icon: "book.closed", text: "End conversation")
+                    let canEndConversation = successfulExchangeCount >= 2
+
+                    if canEndConversation && !connectionMonitor.isConnected {
+                        statusPill(icon: "wifi.slash", text: "Offline", color: Theme.textMuted)
+                    } else {
+                        Button(action: {
+                            guard !isGenerating && canEndConversation else { return }
+                            endConversation()
+                        }) {
+                            statusPill(icon: "book.closed", text: "End conversation")
+                        }
+                        .buttonStyle(.plain)
+                        .opacity(canEndConversation ? 1 : 0.4)
+                        .help(canEndConversation ? "" : "conversation is too short to save")
                     }
-                    .buttonStyle(.plain)
-                    .opacity(successfulExchangeCount < 2 ? 0.4 : 1)
-                    .help(successfulExchangeCount < 2 ? "conversation is too short to save" : "")
                 }
             }
             .padding(.horizontal, 16)
