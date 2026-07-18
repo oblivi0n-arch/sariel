@@ -2,21 +2,26 @@ import SwiftUI
 
 struct EndConversationLoadingBar: View {
     @State private var progress: CGFloat = 0
-    
+
     var body: some View {
         GeometryReader { geo in
+            let chunkWidth = geo.size.width * 0.3
+            let travelDistance = geo.size.width + chunkWidth
+
             ZStack(alignment: .leading) {
                 Rectangle()
-                    .fill(Theme.background)
+                    .fill(Theme.fieldBackground)
+
                 Rectangle()
-                    .fill(Color.white)
-                    .frame(width: geo.size.width * self.progress)
+                    .fill(Theme.textPrimary)
+                    .frame(width: chunkWidth)
+                    .offset(x: -chunkWidth + progress * travelDistance)
             }
         }
         .frame(height: 3)
         .clipShape(RoundedRectangle(cornerRadius: 2))
         .onAppear {
-            withAnimation(.linear(duration: 1.0).repeatForever(autoreverses: false)) {
+            withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) {
                 progress = 1
             }
         }
