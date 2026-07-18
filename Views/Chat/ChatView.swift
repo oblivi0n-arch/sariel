@@ -63,66 +63,30 @@ struct ChatView: View {
 
                 Spacer()
                 if let error = lastStreamError, !isEnded {
-                    HStack(spacing: 6) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(Typography.label)
-                        Text(error)
-                            .font(Typography.caption)
-                    }
-                    .foregroundStyle(Theme.textMuted)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
+                    statusPill(icon: "exclamationmark.triangle.fill", text: error, color: Theme.textMuted)
                 }
                 if isEnded {
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark.circle")
-                            .font(Typography.caption)
-                        Text("saved to journal")
-                            .font(Typography.caption)
-                    }
-                    .foregroundStyle(Theme.textMuted)
+                    statusPill(icon: "checkmark.circle", text: "Saved to journal")
                 } else if isEndingConversation {
                     EndConversationLoadingBar()
-                        .frame(width: 100)
+                        .frame(width: 90, height: 3)
                 } else if let error = endConversationError {
                     Button(action: { endConversation() }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .font(Typography.label)
-                            Text("something went wrong – tap to retry")
-                                .font(Typography.caption)
-                        }
+                        statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
                     }
                     .buttonStyle(.plain)
-                    .foregroundStyle(Theme.textPrimary)
                     .help(error)
                 } else {
                     Button(action: {
                         guard !isGenerating && successfulExchangeCount >= 2 else { return }
                         endConversation()
                     }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "book.closed")
-                                .font(.system(size: 10, weight: .medium))
-                            Text("End conversation")
-                                .font(Typography.caption)
-                        }
-                        .foregroundStyle(Theme.textSecondary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
-                        .background(Theme.fieldBackground)
-                        .clipShape(Capsule())
-                        .overlay(
-                            Capsule().stroke(isHoveringEndButton ? Theme.borderStrong : Theme.border, lineWidth: 0.5)
-                        )
+                        statusPill(icon: "book.closed", text: "End conversation")
                     }
                     .buttonStyle(.plain)
-                    .contentShape(Capsule())
-                    .onHover { hovering in isHoveringEndButton = hovering }
                     .opacity(successfulExchangeCount < 2 ? 0.4 : 1)
                     .help(successfulExchangeCount < 2 ? "conversation is too short to save" : "")
                 }
-                
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -233,6 +197,21 @@ struct ChatView: View {
             .disabled(!canSend)
         }
         .padding(16)
+    }
+    
+    private func statusPill(icon: String, text: String, color: Color = Theme.textSecondary) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 10, weight: .medium))
+            Text(text)
+                .font(Typography.caption)
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
+        .background(Theme.fieldBackground)
+        .clipShape(Capsule())
+        .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
     }
 
     private var canSend: Bool {
