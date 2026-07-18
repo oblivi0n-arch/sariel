@@ -85,7 +85,7 @@ struct JournalView: View {
                 emptyState
             } else {
                 ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 2) {
+                    LazyVStack(alignment: .leading, spacing: 10) {
                         ForEach(filteredEntries) { entry in
                             JournalEntryRow(
                                 entry: entry,
