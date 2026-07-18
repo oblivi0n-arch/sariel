@@ -7,13 +7,14 @@ struct ContentView: View {
 
     @State private var activeConversation: Conversation?
     @State private var isConversationListOpen = false
+    @State private var isSettingsOpen = false
     @State private var selectedSection: AppSection = .chat
     @State private var activeEntry: JournalEntry?
     @StateObject private var chatService = ChatService()
 
     var body: some View {
         HStack(spacing: 0) {
-            SidebarView(selectedSection: $selectedSection)
+            SidebarView(selectedSection: $selectedSection, isSettingsOpen: $isSettingsOpen)
 
             Group {
                 switch selectedSection {
