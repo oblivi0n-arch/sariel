@@ -10,12 +10,21 @@ struct SidebarView: View {
             statusDot
 
             ForEach(AppSection.allCases) { section in
-                sidebarIcon(for: section)
+                SidebarIconButton(
+                    iconName: section.iconName,
+                    isActive: section == selectedSection,
+                    onTap: { selectedSection = section }
+                )
             }
 
             Spacer()
             
-            settingsIcon
+            SidebarIconButton(
+                iconName: "gearshape.fill",
+                isActive: isSettingsOpen,
+                onTap: { isSettingsOpen.toggle() }
+            )
+            .padding(.bottom, 12)
         }
         .padding(.top, 20)
         .frame(width: 56)
@@ -27,22 +36,6 @@ struct SidebarView: View {
                 .frame(width: 0.5)
         }
     }
-    
-    private var settingsIcon: some View {
-           Image(systemName: "gearshape.fill")
-               .font(.system(size: 18))
-               .foregroundStyle(isSettingsOpen ? Theme.textPrimary : Theme.textFaint)
-               .frame(width: 36, height: 36)
-               .clipShape(RoundedRectangle(cornerRadius: 8))
-               .overlay(
-                   RoundedRectangle(cornerRadius: 8)
-                       .stroke(isSettingsOpen ? Theme.borderStrong : .clear, lineWidth: 1)
-               )
-               .onTapGesture {
-                   isSettingsOpen.toggle()
-               }
-               .padding(.bottom, 12)
-       }
 
     private var statusDot: some View {
         Group {
