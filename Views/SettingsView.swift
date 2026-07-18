@@ -186,28 +186,34 @@ struct SettingsView: View {
 
     private var modelPicker: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Model")
-                .font(Typography.label)
-                .foregroundStyle(Theme.textMuted)
+            HStack {
+                Text("Model")
+                    .font(Typography.label)
+                    .foregroundStyle(Theme.textMuted)
+
+                Spacer()
+
+                Button(action: { Task { await fetchAvailableModels() } }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 10))
+                        Text(isLoadingModels ? "loading..." : "load models")
+                    }
+                    .font(Typography.caption)
+                    .foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
+                .disabled(isLoadingModels)
+            }
 
             if isLoadingModels {
                 Text("Loading models...")
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)
             } else if let modelsLoadError {
-                HStack(spacing: 8) {
-                    Text(modelsLoadError)
-                        .font(Typography.caption)
-                        .foregroundStyle(Color.red.opacity(0.8))
-
-                    Button(action: { Task { await fetchAvailableModels() } }) {
-                        Text("retry")
-                            .font(Typography.caption)
-                            .foregroundStyle(Theme.textPrimary)
-                            .underline()
-                    }
-                    .buttonStyle(.plain)
-                }
+                Text(modelsLoadError)
+                    .font(Typography.caption)
+                    .foregroundStyle(Color.red.opacity(0.8))
             } else if availableModels.isEmpty {
                 Text("No models found")
                     .font(Typography.caption)
