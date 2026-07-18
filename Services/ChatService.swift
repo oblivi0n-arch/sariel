@@ -128,10 +128,10 @@ final class ChatService: ObservableObject {
     private func generatedTag(modelContext: ModelContext) -> JournalEntryTag {
         let descriptor = FetchDescriptor<JournalEntryTag>()
         if let allTags = try? modelContext.fetch(descriptor),
-           let existing = allTags.first(where: { $0.name.caseInsensitiveCompare("generated") == .orderedSame }) {
+           let existing = allTags.first(where: { $0.name.caseInsensitiveCompare("Sariel") == .orderedSame }) {
             return existing
         }
-        let tag = JournalEntryTag(name: "generated")
+        let tag = JournalEntryTag(name: "Sariel")
         modelContext.insert(tag)
         return tag
     }
