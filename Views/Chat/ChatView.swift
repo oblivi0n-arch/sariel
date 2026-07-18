@@ -55,6 +55,12 @@ struct ChatView: View {
                 .opacity(isConversationListOpen ? 0 : 1)
                 .disabled(isConversationListOpen)
 
+                Text(conversation.title)
+                    .font(Typography.label)
+                    .foregroundStyle(Theme.textSecondary)
+                    .lineLimit(1)
+                    .padding(.leading, 4)
+
                 Spacer()
                 if let error = lastStreamError, !isEnded {
                     HStack(spacing: 6) {
@@ -116,9 +122,13 @@ struct ChatView: View {
                     .opacity(successfulExchangeCount < 2 ? 0.4 : 1)
                     .help(successfulExchangeCount < 2 ? "conversation is too short to save" : "")
                 }
+                
             }
             .padding(.horizontal, 16)
-            .padding(.top, 12)
+            .padding(.vertical, 12)
+            .overlay(alignment: .bottom) {
+                Rectangle().fill(Theme.border).frame(height: 0.5)
+            }
 
             ScrollViewReader { proxy in
                 ScrollView {
