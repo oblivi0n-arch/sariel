@@ -12,71 +12,130 @@ struct JournalEntryEditor: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allTags: [JournalEntryTag]
     @State private var newTagText: String = ""
+    @State private var measuredContentHeight: CGFloat = 0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MoodPicker(selection: Binding(
-                get: { entry.entryMood },
-                set: { entry.entryMood = $0 }
-            ))
+        VStack(alignment: .leading, spacing: 20) {
+            editingBadge
 
-            TextField("Title", text: $entry.title)
-                .textFieldStyle(.plain)
-                .font(Typography.title)
-                .foregroundStyle(Theme.textPrimary)
-                .focused($focusedField, equals: .title)
-                .onSubmit {
-                    focusedField = .content
+            section(label: "entry") {
+                VStack(alignment: .leading, spacing: 0) {
+                    TextField("Title", text: $entry.title)
+                        .textFieldStyle(.plain)
+                        .font(Typography.title)
+                        .foregroundStyle(Theme.textPrimary)
+                        .padding(.horizontal, 14)
+                        .padding(.top, 12)
+                        .padding(.bottom, 10)
+                        .focused($focusedField, equals: .title)
+                        .onSubmit { focusedField = .content }
+
+                    Rectangle().fill(Theme.border).frame(height: 0.5)
+
+                    ZStack(alignment: .topLeading) {
+                        if entry.content.isEmpty {
+                            Text("Write freely...")
+                                .font(Theme.uiFont)
+                                .foregroundStyle(Theme.textFaint)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 12)
+                                .allowsHitTesting(false)
+                        }
+
+                        TextEditor(text: $entry.content)
+                            .font(Theme.uiFont)
+                            .foregroundStyle(Theme.textSecondary)
+                            .scrollContentBackground(.hidden)
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 7)
+                            .focused($focusedField, equals: .content)
+                    }
+                    .frame(height: 280)
                 }
-
-            ZStack(alignment: .topLeading) {
-                if entry.content.isEmpty {
-                    Text("Write freely...")
-                        .font(Theme.uiFont)
-                        .foregroundStyle(Theme.textFaint)
-                        .padding(.top, 1)
-                        .padding(.leading, 5)
-                        .allowsHitTesting(false)
-                }
-
-                TextEditor(text: $entry.content)
-                    .font(Theme.uiFont)
-                    .foregroundStyle(Theme.textSecondary)
-                    .scrollContentBackground(.hidden)
-                    .background(.clear)
-                    .focused($focusedField, equals: .content)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(dashedBorder(cornerRadius: 10))
             }
-            
-            VStack(alignment: .leading, spacing: 8) {
-                if !entry.tags.isEmpty {
-                    HStack {
-                        ForEach(entry.tags) { tag in
-                            HStack(spacing: 4) {
-                                Text("#\(tag.name)")
-                                Button(action: { removeTag(tag) }) {
-                                    Image(systemName: "xmark")
+
+            section(label: "mood") {
+                MoodPicker(selection: Binding(
+                    get: { entry.entryMood },
+                    set: { entry.entryMood = $0 }
+                ))
+            }
+
+            section(label: "tags") {
+                VStack(alignment: .leading, spacing: 8) {
+                    if !entry.tags.isEmpty {
+                        HStack {
+                            ForEach(entry.tags) { tag in
+                                HStack(spacing: 4) {
+                                    Text("#\(tag.name)")
+                                    Button(action: { removeTag(tag) }) {
+                                        Image(systemName: "xmark")
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
+                                .font(Typography.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Theme.fieldBackground)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .foregroundStyle(Theme.textMuted)
                             }
-                            .font(Typography.caption)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Theme.fieldBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                            .foregroundStyle(Theme.textMuted)
                         }
                     }
-                }
 
-                TextField("Add tag", text: $newTagText)
-                    .textFieldStyle(.plain)
-                    .font(Typography.label)
-                    .onSubmit(addTag)
+                    TextField("Add tag", text: $newTagText)
+                        .textFieldStyle(.plain)
+                        .font(Typography.label)
+                        .foregroundStyle(Theme.textSecondary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .overlay(dashedBorder(cornerRadius: 8))
+                        .onSubmit(addTag)
+                }
             }
         }
         .padding(16)
     }
+
+    private var editingBadge: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "pencil")
+                .font(.system(size: 10, weight: .medium))
+            Text("editing")
+                .font(Typography.caption)
+        }
+        .foregroundStyle(Theme.textFaint)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
+    }
+
+    private func section<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(label)
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+                .textCase(.uppercase)
+                .kerning(0.5)
+
+            content()
+        }
+    }
+
+    private func dashedBorder(cornerRadius: CGFloat) -> some View {
+        RoundedRectangle(cornerRadius: cornerRadius)
+            .stroke(Theme.border, style: StrokeStyle(lineWidth: 0.5, dash: [4, 3]))
+    }
     
+    private struct EntryHeightKey: PreferenceKey {
+        static var defaultValue: CGFloat = 0
+        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+            value = nextValue()
+        }
+    }
+
     private func addTag() {
         let trimmed = newTagText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
