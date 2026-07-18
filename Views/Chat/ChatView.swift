@@ -11,7 +11,7 @@ struct ChatView: View {
     @State private var draft: String = ""
     @EnvironmentObject private var connectionMonitor: ConnectionMonitor
     @FocusState private var isInputFocused: Bool
-    @State private var isHoveringEndButton = false
+    @State private var isHoveringSavedPill = false
     @State private var editingMessageID: UUID?
     private var isEnded: Bool { conversation.journalEntry != nil }
     private var successfulExchangeCount: Int {
@@ -27,20 +27,6 @@ struct ChatView: View {
     }
     private var lastGuideMessage: ChatMessage? {
         sortedMessages.last(where: { $0.messageRole == .guide })
-    }
-    
-    private var emptyConversationState: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "circle.dashed")
-                .font(.system(size: 26))
-                .foregroundStyle(Theme.textFaint)
-
-            Text("The mirror is empty.\nSay something true.")
-                .font(Theme.voiceFont)
-                .foregroundStyle(Theme.textMuted)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: 260)
     }
     
     var onJournalEntryCreated: (JournalEntry) -> Void
@@ -76,11 +62,25 @@ struct ChatView: View {
                     .padding(.leading, 4)
 
                 Spacer()
+
                 if let error = lastStreamError, !isEnded {
                     statusPill(icon: "exclamationmark.triangle.fill", text: error, color: Theme.textMuted)
                 }
+
                 if isEnded {
-                    statusPill(icon: "checkmark.circle", text: "Saved to journal")
+                    Button(action: {
+                        if let entry = conversation.journalEntry {
+                            onJournalEntryCreated(entry)
+                        }
+                    }) {
+                        statusPill(
+                            icon: "checkmark.circle",
+                            text: "Saved — tap to view",
+                            color: isHoveringSavedPill ? Theme.textPrimary : Theme.textSecondary
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .onHover { hovering in isHoveringSavedPill = hovering }
                 } else if isEndingConversation {
                     EndConversationLoadingBar()
                         .frame(width: 90, height: 3)
@@ -168,7 +168,7 @@ struct ChatView: View {
             }
 
             if isEnded {
-                endedFooter
+                endedClosing
             } else {
                 inputBar
             }
@@ -188,6 +188,35 @@ struct ChatView: View {
         } else {
             proxy.scrollTo(last.id, anchor: .bottom)
         }
+    }
+
+    private func statusPill(icon: String, text: String, color: Color = Theme.textSecondary) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 10, weight: .medium))
+            Text(text)
+                .font(Typography.caption)
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
+        .background(Theme.fieldBackground)
+        .clipShape(Capsule())
+        .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
+    }
+
+    private var emptyConversationState: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "circle.dashed")
+                .font(.system(size: 26))
+                .foregroundStyle(Theme.textFaint)
+
+            Text("The mirror is empty.\nSay something true.")
+                .font(Theme.voiceFont)
+                .foregroundStyle(Theme.textMuted)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: 260)
     }
 
     private var inputBar: some View {
@@ -223,44 +252,25 @@ struct ChatView: View {
         }
         .padding(16)
     }
-    
-    private func statusPill(icon: String, text: String, color: Color = Theme.textSecondary) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 10, weight: .medium))
-            Text(text)
-                .font(Typography.caption)
-        }
-        .foregroundStyle(color)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 7)
-        .background(Theme.fieldBackground)
-        .clipShape(Capsule())
-        .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
-    }
 
     private var canSend: Bool {
         !draft.trimmingCharacters(in: .whitespaces).isEmpty && !isInputLocked
     }
-    private var endedFooter: some View {
-        Button(action: {
-            if let entry = conversation.journalEntry {
-                onJournalEntryCreated(entry)
-            }
-        }) {
-            HStack(spacing: 8) {
-                Image(systemName: "bubble.circle.fill")
-                    .font(.system(size: 14))
-                Text("This conversation is saved – tap to view")
-                    .font(Theme.uiFont)
-            }
-            .foregroundStyle(Theme.textFaint)
-            .frame(maxWidth: .infinity)
-            .padding(16)
-            .contentShape(Rectangle())
+
+    private var endedClosing: some View {
+        HStack {
+            Spacer()
+            Text("— reflection recorded —")
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+            Spacer()
         }
-        .buttonStyle(.plain)
+        .padding(.vertical, 18)
+        .overlay(alignment: .top) {
+            Rectangle().fill(Theme.border).frame(height: 0.5)
+        }
     }
+
     private func sendMessage() {
         guard !isInputLocked else { return }
         let text = draft
