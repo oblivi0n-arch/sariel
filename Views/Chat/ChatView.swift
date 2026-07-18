@@ -95,18 +95,23 @@ struct ChatView: View {
                         guard !isGenerating && successfulExchangeCount >= 2 else { return }
                         endConversation()
                     }) {
-                            Text("end conversation")
-
+                        HStack(spacing: 6) {
+                            Image(systemName: "book.closed")
+                                .font(.system(size: 10, weight: .medium))
+                            Text("End conversation")
+                                .font(Typography.caption)
+                        }
+                        .foregroundStyle(Theme.textSecondary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(Theme.fieldBackground)
+                        .clipShape(Capsule())
+                        .overlay(
+                            Capsule().stroke(isHoveringEndButton ? Theme.borderStrong : Theme.border, lineWidth: 0.5)
+                        )
                     }
-                    .padding(10)
                     .buttonStyle(.plain)
-                    .font(.system(size: 11))
-                    .foregroundStyle(Theme.textMuted)
-                    .contentShape(Rectangle())
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(isHoveringEndButton ? Theme.border : .clear, lineWidth: 0.5)
-                    )
+                    .contentShape(Capsule())
                     .onHover { hovering in isHoveringEndButton = hovering }
                     .opacity(successfulExchangeCount < 2 ? 0.4 : 1)
                     .help(successfulExchangeCount < 2 ? "conversation is too short to save" : "")
