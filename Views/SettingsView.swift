@@ -290,6 +290,11 @@ struct SettingsView: View {
                 .pickerStyle(.menu)
                 .tint(Theme.textPrimary)
             }
+
+            Text("Recommended: gemma3:12b — the app was built and tested against it. Smaller models may struggle with memory and long context.")
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+                .padding(.top, 2)
         }
     }
 
