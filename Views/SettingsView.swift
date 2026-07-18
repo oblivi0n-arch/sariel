@@ -141,6 +141,11 @@ struct SettingsView: View {
             .background(Theme.fieldBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
+
+            Text("Recommended: keep the default prompt. It has been tested and tuned to fit the app's purpose — overriding it may weaken Sariel's tone and consistency.")
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+                .padding(.top, 2)
         }
     }
 
@@ -360,3 +365,4 @@ struct SettingsView: View {
         isLoadingModels = false
     }
 }
+
