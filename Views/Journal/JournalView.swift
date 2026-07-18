@@ -32,19 +32,27 @@ struct JournalView: View {
                     .buttonStyle(.plain)
                 }
 
-                Text("journal")
-                    .font(Typography.caption)
-                    .foregroundStyle(Theme.textMuted)
+                Text("Journal")
+                    .font(Typography.sectionTitle)
+                    .foregroundStyle(Theme.textPrimary)
                 
                 if activeEntry == nil {
-                    TextField("Search", text: $searchText)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 12))
-                        .foregroundStyle(Theme.textSecondary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Theme.fieldBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                    HStack(spacing: 6) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(Theme.textFaint)
+
+                        TextField("Search entries", text: $searchText)
+                            .textFieldStyle(.plain)
+                            .font(Typography.label)
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Theme.fieldBackground)
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
+                    .frame(maxWidth: 180)
                 }
 
                 Spacer()
