@@ -7,15 +7,29 @@ struct JournalView: View {
     @Binding var activeEntry: JournalEntry?
     @State private var isEditingEntry = false
     @Query(sort: \JournalEntry.createdAt, order: .reverse) private var entries: [JournalEntry]
+    @Query(sort: \JournalEntryTag.name) private var allTags: [JournalEntryTag]
+    @State private var selectedTagIDs: Set<UUID> = []
     
     @State private var searchText: String = ""
     
     private var filteredEntries: [JournalEntry] {
-        guard !searchText.isEmpty else { return entries }
-        return entries.filter {
-            $0.title.localizedCaseInsensitiveContains(searchText) ||
-            $0.content.localizedCaseInsensitiveContains(searchText)
+        var result = entries
+
+        if !searchText.isEmpty {
+            result = result.filter {
+                $0.title.localizedCaseInsensitiveContains(searchText) ||
+                $0.content.localizedCaseInsensitiveContains(searchText)
+            }
         }
+
+        if !selectedTagIDs.isEmpty {
+            result = result.filter { entry in
+                let entryTagIDs = Set(entry.tags.map { $0.id })
+                return selectedTagIDs.isSubset(of: entryTagIDs)
+            }
+        }
+
+        return result
     }
     
     let onOpenConversation: (Conversation) -> Void
@@ -78,6 +92,22 @@ struct JournalView: View {
             .padding(.horizontal, 16)
             .padding(.top, 16)
             .padding(.bottom, 8)
+            
+            if activeEntry == nil, !allTags.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(allTags) { tag in
+                            TagFilterChip(
+                                tag: tag,
+                                isSelected: selectedTagIDs.contains(tag.id),
+                                onToggle: { toggleTag(tag) }
+                            )
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                }
+                .padding(.bottom, 8)
+            }
 
             if let entry = activeEntry {
                 JournalEntryDetailView(entry: entry, isEditing: $isEditingEntry, onOpenConversation: onOpenConversation)
@@ -138,5 +168,13 @@ struct JournalView: View {
         }
         activeEntry = nil
         isEditingEntry = false
+    }
+    
+    private func toggleTag(_ tag: JournalEntryTag) {
+        if selectedTagIDs.contains(tag.id) {
+            selectedTagIDs.remove(tag.id)
+        } else {
+            selectedTagIDs.insert(tag.id)
+        }
     }
 }
