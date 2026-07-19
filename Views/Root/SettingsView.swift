@@ -296,7 +296,7 @@ struct SettingsView: View {
                 .tint(Theme.textPrimary)
             }
 
-            Text("Recommended: gemma3:12b — the app was built and tested against it. Smaller models may struggle with memory and long context.")
+            Text("Recommended: gemma4:e4b — natively supports system-role instructions, which this app relies on heavily (personality prompt, journal context, conversation summary). Smaller or older models may struggle with memory and long context.")
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
                 .padding(.top, 2)
