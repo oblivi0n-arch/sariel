@@ -73,6 +73,7 @@ struct ChatView: View {
                     LazyVStack(alignment: .leading, spacing: 14) {
                         ForEach(sortedMessages) { message in
                             let isLastUser = message.id == lastUserMessage?.id
+                            let isStreamingMessage = isGenerating && message.id == lastGuideMessage?.id
                             MessageBubble(
                                 message: message,
                                 showActions: isLastUser && !isGenerating && !isEndingConversation && !isEnded,
@@ -83,7 +84,8 @@ struct ChatView: View {
                                 onCancelEdit: { editingMessageID = nil },
                                 showRewind: message.messageRole == .user && !isLastUser && !isGenerating && !isEndingConversation && !isEnded,
                                 onRewind: { rewind(to: message) },
-                                onRetry: { retryLastResponse() }
+                                onRetry: { retryLastResponse() },
+                                isStreaming: isStreamingMessage
                             )
                             .id(message.id)
                         }

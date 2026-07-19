@@ -11,6 +11,7 @@ struct MessageBubble: View {
     var showRewind: Bool = false
     var onRewind: (() -> Void)? = nil
     var onRetry: (() -> Void)? = nil
+    var isStreaming: Bool = false
 
     @State private var isHovering = false
     @State private var editedText: String = ""
@@ -40,7 +41,7 @@ struct MessageBubble: View {
             } else if isError {
                 errorBubble
             } else {
-                Text(message.content.isEmpty ? AttributedString("…") : formattedContent(message.content))
+                Text(displayContent)
                     .font(isGuide ? Theme.voiceFont : Theme.uiFont)
                     .foregroundStyle(isGuide ? Theme.textPrimary : Theme.textSecondary)
                     .padding(.horizontal, 14)
@@ -173,5 +174,15 @@ struct MessageBubble: View {
             markdown: text,
             options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
         )) ?? AttributedString(text)
+    }
+    
+    private var displayContent: AttributedString {
+        if message.content.isEmpty {
+            return AttributedString("…")
+        } else if isStreaming {
+            return AttributedString(message.content)
+        } else {
+            return formattedContent(message.content)
+        }
     }
 }
