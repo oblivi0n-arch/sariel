@@ -226,4 +226,46 @@ final class ChatService: ObservableObject {
             Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
         }
     }
+    
+    func startProvocation(for conversation: Conversation, modelContext: ModelContext) async {
+        let guideMessage = ChatMessage(role: .guide, content: "")
+        guideMessage.conversation = conversation
+        conversation.messages.append(guideMessage)
+        modelContext.insert(guideMessage)
+
+        try? modelContext.save()
+
+        generatingConversationIDs.insert(conversation.id)
+        lastErrors[conversation.id] = nil
+
+        do {
+            for try await chunk in client.streamChat(messages: PromptBuilder.buildProvocationMessages()) {
+                guideMessage.content += chunk
+            }
+        } catch {
+            let message = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
+            lastErrors[conversation.id] = message
+            if guideMessage.content.isEmpty {
+                guideMessage.content = "⚠️ \(message)"
+            }
+        }
+
+        generatingConversationIDs.remove(conversation.id)
+
+        if !guideMessage.content.isEmpty, !guideMessage.content.hasPrefix("⚠️") {
+            let question = guideMessage.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            conversation.isProvocation = true
+            conversation.provocationQuestion = question
+
+            if let title = try? await client.complete(messages: PromptBuilder.buildProvocationTitleMessages(question: question)) {
+                let cleanedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !cleanedTitle.isEmpty {
+                    conversation.provocationTitle = cleanedTitle
+                    conversation.title = cleanedTitle
+                }
+            }
+        }
+
+        try? modelContext.save()
+    }
 }
