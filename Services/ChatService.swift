@@ -244,9 +244,20 @@ final class ChatService: ObservableObject {
         guideMessage.conversation = conversation
         conversation.messages.append(guideMessage)
         modelContext.insert(guideMessage)
-
         try? modelContext.save()
 
+        await runProvocation(into: guideMessage, for: conversation, modelContext: modelContext)
+    }
+
+    func retryProvocation(for conversation: Conversation, modelContext: ModelContext) async {
+        let sorted = conversation.messages.sorted { $0.timestamp < $1.timestamp }
+        guard let guideMessage = sorted.first, guideMessage.messageRole == .guide else { return }
+        guideMessage.content = ""
+
+        await runProvocation(into: guideMessage, for: conversation, modelContext: modelContext)
+    }
+
+    private func runProvocation(into guideMessage: ChatMessage, for conversation: Conversation, modelContext: ModelContext) async {
         generatingConversationIDs.insert(conversation.id)
         lastErrors[conversation.id] = nil
 

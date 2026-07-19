@@ -31,6 +31,10 @@ struct ChatView: View {
     
     var onJournalEntryCreated: (JournalEntry) -> Void
     var onOpenJournalEntry: (JournalEntry) -> Void
+    
+    private var isPendingProvocationStart: Bool {
+        sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
+    }
 
     init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, isActive: Bool) {
         self.conversation = conversation
@@ -139,7 +143,11 @@ struct ChatView: View {
         .onChange(of: connectionMonitor.isConnected) { oldValue, newValue in
             guard newValue, !oldValue else { return }
             guard lastStreamError != nil, !isInputLocked else { return }
-            retryLastResponse()
+            if isPendingProvocationStart {
+                Task { await chatService.retryProvocation(for: conversation, modelContext: modelContext) }
+            } else {
+                retryLastResponse()
+            }
         }
         .overlay {
             if isMoodPromptShown {
