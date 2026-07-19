@@ -66,6 +66,10 @@ struct MessageBubble: View {
                 editingBubble
             } else if isError {
                 errorBubble
+            } else if message.content.isEmpty {
+                TypingIndicatorView()
+                    .clipShape(bubbleShape)
+                    .overlay(bubbleShape.stroke(Theme.border, lineWidth: 0.5))
             } else {
                 Text(displayContent)
                     .font(isGuide ? Theme.voiceFont : Theme.uiFont)
