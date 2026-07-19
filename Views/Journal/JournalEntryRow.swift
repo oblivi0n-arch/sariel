@@ -6,6 +6,10 @@ struct JournalEntryRow: View {
     let onDelete: () -> Void
 
     @State private var isHovering = false
+    
+    private var isProvocationEntry: Bool {
+        entry.tags.contains { $0.name.caseInsensitiveCompare("provocation") == .orderedSame }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -13,6 +17,12 @@ struct JournalEntryRow: View {
                 Image(systemName: entry.entryMood.symbolName)
                     .font(Typography.iconSmall)
                     .foregroundStyle(Theme.textFaint)
+
+                if isProvocationEntry {
+                    Image(systemName: "eye")
+                        .font(Typography.iconSmall)
+                        .foregroundStyle(Theme.textFaint)
+                }
 
                 Text(entry.title)
                     .font(Typography.title)

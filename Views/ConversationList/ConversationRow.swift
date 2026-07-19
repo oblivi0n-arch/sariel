@@ -27,9 +27,16 @@ struct ConversationRow: View {
                     }
                     .onSubmit(commitRename)
             } else {
-                Text(conversation.title)
-                    .font(Theme.uiFont)
-                    .foregroundStyle(isActive ? Theme.textPrimary : Theme.textSecondary)
+                HStack(spacing: 6) {
+                    if conversation.isProvocation {
+                        Image(systemName: "eye")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textFaint)
+                    }
+                    Text(conversation.title)
+                        .font(Theme.uiFont)
+                        .foregroundStyle(isActive ? Theme.textPrimary : Theme.textSecondary)
+                }
             }
         }
         .padding(.horizontal, 16)
