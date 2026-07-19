@@ -15,27 +15,29 @@ struct SplashView: View {
             ZStack {
                 Theme.background.ignoresSafeArea()
 
-                ForEach(0..<3, id: \.self) { i in
-                    Circle()
-                        .stroke(Theme.textPrimary, lineWidth: 1)
-                        .frame(width: baseRingSize, height: baseRingSize)
-                        .scaleEffect(ringScale[i])
-                        .opacity(ringOpacity[i])
-                }
+                Group {
+                    ForEach(0..<3, id: \.self) { i in
+                        Circle()
+                            .stroke(Theme.textPrimary, lineWidth: 1)
+                            .frame(width: baseRingSize, height: baseRingSize)
+                            .scaleEffect(ringScale[i])
+                            .opacity(ringOpacity[i])
+                    }
 
-                VStack(spacing: 8) {
-                    Text("Sariel")
-                        .font(.system(size: 28, weight: .semibold, design: .serif))
-                        .foregroundStyle(Theme.textPrimary)
+                    VStack(spacing: 8) {
+                        Text("Sariel")
+                            .font(.system(size: 28, weight: .semibold, design: .serif))
+                            .foregroundStyle(Theme.textPrimary)
 
-                    Text("mirror to your own thoughts")
-                        .font(Typography.label)
-                        .foregroundStyle(Theme.textMuted)
+                        Text("mirror to your own thoughts")
+                            .font(Typography.label)
+                            .foregroundStyle(Theme.textMuted)
+                    }
+                    .opacity(textOpacity)
                 }
-                .opacity(textOpacity)
+                .opacity(isVisible ? 1 : 0)
             }
             .frame(width: geo.size.width, height: geo.size.height)
-            .opacity(isVisible ? 1 : 0)
             .onAppear {
                 let targetScale = targetScale(for: geo.size)
 
