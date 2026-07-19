@@ -121,7 +121,18 @@ struct ChatView: View {
             if isEnded {
                 endedClosing
             } else {
-                ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, onSend: sendMessage)
+                VStack(spacing: 0) {
+                    if sortedMessages.isEmpty {
+                        HStack(spacing: 8) {
+                            StarterChip(icon: "eye", label: "provocation", onTap: startProvocation)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 12)
+                    }
+
+                    ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, onSend: sendMessage)
+                }
             }
         }
         .background(Theme.background)
@@ -227,5 +238,10 @@ struct ChatView: View {
     
     private func retryLastResponse() {
         Task { await chatService.retryLastResponse(for: conversation, modelContext: modelContext) }
+    }
+    
+    private func startProvocation() {
+        guard !isInputLocked else { return }
+        Task { await chatService.startProvocation(for: conversation, modelContext: modelContext) }
     }
 }
