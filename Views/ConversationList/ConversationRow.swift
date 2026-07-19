@@ -11,6 +11,8 @@ struct ConversationRow: View {
     @State private var isEditing = false
     @State private var editedTitle = ""
     @FocusState private var isFocused: Bool
+    
+    private var isEnded: Bool { conversation.journalEntry != nil }
 
     var body: some View {
         Group {
@@ -36,6 +38,14 @@ struct ConversationRow: View {
                     Text(conversation.title)
                         .font(Theme.uiFont)
                         .foregroundStyle(isActive ? Theme.textPrimary : Theme.textSecondary)
+
+                    Spacer(minLength: 0)
+
+                    if isEnded {
+                        Image(systemName: "book.closed")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textFaint)
+                    }
                 }
             }
         }
