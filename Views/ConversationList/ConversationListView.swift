@@ -4,42 +4,94 @@ import SwiftData
 struct ConversationListView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var isPlusHovering = false
+    @State private var isSearchHovering = false
+    @State private var isSearchExpanded = false
+    @State private var searchText = ""
+    @FocusState private var isSearchFocused: Bool
     let conversations: [Conversation]
     @Binding var activeConversation: Conversation?
     @Binding var isConversationListOpen: Bool
+    
+    private var filteredConversations: [Conversation] {
+        guard !searchText.isEmpty else { return conversations }
+        return conversations.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("conversations")
-                    .font(Typography.subsectionTitle)
-                    .foregroundStyle(Theme.textPrimary)
+                if isSearchExpanded {
+                    HStack(spacing: 6) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(Theme.textFaint)
 
-                Spacer()
+                        TextField("Search conversations", text: $searchText)
+                            .textFieldStyle(.plain)
+                            .font(Typography.label)
+                            .foregroundStyle(Theme.textSecondary)
+                            .focused($isSearchFocused)
 
-                Button(action: createNewConversation) {
-                    Image(systemName: "plus")
-                        .font(Typography.iconButton)
-                        .foregroundStyle(Theme.textMuted)
-                        .frame(width: 24, height: 24)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(isPlusHovering ? Theme.border : .clear, lineWidth: 1)
-                        )
-                }
-                .buttonStyle(.plain)
-                .onHover { hovering in
-                    isPlusHovering = hovering
+                        Button(action: collapseSearch) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundStyle(Theme.textMuted)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Theme.fieldBackground)
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
+                } else {
+                    Text("conversations")
+                        .font(Typography.subsectionTitle)
+                        .foregroundStyle(Theme.textPrimary)
+
+                    Spacer()
+
+                    Button(action: expandSearch) {
+                        Image(systemName: "magnifyingglass")
+                            .font(Typography.iconButton)
+                            .foregroundStyle(Theme.textMuted)
+                            .frame(width: 24, height: 24)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(isSearchHovering ? Theme.border : .clear, lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .onHover { hovering in
+                        isSearchHovering = hovering
+                    }
+
+                    Button(action: createNewConversation) {
+                        Image(systemName: "plus")
+                            .font(Typography.iconButton)
+                            .foregroundStyle(Theme.textMuted)
+                            .frame(width: 24, height: 24)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(isPlusHovering ? Theme.border : .clear, lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .onHover { hovering in
+                        isPlusHovering = hovering
+                    }
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: isSearchExpanded)
             .padding(.horizontal, 16)
             .padding(.top, 16)
             .padding(.bottom, 8)
 
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 2) {
-                    ForEach(conversations) { conversation in
+                    ForEach(filteredConversations) { conversation in
                         ConversationRow(
                             conversation: conversation,
                             isActive: conversation.id == activeConversation?.id,
@@ -83,5 +135,16 @@ struct ConversationListView: View {
         try? modelContext.save()
         activeConversation = new
         isConversationListOpen = false
+    }
+    
+    private func expandSearch() {
+        isSearchExpanded = true
+        isSearchFocused = true
+    }
+
+    private func collapseSearch() {
+        searchText = ""
+        isSearchExpanded = false
+        isSearchFocused = false
     }
 }
