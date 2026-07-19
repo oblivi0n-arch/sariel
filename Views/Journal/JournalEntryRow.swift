@@ -50,7 +50,7 @@ struct JournalEntryRow: View {
             }
 
             if !entry.tags.isEmpty {
-                Text(entry.tags.map { "#\($0.name)" }.joined(separator: " "))
+                Text(entry.tags.sorted(by: { $0.name < $1.name }).map { "#\($0.name)" }.joined(separator: " "))
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)
                     .lineLimit(1)

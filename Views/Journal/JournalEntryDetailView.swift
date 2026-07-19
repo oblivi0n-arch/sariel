@@ -93,7 +93,7 @@ struct JournalEntryReader: View {
         HStack {
             if !entry.tags.isEmpty {
                 HStack(spacing: 6) {
-                    ForEach(entry.tags) { tag in
+                    ForEach(entry.tags.sorted(by: { $0.name < $1.name })) { tag in
                         Text("#\(tag.name)")
                             .font(.system(size: 11))
                             .foregroundStyle(Theme.textMuted)

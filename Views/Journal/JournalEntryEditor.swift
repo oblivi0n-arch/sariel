@@ -67,7 +67,7 @@ struct JournalEntryEditor: View {
                 VStack(alignment: .leading, spacing: 8) {
                     if !entry.tags.isEmpty {
                         HStack {
-                            ForEach(entry.tags) { tag in
+                            ForEach(entry.tags.sorted(by: { $0.name < $1.name })) { tag in
                                 HStack(spacing: 4) {
                                     Text("#\(tag.name)")
                                     Button(action: { removeTag(tag) }) {
