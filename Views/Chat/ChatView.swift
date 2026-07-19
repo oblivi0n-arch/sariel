@@ -55,7 +55,6 @@ struct ChatView: View {
                 title: conversation.title,
                 isConversationListOpen: $isConversationListOpen,
                 isEnded: isEnded,
-                lastStreamError: lastStreamError,
                 isEndingConversation: isEndingConversation,
                 endConversationError: endConversationError,
                 canEndConversation: successfulExchangeCount >= 2,

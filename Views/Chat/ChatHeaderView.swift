@@ -4,7 +4,6 @@ struct ChatHeaderView: View {
     let title: String
     @Binding var isConversationListOpen: Bool
     let isEnded: Bool
-    let lastStreamError: String?
     let isEndingConversation: Bool
     let endConversationError: String?
     let canEndConversation: Bool
@@ -33,10 +32,6 @@ struct ChatHeaderView: View {
                 .padding(.leading, 4)
 
             Spacer()
-
-            if let error = lastStreamError, !isEnded {
-                statusPill(icon: "exclamationmark.triangle.fill", text: error, color: Theme.textMuted)
-            }
 
             if isEnded {
                 Button(action: onOpenSavedEntry) {
