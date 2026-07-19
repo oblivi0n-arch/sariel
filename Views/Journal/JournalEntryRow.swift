@@ -56,10 +56,6 @@ struct JournalEntryRow: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(isHovering ? Theme.borderStrong : Theme.border, lineWidth: 0.5)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isHovering ? Theme.borderStrong : Theme.border, lineWidth: 0.5)
-        )
         .overlay(alignment: .leading) {
             Rectangle()
                 .fill(Theme.textPrimary.opacity(entry.entryMood.accentOpacity))

@@ -12,7 +12,6 @@ struct JournalEntryEditor: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allTags: [JournalEntryTag]
     @State private var newTagText: String = ""
-    @State private var measuredContentHeight: CGFloat = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -128,13 +127,6 @@ struct JournalEntryEditor: View {
     private func dashedBorder(cornerRadius: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: cornerRadius)
             .stroke(Theme.border, style: StrokeStyle(lineWidth: 0.5, dash: [4, 3]))
-    }
-    
-    private struct EntryHeightKey: PreferenceKey {
-        static var defaultValue: CGFloat = 0
-        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-            value = nextValue()
-        }
     }
 
     private func addTag() {

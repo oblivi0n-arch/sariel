@@ -47,21 +47,4 @@ struct SidebarView: View {
         }
         .frame(width: 8, height: 8)
     }
-
-    private func sidebarIcon(for section: AppSection) -> some View {
-        let isActive = section == selectedSection
-
-        return Image(systemName: section.iconName)
-            .font(.system(size: 18))
-            .foregroundStyle(isActive ? Theme.textPrimary : Theme.textFaint)
-            .frame(width: 36, height: 36)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isActive ? Theme.borderStrong : .clear, lineWidth: 1)
-            )
-            .onTapGesture {
-                selectedSection = section
-            }
-    }
 }
