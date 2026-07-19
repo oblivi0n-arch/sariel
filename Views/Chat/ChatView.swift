@@ -30,12 +30,14 @@ struct ChatView: View {
     }
     
     var onJournalEntryCreated: (JournalEntry) -> Void
+    var onOpenJournalEntry: (JournalEntry) -> Void
 
-    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, isActive: Bool) {
+    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, isActive: Bool) {
         self.conversation = conversation
         self._isConversationListOpen = isConversationListOpen
         self.chatService = chatService
         self.onJournalEntryCreated = onJournalEntryCreated
+        self.onOpenJournalEntry = onOpenJournalEntry
         self.isActive = isActive
     }
 
@@ -57,7 +59,7 @@ struct ChatView: View {
                 isConnected: connectionMonitor.isConnected,
                 onOpenSavedEntry: {
                     if let entry = conversation.journalEntry {
-                        onJournalEntryCreated(entry)
+                        onOpenJournalEntry(entry)
                     }
                 },
                 onRequestEndConversation: { isMoodPromptShown = true }

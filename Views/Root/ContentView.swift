@@ -33,8 +33,11 @@ struct ContentView: View {
                                             onJournalEntryCreated: { entry in
                                                 toastManager.show(entry: entry)
                                             },
+                                            onOpenJournalEntry: { entry in
+                                                activeEntry = entry
+                                                selectedSection = .journal
+                                            },
                                             isActive: selectedSection == .chat
-                                            
                                         )
                                         .id(conversation.id)
                                     } else {
