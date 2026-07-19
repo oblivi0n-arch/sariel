@@ -12,6 +12,7 @@ struct MessageBubble: View {
     var onRewind: (() -> Void)? = nil
     var onRetry: (() -> Void)? = nil
     var isStreaming: Bool = false
+    var onRevealTick: (() -> Void)? = nil
 
     @State private var isHovering = false
     @State private var editedText: String = ""
@@ -171,10 +172,12 @@ struct MessageBubble: View {
                 if lag <= 0 {
                     revealProgress = target
                     revealedCount = message.content.count
+                    onRevealTick?()
                     if streamingFinished { break }
                 } else {
                     revealProgress = min(target, revealProgress + charsPerSecond * dt)
                     revealedCount = Int(revealProgress)
+                    onRevealTick?()
                 }
 
                 try? await Task.sleep(nanoseconds: 16_000_000)

@@ -85,7 +85,8 @@ struct ChatView: View {
                                 showRewind: message.messageRole == .user && !isLastUser && !isGenerating && !isEndingConversation && !isEnded,
                                 onRewind: { rewind(to: message) },
                                 onRetry: { retryLastResponse() },
-                                isStreaming: isStreamingMessage
+                                isStreaming: isStreamingMessage,
+                                onRevealTick: { scrollToBottom(proxy, animated: false) }
                             )
                             .id(message.id)
                         }
