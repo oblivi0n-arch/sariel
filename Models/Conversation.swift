@@ -8,6 +8,10 @@ final class Conversation {
     var title: String
     var summary: String = ""
     var summarizedMessageCount: Int = 0
+    
+    var isProvocation: Bool = false
+    var provocationQuestion: String?
+    var provocationTitle: String?
 
     @Relationship(deleteRule: .cascade, inverse: \ChatMessage.conversation)
     var messages: [ChatMessage] = []
