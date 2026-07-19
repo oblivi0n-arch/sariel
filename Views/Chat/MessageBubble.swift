@@ -29,9 +29,11 @@ struct MessageBubble: View {
 
     var body: some View {
         VStack(alignment: isGuide ? .leading : .trailing, spacing: 4) {
-            Text(isError ? "error" : (isGuide ? "sariel" : "you"))
-                .font(Typography.caption)
-                .foregroundStyle(isError ? Theme.textPrimary : Theme.textMuted)
+            if !isError {
+                Text(isGuide ? "sariel" : "you")
+                    .font(Typography.caption)
+                    .foregroundStyle(Theme.textMuted)
+            }
 
             if isEditing {
                 editingBubble
@@ -145,7 +147,7 @@ struct MessageBubble: View {
                     .foregroundStyle(Theme.textPrimary)
 
                 if let suggestion = errorParts.suggestion {
-                    Text(suggestion)
+                    Text(suggestion).italic()
                         .font(Typography.caption)
                         .foregroundStyle(Theme.textMuted)
                 }
