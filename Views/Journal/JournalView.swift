@@ -8,12 +8,13 @@ struct JournalView: View {
     @State private var isEditingEntry = false
     @Query(sort: \JournalEntry.createdAt, order: .reverse) private var entries: [JournalEntry]
     @Query(sort: \JournalEntryTag.name) private var allTags: [JournalEntryTag]
+
     @State private var selectedTagIDs: Set<UUID> = []
     
     @State private var searchText: String = ""
     
     private var filteredEntries: [JournalEntry] {
-        var result = entries
+        var result = sortedEntries
 
         if !searchText.isEmpty {
             result = result.filter {
@@ -30,6 +31,15 @@ struct JournalView: View {
         }
 
         return result
+    }
+    
+    private var sortedEntries: [JournalEntry] {
+        entries.sorted { lhs, rhs in
+            if lhs.isPinned != rhs.isPinned {
+                return lhs.isPinned && !rhs.isPinned
+            }
+            return lhs.createdAt > rhs.createdAt
+        }
     }
     
     let onOpenConversation: (Conversation) -> Void
@@ -123,7 +133,8 @@ struct JournalView: View {
                                     activeEntry = entry
                                     isEditingEntry = false
                                 },
-                                onDelete: { delete(entry) }
+                                onDelete: { delete(entry) },
+                                onTogglePin: { togglePin(entry) }
                             )
                         }
                     }
@@ -145,6 +156,11 @@ struct JournalView: View {
     
     private func delete(_ entry: JournalEntry) {
         modelContext.delete(entry)
+        try? modelContext.save()
+    }
+    
+    private func togglePin(_ entry: JournalEntry) {
+        entry.isPinned.toggle()
         try? modelContext.save()
     }
     

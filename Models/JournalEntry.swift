@@ -7,6 +7,7 @@ final class JournalEntry {
     var title: String
     var content: String
     var createdAt: Date
+    var isPinned: Bool = false
     var mood: String
     var sourceConversation: Conversation?
     @Relationship(inverse: \JournalEntryTag.entries) var tags: [JournalEntryTag] = []

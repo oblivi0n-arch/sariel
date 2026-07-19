@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 struct JournalEntryDetailView: View {
     @Bindable var entry: JournalEntry
@@ -18,13 +19,14 @@ struct JournalEntryReader: View {
     let entry: JournalEntry
     let onEdit: () -> Void
     let onOpenConversation: (Conversation) -> Void
-
+    @Environment(\.modelContext) private var modelContext
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             header
-
+            
             Rectangle().fill(Theme.border).frame(height: 0.5)
-
+            
             Text(entry.content)
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textSecondary)
@@ -34,7 +36,7 @@ struct JournalEntryReader: View {
                 .background(Theme.fieldBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.border, lineWidth: 0.5))
-
+            
             if !entry.tags.isEmpty || entry.sourceConversation != nil {
                 Rectangle().fill(Theme.border).frame(height: 0.5)
                 footer
@@ -42,7 +44,7 @@ struct JournalEntryReader: View {
         }
         .padding(16)
     }
-
+    
     private var header: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
@@ -53,18 +55,28 @@ struct JournalEntryReader: View {
                         .font(Typography.caption)
                 }
                 .foregroundStyle(Theme.textFaint)
-
+                
                 Text(entry.title)
                     .font(Typography.title)
                     .foregroundStyle(Theme.textPrimary)
-
+                
                 Text(entry.createdAt, style: .date)
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)
             }
-
+            
             Spacer()
-
+            
+            Button(action: togglePin) {
+                Image(systemName: entry.isPinned ? "pin.fill" : "pin")
+                    .font(Typography.iconButton)
+                    .foregroundStyle(Theme.textMuted)
+                    .frame(width: 28, height: 28)
+                    .background(Theme.fieldBackground)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+            
             Button(action: onEdit) {
                 Image(systemName: "pencil")
                     .font(Typography.iconButton)
@@ -76,7 +88,7 @@ struct JournalEntryReader: View {
             .buttonStyle(.plain)
         }
     }
-
+    
     private var footer: some View {
         HStack {
             if !entry.tags.isEmpty {
@@ -88,9 +100,9 @@ struct JournalEntryReader: View {
                     }
                 }
             }
-
+            
             Spacer()
-
+            
             if let conversation = entry.sourceConversation {
                 Button(action: { onOpenConversation(conversation) }) {
                     HStack(spacing: 4) {
@@ -103,5 +115,10 @@ struct JournalEntryReader: View {
                 .buttonStyle(.plain)
             }
         }
+    }
+    
+    private func togglePin() {
+        entry.isPinned.toggle()
+        try? modelContext.save()
     }
 }

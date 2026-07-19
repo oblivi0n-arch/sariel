@@ -4,6 +4,7 @@ struct JournalEntryRow: View {
     let entry: JournalEntry
     let onSelect: () -> Void
     let onDelete: () -> Void
+    let onTogglePin: () -> Void
 
     @State private var isHovering = false
     
@@ -29,6 +30,12 @@ struct JournalEntryRow: View {
                     .foregroundStyle(Theme.textPrimary)
 
                 Spacer()
+
+                if entry.isPinned {
+                    Image(systemName: "pin.fill")
+                        .font(Typography.iconSmall)
+                        .foregroundStyle(Theme.textFaint)
+                }
 
                 Text(entry.createdAt, style: .date)
                     .font(Typography.caption)
@@ -66,6 +73,10 @@ struct JournalEntryRow: View {
         .onTapGesture(perform: onSelect)
         .onHover { isHovering = $0 }
         .contextMenu {
+            Button(action: onTogglePin) {
+                Label(entry.isPinned ? "Unpin" : "Pin", systemImage: entry.isPinned ? "pin.slash" : "pin")
+            }
+
             Button(role: .destructive, action: onDelete) {
                 Label("Delete", systemImage: "trash")
             }
