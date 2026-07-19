@@ -23,7 +23,8 @@ final class ConnectionMonitor: ObservableObject {
     }
 
     private func checkConnection() async -> Bool {
-        guard let url = URL(string: "http://localhost:11434") else { return false }
+        let host = UserDefaults.standard.string(forKey: "ollamaHost") ?? "http://localhost:11434"
+        guard let url = URL(string: host) else { return false }
         var request = URLRequest(url: url)
         request.timeoutInterval = 3
 
