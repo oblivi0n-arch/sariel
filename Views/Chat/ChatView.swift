@@ -11,7 +11,6 @@ struct ChatView: View {
     @State private var draft: String = ""
     @EnvironmentObject private var connectionMonitor: ConnectionMonitor
     @FocusState private var isInputFocused: Bool
-    @State private var isHoveringSavedPill = false
     @State private var editingMessageID: UUID?
     @State private var isMoodPromptShown = false
     private var isEnded: Bool { conversation.journalEntry != nil }
@@ -46,74 +45,23 @@ struct ChatView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                Button(action: { isConversationListOpen.toggle() }) {
-                    Image(systemName: "sidebar.left")
-                        .font(.system(size: 16))
-                        .foregroundStyle(Theme.textMuted)
-                }
-                .buttonStyle(.plain)
-                .opacity(isConversationListOpen ? 0 : 1)
-                .disabled(isConversationListOpen)
-
-                Text(conversation.title)
-                    .font(Typography.label)
-                    .foregroundStyle(Theme.textSecondary)
-                    .lineLimit(1)
-                    .padding(.leading, 4)
-
-                Spacer()
-
-                if let error = lastStreamError, !isEnded {
-                    statusPill(icon: "exclamationmark.triangle.fill", text: error, color: Theme.textMuted)
-                }
-
-                if isEnded {
-                    Button(action: {
-                        if let entry = conversation.journalEntry {
-                            onJournalEntryCreated(entry)
-                        }
-                    }) {
-                        statusPill(
-                            icon: "checkmark.circle",
-                            text: "Saved — tap to view",
-                            color: isHoveringSavedPill ? Theme.textPrimary : Theme.textSecondary
-                        )
+            ChatHeaderView(
+                title: conversation.title,
+                isConversationListOpen: $isConversationListOpen,
+                isEnded: isEnded,
+                lastStreamError: lastStreamError,
+                isEndingConversation: isEndingConversation,
+                endConversationError: endConversationError,
+                canEndConversation: successfulExchangeCount >= 2,
+                isGenerating: isGenerating,
+                isConnected: connectionMonitor.isConnected,
+                onOpenSavedEntry: {
+                    if let entry = conversation.journalEntry {
+                        onJournalEntryCreated(entry)
                     }
-                    .buttonStyle(.plain)
-                    .onHover { hovering in isHoveringSavedPill = hovering }
-                } else if isEndingConversation {
-                    EndConversationLoadingBar()
-                        .frame(width: 90, height: 3)
-                } else if let error = endConversationError {
-                    Button(action: { isMoodPromptShown = true }) {
-                        statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
-                    }
-                    .buttonStyle(.plain)
-                    .help(error)
-                } else {
-                    let canEndConversation = successfulExchangeCount >= 2
-
-                    if canEndConversation && !connectionMonitor.isConnected {
-                        statusPill(icon: "wifi.slash", text: "Offline", color: Theme.textMuted)
-                    } else {
-                        Button(action: {
-                            guard !isGenerating && canEndConversation else { return }
-                            isMoodPromptShown = true
-                        }) {
-                            statusPill(icon: "book.closed", text: "End conversation")
-                        }
-                        .buttonStyle(.plain)
-                        .opacity(canEndConversation ? 1 : 0.4)
-                        .help(canEndConversation ? "" : "conversation is too short to save")
-                    }
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .overlay(alignment: .bottom) {
-                Rectangle().fill(Theme.border).frame(height: 0.5)
-            }
+                },
+                onRequestEndConversation: { isMoodPromptShown = true }
+            )
 
             ScrollViewReader { proxy in
                 ScrollView {
@@ -203,21 +151,6 @@ struct ChatView: View {
         } else {
             proxy.scrollTo(last.id, anchor: .bottom)
         }
-    }
-
-    private func statusPill(icon: String, text: String, color: Color = Theme.textSecondary) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 10, weight: .medium))
-            Text(text)
-                .font(Typography.caption)
-        }
-        .foregroundStyle(color)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 7)
-        .background(Theme.fieldBackground)
-        .clipShape(Capsule())
-        .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
     }
 
     private var emptyConversationState: some View {
