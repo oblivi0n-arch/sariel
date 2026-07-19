@@ -43,9 +43,8 @@ struct ChatHeaderView: View {
                 }
                 .buttonStyle(.plain)
                 .onHover { hovering in isHoveringSavedPill = hovering }
-            } else if isEndingConversation {
-                EndConversationLoadingBar()
-                    .frame(width: 90, height: 3)
+            } else if !isConnected {
+                statusPill(icon: "wifi.slash", text: "Offline", color: Theme.textMuted)
             } else if let error = endConversationError {
                 Button(action: onRequestEndConversation) {
                     statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
@@ -53,19 +52,15 @@ struct ChatHeaderView: View {
                 .buttonStyle(.plain)
                 .help(error)
             } else {
-                if canEndConversation && !isConnected {
-                    statusPill(icon: "wifi.slash", text: "Offline", color: Theme.textMuted)
-                } else {
-                    Button(action: {
-                        guard !isGenerating && canEndConversation else { return }
-                        onRequestEndConversation()
-                    }) {
-                        statusPill(icon: "book.closed", text: "End conversation")
-                    }
-                    .buttonStyle(.plain)
-                    .opacity(canEndConversation ? 1 : 0.4)
-                    .help(canEndConversation ? "" : "conversation is too short to save")
+                Button(action: {
+                    guard !isGenerating && canEndConversation else { return }
+                    onRequestEndConversation()
+                }) {
+                    statusPill(icon: "book.closed", text: "End conversation")
                 }
+                .buttonStyle(.plain)
+                .opacity(canEndConversation ? 1 : 0.4)
+                .help(canEndConversation ? "" : "conversation is too short to save")
             }
         }
         .padding(.horizontal, 16)
