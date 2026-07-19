@@ -16,16 +16,32 @@ struct MessageBubble: View {
     @State private var isHovering = false
     @State private var editedText: String = ""
     @FocusState private var isEditFieldFocused: Bool
+    @State private var revealedCount: Int = 0
+    @State private var revealTask: Task<Void, Never>? = nil
 
     private var isGuide: Bool { message.messageRole == .guide }
     private var isError: Bool { isGuide && message.content.hasPrefix("⚠️") }
-    
+
     private var errorParts: (description: String, suggestion: String?) {
         let cleaned = message.content.replacingOccurrences(of: "⚠️ ", with: "")
         let lines = cleaned.split(separator: "\n", maxSplits: 1)
         let description = String(lines.first ?? "")
         let suggestion = lines.count > 1 ? String(lines[1]) : nil
         return (description, suggestion)
+    }
+
+    private var revealedText: String {
+        String(message.content.prefix(revealedCount))
+    }
+
+    private var displayContent: AttributedString {
+        if message.content.isEmpty {
+            return AttributedString("…")
+        } else if isStreaming {
+            return AttributedString(revealedText)
+        } else {
+            return formattedContent(message.content)
+        }
     }
 
     var body: some View {
@@ -68,7 +84,7 @@ struct MessageBubble: View {
                                 .foregroundStyle(Theme.textMuted)
                         }
                         .buttonStyle(.plain)
-                        
+
                         if let onRetry {
                             Button(action: onRetry) {
                                 Image(systemName: "arrow.clockwise")
@@ -77,7 +93,7 @@ struct MessageBubble: View {
                             }
                             .buttonStyle(.plain)
                         }
-                        
+
                         if let onDelete {
                             Button(action: onDelete) {
                                 Image(systemName: "trash")
@@ -106,6 +122,40 @@ struct MessageBubble: View {
                 DispatchQueue.main.async {
                     isEditFieldFocused = true
                 }
+            }
+        }
+        .onAppear {
+            if isStreaming {
+                startRevealing()
+            } else {
+                revealedCount = message.content.count
+            }
+        }
+        .onChange(of: isStreaming) { _, newValue in
+            if newValue {
+                startRevealing()
+            } else {
+                revealTask?.cancel()
+                revealTask = nil
+                revealedCount = message.content.count
+            }
+        }
+        .onDisappear {
+            revealTask?.cancel()
+        }
+    }
+
+    private func startRevealing() {
+        revealTask?.cancel()
+        revealTask = Task {
+            while !Task.isCancelled {
+                let target = message.content.count
+                let lag = target - revealedCount
+                if lag > 0 {
+                    let step = max(1, lag / 4)
+                    revealedCount = min(target, revealedCount + step)
+                }
+                try? await Task.sleep(nanoseconds: 16_000_000)
             }
         }
     }
@@ -168,21 +218,11 @@ struct MessageBubble: View {
             topTrailingRadius: isGuide ? 10 : 0
         )
     }
-    
+
     private func formattedContent(_ text: String) -> AttributedString {
         (try? AttributedString(
             markdown: text,
             options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
         )) ?? AttributedString(text)
-    }
-    
-    private var displayContent: AttributedString {
-        if message.content.isEmpty {
-            return AttributedString("…")
-        } else if isStreaming {
-            return AttributedString(message.content)
-        } else {
-            return formattedContent(message.content)
-        }
     }
 }
