@@ -13,13 +13,14 @@ struct ChatView: View {
     @FocusState private var isInputFocused: Bool
     @State private var editingMessageID: UUID?
     @State private var isMoodPromptShown = false
+    @State private var isRevealFinishing = false
     private var isEnded: Bool { conversation.journalEntry != nil }
     private var successfulExchangeCount: Int {
         conversation.messages.filter { $0.messageRole == .guide && !$0.content.hasPrefix("⚠️") }.count
     }
     private var isGenerating: Bool { chatService.generatingConversationIDs.contains(conversation.id) }
     private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
-    private var isInputLocked: Bool { isGenerating || isEndingConversation }
+    private var isInputLocked: Bool { isGenerating || isEndingConversation || isRevealFinishing }
     private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
     private var lastStreamError: String? { chatService.lastErrors[conversation.id] }
     private var lastUserMessage: ChatMessage? {
@@ -86,7 +87,11 @@ struct ChatView: View {
                                 onRewind: { rewind(to: message) },
                                 onRetry: { retryLastResponse() },
                                 isStreaming: isStreamingMessage,
-                                onRevealTick: { scrollToBottom(proxy, animated: false) }
+                                onRevealTick: { scrollToBottom(proxy, animated: false) },
+                                onRevealComplete: {
+                                    isRevealFinishing = false
+                                    isInputFocused = true
+                                }
                             )
                             .id(message.id)
                         }
@@ -106,7 +111,9 @@ struct ChatView: View {
                 }
                 .onChange(of: isGenerating) { _, newValue in
                     if !newValue {
-                        isInputFocused = true
+                        isRevealFinishing = true
+                    } else {
+                        isRevealFinishing = false
                     }
                 }
                 .onChange(of: isActive) { _, newValue in

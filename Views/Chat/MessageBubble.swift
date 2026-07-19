@@ -13,6 +13,7 @@ struct MessageBubble: View {
     var onRetry: (() -> Void)? = nil
     var isStreaming: Bool = false
     var onRevealTick: (() -> Void)? = nil
+    var onRevealComplete: (() -> Void)? = nil
 
     @State private var isHovering = false
     @State private var editedText: String = ""
@@ -173,7 +174,10 @@ struct MessageBubble: View {
                     revealProgress = target
                     revealedCount = message.content.count
                     onRevealTick?()
-                    if streamingFinished { break }
+                    if streamingFinished {
+                        onRevealComplete?()
+                        break
+                    }
                 } else {
                     revealProgress = min(target, revealProgress + charsPerSecond * dt)
                     revealedCount = Int(revealProgress)
