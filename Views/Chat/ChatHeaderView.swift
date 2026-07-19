@@ -51,6 +51,10 @@ struct ChatHeaderView: View {
                 }
                 .buttonStyle(.plain)
                 .help(error)
+            } else if isEndingConversation {
+                EndConversationLoadingBar()
+                    .frame(width: 120)
+                    .clipShape(Capsule())
             } else {
                 Button(action: {
                     guard !isGenerating && canEndConversation else { return }
