@@ -7,6 +7,8 @@ struct SettingsView: View {
     @EnvironmentObject private var connectionMonitor: ConnectionMonitor
     @Binding var isPresented: Bool
 
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    @AppStorage("isPostReset") private var isPostReset: Bool = false
     @AppStorage("ollamaHost") private var host: String = "http://localhost:11434"
     @AppStorage("ollamaModel") private var model: String = "gemma3:12b"
     @AppStorage("customSystemPrompt") private var customPrompt: String = ""
@@ -40,6 +42,7 @@ struct SettingsView: View {
                     personalitySection
                     contextSection
                     dangerZone
+                    debugOnboardingSection //DEBUG ONLY
                 }
                 .padding(20)
             }
@@ -314,6 +317,9 @@ struct SettingsView: View {
 
         try? modelContext.save()
 
+        hasCompletedOnboarding = false
+        isPostReset = true
+
         host = "http://localhost:11434"
         model = "gemma3:12b"
         customPrompt = ""
@@ -363,6 +369,29 @@ struct SettingsView: View {
         }
 
         isLoadingModels = false
+    }
+    
+    // MARK: DEBUG ONLY
+    private var debugOnboardingSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(icon: "ladybug", title: "DEBUG") {
+                EmptyView()
+            }
+
+            HStack(spacing: 10) {
+                Button("Force onboarding") {
+                    isPostReset = false
+                    hasCompletedOnboarding = false
+                }
+                Button("Force onboarding (post-reset)") {
+                    isPostReset = true
+                    hasCompletedOnboarding = false
+                }
+            }
+            .font(Typography.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textMuted)
+        }
     }
 }
 
