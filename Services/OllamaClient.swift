@@ -14,13 +14,24 @@ enum OllamaError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .connectionFailed:
-            return "Cannot connect to Ollama. Run 'ollama serve' in terminal."
+            return "Cannot connect to Ollama."
         case .modelNotFound(let model):
-            return "Model '\(model)' not found. Pull it or pick another one in Settings."
+            return "Model '\(model)' not found."
         case .serverError(let code):
             return "Ollama returned an error (\(code))."
         case .invalidResponse:
             return "Ollama returned an invalid response."
+        }
+    }
+
+    var recoverySuggestion: String? {
+        switch self {
+        case .connectionFailed:
+            return "Run 'ollama serve' in terminal."
+        case .modelNotFound:
+            return "Pull it or pick another one in Settings."
+        case .serverError, .invalidResponse:
+            return nil
         }
     }
 }

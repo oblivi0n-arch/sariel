@@ -18,6 +18,14 @@ struct MessageBubble: View {
 
     private var isGuide: Bool { message.messageRole == .guide }
     private var isError: Bool { isGuide && message.content.hasPrefix("⚠️") }
+    
+    private var errorParts: (description: String, suggestion: String?) {
+        let cleaned = message.content.replacingOccurrences(of: "⚠️ ", with: "")
+        let lines = cleaned.split(separator: "\n", maxSplits: 1)
+        let description = String(lines.first ?? "")
+        let suggestion = lines.count > 1 ? String(lines[1]) : nil
+        return (description, suggestion)
+    }
 
     var body: some View {
         VStack(alignment: isGuide ? .leading : .trailing, spacing: 4) {
@@ -131,9 +139,17 @@ struct MessageBubble: View {
                 .font(Typography.label)
                 .foregroundStyle(Theme.textPrimary)
 
-            Text(message.content.replacingOccurrences(of: "⚠️ ", with: ""))
-                .font(Theme.uiFont)
-                .foregroundStyle(Theme.textPrimary)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(errorParts.description)
+                    .font(Theme.uiFont)
+                    .foregroundStyle(Theme.textPrimary)
+
+                if let suggestion = errorParts.suggestion {
+                    Text(suggestion)
+                        .font(Typography.caption)
+                        .foregroundStyle(Theme.textMuted)
+                }
+            }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
