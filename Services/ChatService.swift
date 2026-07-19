@@ -194,11 +194,31 @@ final class ChatService: ObservableObject {
     private func streamGuideResponse(into guideMessage: ChatMessage, history: [ChatMessage], conversation: Conversation, modelContext: ModelContext) async {
         let journalContext = fetchJournalContextIfEnabled(modelContext: modelContext)
         let messages = PromptBuilder.buildMessages(history: history, summary: conversation.summary, journalContext: journalContext)
+
+        var buffer = ""
+        var lastFlush = Date()
+        let flushInterval: TimeInterval = 0.08
+
+        func flushBuffer() {
+            guard !buffer.isEmpty else { return }
+            guideMessage.content += buffer
+            buffer = ""
+        }
+
         do {
             for try await chunk in client.streamChat(messages: messages) {
-                guideMessage.content += chunk
+                buffer += chunk
+
+                let now = Date()
+                if now.timeIntervalSince(lastFlush) >= flushInterval {
+                    flushBuffer()
+                    lastFlush = now
+                }
             }
+            flushBuffer()
         } catch {
+            flushBuffer()
+
             let ollamaError = error as? OllamaError
             let description = ollamaError?.errorDescription ?? error.localizedDescription
             lastErrors[conversation.id] = description
