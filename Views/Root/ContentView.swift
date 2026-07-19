@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    @AppStorage("isPostReset") private var isPostReset: Bool = false
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Conversation.startedAt, order: .reverse) private var conversations: [Conversation]
 
@@ -116,6 +118,11 @@ struct ContentView: View {
             if showSplash {
                 SplashView {
                     showSplash = false
+                }
+            } else if !hasCompletedOnboarding {
+                OnboardingView(isPostReset: isPostReset) {
+                    hasCompletedOnboarding = true
+                    isPostReset = false
                 }
             }
         }
