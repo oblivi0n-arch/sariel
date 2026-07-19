@@ -18,6 +18,10 @@ struct MessageBubble: View {
     @FocusState private var isEditFieldFocused: Bool
     @State private var revealedCount: Int = 0
     @State private var revealTask: Task<Void, Never>? = nil
+    @State private var revealProgress: Double = 0
+    @State private var streamingFinished: Bool = true
+
+    private let charsPerSecond: Double = 60
 
     private var isGuide: Bool { message.messageRole == .guide }
     private var isError: Bool { isGuide && message.content.hasPrefix("⚠️") }
@@ -34,10 +38,14 @@ struct MessageBubble: View {
         String(message.content.prefix(revealedCount))
     }
 
+    private var isRevealing: Bool {
+        revealedCount < message.content.count
+    }
+
     private var displayContent: AttributedString {
         if message.content.isEmpty {
             return AttributedString("…")
-        } else if isStreaming {
+        } else if isRevealing {
             return AttributedString(revealedText)
         } else {
             return formattedContent(message.content)
@@ -126,18 +134,19 @@ struct MessageBubble: View {
         }
         .onAppear {
             if isStreaming {
+                streamingFinished = false
                 startRevealing()
             } else {
+                streamingFinished = true
                 revealedCount = message.content.count
             }
         }
         .onChange(of: isStreaming) { _, newValue in
             if newValue {
+                streamingFinished = false
                 startRevealing()
             } else {
-                revealTask?.cancel()
-                revealTask = nil
-                revealedCount = message.content.count
+                streamingFinished = true
             }
         }
         .onDisappear {
@@ -147,14 +156,27 @@ struct MessageBubble: View {
 
     private func startRevealing() {
         revealTask?.cancel()
+        revealProgress = Double(revealedCount)
+        var lastTick = Date()
+
         revealTask = Task {
             while !Task.isCancelled {
-                let target = message.content.count
-                let lag = target - revealedCount
-                if lag > 0 {
-                    let step = max(1, lag / 4)
-                    revealedCount = min(target, revealedCount + step)
+                let now = Date()
+                let dt = now.timeIntervalSince(lastTick)
+                lastTick = now
+
+                let target = Double(message.content.count)
+                let lag = target - revealProgress
+
+                if lag <= 0 {
+                    revealProgress = target
+                    revealedCount = message.content.count
+                    if streamingFinished { break }
+                } else {
+                    revealProgress = min(target, revealProgress + charsPerSecond * dt)
+                    revealedCount = Int(revealProgress)
                 }
+
                 try? await Task.sleep(nanoseconds: 16_000_000)
             }
         }
