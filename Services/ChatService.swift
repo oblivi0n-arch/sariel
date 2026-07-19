@@ -106,23 +106,35 @@ final class ChatService: ObservableObject {
         
         do {
             let content = try await client.complete(messages: PromptBuilder.buildJournalMessages(history: history))
-            let title = try await client.complete(messages: PromptBuilder.buildJournalTitleMessages(entryContent: content))
+
+            let title: String
+            if conversation.isProvocation, let provocationTitle = conversation.provocationTitle {
+                title = provocationTitle
+            } else {
+                let generated = try await client.complete(messages: PromptBuilder.buildJournalTitleMessages(entryContent: content))
+                title = generated.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
 
             let entry = JournalEntry(
-                title: title.trimmingCharacters(in: .whitespacesAndNewlines),
+                title: title,
                 content: content.trimmingCharacters(in: .whitespacesAndNewlines),
                 mood: mood
             )
             entry.sourceConversation = conversation
             conversation.journalEntry = entry
             modelContext.insert(entry)
+
             entry.tags.append(generatedTag(modelContext: modelContext))
+            if conversation.isProvocation {
+                entry.tags.append(provocationTag(modelContext: modelContext))
+            }
+
             try? modelContext.save()
             
             return entry
         } catch {
             endConversationErrors[conversation.id] = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
-                    return nil
+            return nil
         }
     }
     
@@ -267,5 +279,16 @@ final class ChatService: ObservableObject {
         }
 
         try? modelContext.save()
+    }
+    
+    private func provocationTag(modelContext: ModelContext) -> JournalEntryTag {
+        let descriptor = FetchDescriptor<JournalEntryTag>()
+        if let allTags = try? modelContext.fetch(descriptor),
+           let existing = allTags.first(where: { $0.name.caseInsensitiveCompare("provocation") == .orderedSame }) {
+            return existing
+        }
+        let tag = JournalEntryTag(name: "provocation")
+        modelContext.insert(tag)
+        return tag
     }
 }
