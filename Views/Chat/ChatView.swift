@@ -171,7 +171,7 @@ struct ChatView: View {
             if isEnded {
                 endedClosing
             } else {
-                inputBar
+                ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, onSend: sendMessage)
             }
         }
         .background(Theme.background)
@@ -232,44 +232,6 @@ struct ChatView: View {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: 260)
-    }
-
-    private var inputBar: some View {
-        HStack(alignment: .bottom, spacing: 10) {
-            TextField("Write a message...", text: $draft, axis: .vertical)
-                .textFieldStyle(.plain)
-                .font(Theme.uiFont)
-                .foregroundStyle(Theme.textPrimary)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(Theme.fieldBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .stroke(isInputFocused ? Theme.borderStrong : Theme.border,
-                                lineWidth: isInputFocused ? 1 : 0.5)
-                )
-                .onSubmit(sendMessage)
-                .disabled(isInputLocked)
-                .focused($isInputFocused)
-
-            Button(action: sendMessage) {
-                Image(systemName: "arrow.up")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(canSend ? Theme.background : Theme.textFaint)
-                    .frame(width: 32, height: 32)
-                    .background(canSend ? Theme.textPrimary : Theme.fieldBackground)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Theme.border, lineWidth: 0.5))
-            }
-            .buttonStyle(.plain)
-            .disabled(!canSend)
-        }
-        .padding(16)
-    }
-
-    private var canSend: Bool {
-        !draft.trimmingCharacters(in: .whitespaces).isEmpty && !isInputLocked
     }
 
     private var endedClosing: some View {
