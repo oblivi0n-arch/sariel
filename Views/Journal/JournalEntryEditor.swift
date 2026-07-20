@@ -12,6 +12,7 @@ struct JournalEntryEditor: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allTags: [JournalEntryTag]
     @State private var newTagText: String = ""
+    @State private var saveTask: Task<Void, Never>?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -28,6 +29,7 @@ struct JournalEntryEditor: View {
                         .padding(.bottom, 10)
                         .focused($focusedField, equals: .title)
                         .onSubmit { focusedField = .content }
+                        .onChange(of: entry.title) { scheduleSave() }
 
                     Rectangle().fill(Theme.border).frame(height: 0.5)
 
@@ -49,11 +51,16 @@ struct JournalEntryEditor: View {
                             .padding(.top, 10)
                             .padding(.bottom, 7)
                             .focused($focusedField, equals: .content)
+                            .onChange(of: entry.content) { scheduleSave() }
                     }
                     .frame(height: 280)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .overlay(dashedBorder(cornerRadius: 10))
+                .onDisappear {
+                    saveTask?.cancel()
+                    try? modelContext.save()
+                }
             }
 
             section(label: "mood") {
@@ -151,6 +158,15 @@ struct JournalEntryEditor: View {
         entry.tags.removeAll { $0.id == tag.id }
         JournalEntryTag.deleteIfOrphaned(tag, modelContext: modelContext)
         try? modelContext.save()
+    }
+    
+    private func scheduleSave() {
+        saveTask?.cancel()
+        saveTask = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            guard !Task.isCancelled else { return }
+            try? modelContext.save()
+        }
     }
 }
 
