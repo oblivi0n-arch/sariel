@@ -30,7 +30,7 @@ extension OnboardingScreen {
             OnboardingScreen(
                 id: 2,
                 text: "Everything you write stays on this device. Nothing is ever sent anywhere.",
-                footnote: "If this ever becomes a real crisis — not discomfort, but danger — this mirror puts itself down and speaks to you plainly.",
+                footnote: "Sariel is not therapy, counseling, or a crisis service, and was never built as a substitute for one. If you are struggling or in crisis, please reach out to a mental health professional or a real human you trust. Your life is valuable 🤍",
                 buttonLabel: "Face yourself"
             )
         ]
