@@ -4,6 +4,7 @@ import SwiftData
 struct TribunalView: View {
     @ObservedObject var chatService: ChatService
     let onTribunalStarted: (Conversation) -> Void
+    let onOpenConversation: (Conversation) -> Void
     
     @Environment(\.modelContext) private var modelContext
     @State private var isStarting = false
@@ -234,7 +235,11 @@ struct TribunalView: View {
             if isHistoryExpanded {
                 VStack(spacing: 8) {
                     ForEach(resolvedCommitments) { commitment in
-                        CommitmentHistoryRow(commitment: commitment)
+                        CommitmentHistoryRow(commitment: commitment, onSelect: {
+                            if let conversation = commitment.resolvingConversation {
+                                onOpenConversation(conversation)
+                            }
+                        })
                     }
                 }
             }

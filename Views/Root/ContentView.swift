@@ -5,7 +5,17 @@ struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") private var isPostReset: Bool = false
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Conversation.startedAt, order: .reverse) private var conversations: [Conversation]
+    @Query(
+        filter: #Predicate<Conversation> { !$0.isTribunal },
+        sort: \Conversation.startedAt,
+        order: .reverse
+    ) private var conversations: [Conversation]
+
+    @Query(
+        filter: #Predicate<Conversation> { $0.isTribunal },
+        sort: \Conversation.startedAt,
+        order: .reverse
+    ) private var tribunalConversations: [Conversation]
 
     @State private var activeConversation: Conversation?
     @State private var isConversationListOpen = false
@@ -72,10 +82,14 @@ struct ContentView: View {
                             JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation)
                         
                         case .tribunal:
-                            TribunalView(chatService: chatService, onTribunalStarted: { conversation in
-                                activeConversation = conversation
-                                selectedSection = .chat
-                            })
+                            TribunalView(
+                                chatService: chatService,
+                                onTribunalStarted: { conversation in
+                                    activeConversation = conversation
+                                    selectedSection = .chat
+                                },
+                                onOpenConversation: openConversation
+                            )
                         }
                     }
                     

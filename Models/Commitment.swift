@@ -15,6 +15,9 @@ final class Commitment {
     @Relationship(deleteRule: .cascade, inverse: \ChatMessage.commitment)
     var sourceMessage: ChatMessage?
 
+    @Relationship(deleteRule: .nullify)
+    var resolvingConversation: Conversation?
+
     init(declarationText: String, sourceMessage: ChatMessage? = nil) {
         self.id = UUID()
         self.declarationText = declarationText

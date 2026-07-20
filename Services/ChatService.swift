@@ -407,8 +407,9 @@ final class ChatService: ObservableObject {
             verdict.commitment.commitmentStatus = verdict.proposedStatus
             verdict.commitment.resolvedAt = Date()
             verdict.commitment.verdictReasoning = verdict.reasoning
+            verdict.commitment.resolvingConversation = conversation
         }
-        conversation.tribunalResolvedAt = Date() 
+        conversation.tribunalResolvedAt = Date()
         try? modelContext.save()
     }
 

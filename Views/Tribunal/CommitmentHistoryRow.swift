@@ -2,9 +2,16 @@ import SwiftUI
 
 struct CommitmentHistoryRow: View {
     let commitment: Commitment
+    let onSelect: () -> Void
+
+    @State private var isHovering = false
 
     private var isFulfilled: Bool {
         commitment.commitmentStatus == .fulfilled
+    }
+
+    private var isSelectable: Bool {
+        commitment.resolvingConversation != nil
     }
 
     var body: some View {
@@ -38,8 +45,14 @@ struct CommitmentHistoryRow: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isFulfilled ? Theme.border : Color.red.opacity(0.4), lineWidth: 0.5)
+                .stroke(isHovering && isSelectable ? Theme.borderStrong : (isFulfilled ? Theme.border : Color.red.opacity(0.4)), lineWidth: 0.5)
         )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            guard isSelectable else { return }
+            onSelect()
+        }
+        .onHover { hovering in isHovering = hovering }
     }
 
     private var statusBadge: some View {
