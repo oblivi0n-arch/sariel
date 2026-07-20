@@ -11,6 +11,7 @@ struct ChatHeaderView: View {
     let isConnected: Bool
     let onOpenSavedEntry: () -> Void
     let onRequestEndConversation: () -> Void
+    let isTribunal: Bool
 
     @State private var isHoveringSavedPill = false
 
@@ -45,6 +46,8 @@ struct ChatHeaderView: View {
                 .onHover { hovering in isHoveringSavedPill = hovering }
             } else if !isConnected {
                 statusPill(icon: "wifi.slash", text: "Offline", color: Theme.textMuted)
+            } else if isTribunal {
+                EmptyView()
             } else if let error = endConversationError {
                 Button(action: {
                     guard !isInputLocked else { return }

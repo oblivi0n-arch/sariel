@@ -16,7 +16,7 @@ struct ChatView: View {
     @State private var isRevealFinishing = false
     @State private var tribunalVerdicts: [TribunalVerdict] = []
     @State private var isVerdictOverlayShown = false
-    private var isEnded: Bool { conversation.journalEntry != nil }
+    private var isEnded: Bool { conversation.journalEntry != nil || conversation.tribunalResolvedAt != nil }
     private var successfulExchangeCount: Int {
         conversation.messages.filter { $0.messageRole == .guide && $0.isValidExchange }.count
     }
@@ -68,7 +68,8 @@ struct ChatView: View {
                         onOpenJournalEntry(entry)
                     }
                 },
-                onRequestEndConversation: { isMoodPromptShown = true }
+                onRequestEndConversation: { isMoodPromptShown = true },
+                isTribunal: conversation.isTribunal
             )
 
             ScrollViewReader { proxy in
@@ -227,7 +228,7 @@ struct ChatView: View {
     private var endedClosing: some View {
         HStack {
             Spacer()
-            Text("— reflection recorded —")
+            Text(conversation.isTribunal ? "— verdicts delivered —" : "— reflection recorded —")
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
             Spacer()
