@@ -8,7 +8,7 @@ struct SarielApp: App {
 
     init() {
         do {
-            container = try ModelContainer(for: Conversation.self, ChatMessage.self, JournalEntry.self, JournalEntryTag.self)
+            container = try ModelContainer(for: Conversation.self, ChatMessage.self, JournalEntry.self, JournalEntryTag.self, Commitment.self)
         } catch {
             fatalError("Cannot initialize container: \(error)")
         }
