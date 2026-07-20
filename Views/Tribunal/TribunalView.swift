@@ -4,12 +4,12 @@ import SwiftData
 struct TribunalView: View {
     @ObservedObject var chatService: ChatService
     let onTribunalStarted: (Conversation) -> Void
-
+    
     @Environment(\.modelContext) private var modelContext
     @State private var isStarting = false
     @State private var isHistoryExpanded = false
     @State private var isInfoShown = false
-
+    
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
     private var pendingCommitments: [Commitment]
     @Query(
@@ -18,18 +18,18 @@ struct TribunalView: View {
         order: .reverse
     )
     private var resolvedCommitments: [Commitment]
-
+    
     private let unlockInterval: TimeInterval = 7 * 24 * 60 * 60
-
+    
     private var oldestPendingDate: Date? {
         pendingCommitments.first?.createdAt
     }
-
+    
     private var isUnlocked: Bool {
         guard let oldest = oldestPendingDate else { return false }
         return Date().timeIntervalSince(oldest) >= unlockInterval
     }
-
+    
     private var daysRemaining: Int? {
         guard let oldest = oldestPendingDate, !isUnlocked else { return nil }
         let remaining = unlockInterval - Date().timeIntervalSince(oldest)
@@ -37,12 +37,12 @@ struct TribunalView: View {
     }
     
     private let tribunalSteps = [
-        "A message starting with \"I declare\" becomes a commitment.",
+        "In any conversation, type a message starting with \"I declare\" — it's saved as a commitment.",
         "Seven days pass from the oldest unresolved commitment.",
         "The Tribunal unlocks — it cannot be rushed or skipped.",
         "You face it and account for what you promised. Nothing is self-approved outside the Tribunal."
     ]
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
@@ -51,7 +51,7 @@ struct TribunalView: View {
                     .foregroundStyle(Theme.textPrimary)
                 
                 Spacer()
-
+                
                 Button(action: { isInfoShown = true }) {
                     Image(systemName: "info.circle")
                         .font(Typography.icon)
@@ -60,11 +60,11 @@ struct TribunalView: View {
                 .buttonStyle(.plain)
             }
             .padding(.bottom, 20)
-
+            
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     statusSection
-
+                    
                     if !resolvedCommitments.isEmpty {
                         historySection
                     }
@@ -81,36 +81,79 @@ struct TribunalView: View {
         }
         .animation(.easeInOut(duration: 0.2), value: isInfoShown)
     }
-
-    private var explanation: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("HOW IT WORKS")
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textFaint)
-                .kerning(0.5)
-
-            VStack(alignment: .leading, spacing: 10) {
-                ForEach(Array(tribunalSteps.enumerated()), id: \.offset) { index, step in
-                    HStack(alignment: .top, spacing: 10) {
-                        Text("\(index + 1)")
-                            .font(Typography.label)
-                            .foregroundStyle(Theme.textFaint)
-                            .frame(width: 16, alignment: .leading)
-
-                        Text(step)
-                            .font(Theme.uiFont)
-                            .foregroundStyle(Theme.textSecondary)
-                            .lineSpacing(3)
-                    }
+    
+    private var infoOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.5)
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture { isInfoShown = false }
+            
+            VStack(alignment: .leading, spacing: 0) {
+                infoHeader
+                
+                ScrollView {
+                    explanationSteps
+                        .padding(20)
+                }
+            }
+            .frame(maxWidth: 420, maxHeight: 480)
+            .background(Theme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
+            .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
+            .onTapGesture {}
+        }
+        .transition(.opacity.combined(with: .scale(scale: 0.96)))
+    }
+    
+    private var infoHeader: some View {
+        HStack {
+            Image(systemName: "seal")
+                .font(Typography.icon)
+                .foregroundStyle(Theme.textMuted)
+            
+            Text("tribunal")
+                .font(Typography.title)
+                .foregroundStyle(Theme.textPrimary)
+            
+            Spacer()
+            
+            Button(action: { isInfoShown = false }) {
+                Image(systemName: "xmark")
+                    .font(Typography.iconButton)
+                    .foregroundStyle(Theme.textMuted)
+                    .frame(width: 24, height: 24)
+                    .background(Theme.fieldBackground)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Theme.border).frame(height: 0.5)
+        }
+    }
+    
+    private var explanationSteps: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            ForEach(Array(tribunalSteps.enumerated()), id: \.offset) { index, step in
+                HStack(alignment: .top, spacing: 12) {
+                    Text("\(index + 1)")
+                        .font(Typography.subsectionTitle)
+                        .foregroundStyle(Theme.textFaint)
+                        .frame(width: 20, alignment: .leading)
+                    
+                    Text(step)
+                        .font(Theme.uiFont)
+                        .foregroundStyle(Theme.textSecondary)
+                        .lineSpacing(3)
                 }
             }
         }
-        .padding(14)
-        .background(Theme.fieldBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.border, lineWidth: 0.5))
     }
-
+    
     private var statusSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             if pendingCommitments.isEmpty {
@@ -127,7 +170,7 @@ struct TribunalView: View {
             }
         }
     }
-
+    
     private var startButton: some View {
         Button(action: startTribunal) {
             Text(isStarting ? "Opening..." : "Face the Tribunal")
@@ -142,7 +185,7 @@ struct TribunalView: View {
         .disabled(isStarting)
         .opacity(isStarting ? 0.6 : 1)
     }
-
+    
     private func startTribunal() {
         guard !isStarting else { return }
         isStarting = true
@@ -153,7 +196,7 @@ struct TribunalView: View {
             isStarting = false
         }
     }
-
+    
     private func statusPill(icon: String, text: String, color: Color = Theme.textSecondary) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
@@ -177,7 +220,7 @@ struct TribunalView: View {
                         .font(Typography.caption)
                         .foregroundStyle(Theme.textFaint)
                         .kerning(0.5)
-
+                    
                     Image(systemName: "chevron.right")
                         .font(.system(size: 9, weight: .medium))
                         .foregroundStyle(Theme.textFaint)
@@ -187,7 +230,7 @@ struct TribunalView: View {
                 }
             }
             .buttonStyle(.plain)
-
+            
             if isHistoryExpanded {
                 VStack(spacing: 8) {
                     ForEach(resolvedCommitments) { commitment in
@@ -197,25 +240,10 @@ struct TribunalView: View {
             }
         }
     }
-
+    
     private func toggleHistory() {
         withAnimation(.easeInOut(duration: 0.2)) {
             isHistoryExpanded.toggle()
         }
-    }
-    
-    private var infoOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.5)
-                .ignoresSafeArea()
-                .contentShape(Rectangle())
-                .onTapGesture { isInfoShown = false }
-
-            explanation
-                .frame(maxWidth: 420)
-                .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
-                .onTapGesture {}
-        }
-        .transition(.opacity.combined(with: .scale(scale: 0.96)))
     }
 }
