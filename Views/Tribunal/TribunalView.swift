@@ -10,6 +10,12 @@ struct TribunalView: View {
 
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
     private var pendingCommitments: [Commitment]
+    @Query(
+        filter: #Predicate<Commitment> { $0.status != "pending" },
+        sort: \Commitment.resolvedAt,
+        order: .reverse
+    )
+    private var resolvedCommitments: [Commitment]
 
     private let unlockInterval: TimeInterval = 7 * 24 * 60 * 60
 
@@ -36,15 +42,22 @@ struct TribunalView: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 0) {
             Text("Tribunal")
                 .font(Typography.sectionTitle)
                 .foregroundStyle(Theme.textPrimary)
+                .padding(.bottom, 20)
 
-            explanation
-            statusSection
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    explanation
+                    statusSection
 
-            Spacer()
+                    if !resolvedCommitments.isEmpty {
+                        historySection
+                    }
+                }
+            }
         }
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -136,5 +149,20 @@ struct TribunalView: View {
         .background(Theme.fieldBackground)
         .clipShape(Capsule())
         .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
+    }
+    
+    private var historySection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("HISTORY")
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+                .kerning(0.5)
+
+            VStack(spacing: 8) {
+                ForEach(resolvedCommitments) { commitment in
+                    CommitmentHistoryRow(commitment: commitment)
+                }
+            }
+        }
     }
 }
