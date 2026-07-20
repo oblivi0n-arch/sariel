@@ -30,7 +30,7 @@ final class ChatService: ObservableObject {
         conversation.messages.append(userMessage)
         modelContext.insert(userMessage)
 
-        if Commitment.isDeclaration(text) {
+        if !conversation.isTribunal, Commitment.isDeclaration(text) {
             let commitment = Commitment(declarationText: text, sourceMessage: userMessage)
             modelContext.insert(commitment)
         }
