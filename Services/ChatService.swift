@@ -150,7 +150,7 @@ final class ChatService: ObservableObject {
     }
 
     private func reconcileSummary(for conversation: Conversation) {
-        let remainingCount = conversation.messages.count
+        let remainingCount = conversation.messages.filter { !$0.content.isEmpty && !$0.content.hasPrefix("⚠️") }.count
         if remainingCount < conversation.summarizedMessageCount {
             conversation.summarizedMessageCount = remainingCount
             conversation.summary = ""
