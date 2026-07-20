@@ -59,7 +59,7 @@ struct ChatView: View {
                 isEndingConversation: isEndingConversation,
                 endConversationError: endConversationError,
                 canEndConversation: successfulExchangeCount >= 2,
-                isGenerating: isGenerating,
+                isInputLocked: isInputLocked,
                 isConnected: connectionMonitor.isConnected,
                 onOpenSavedEntry: {
                     if let entry = conversation.journalEntry {

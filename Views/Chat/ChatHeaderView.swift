@@ -7,7 +7,7 @@ struct ChatHeaderView: View {
     let isEndingConversation: Bool
     let endConversationError: String?
     let canEndConversation: Bool
-    let isGenerating: Bool
+    let isInputLocked: Bool
     let isConnected: Bool
     let onOpenSavedEntry: () -> Void
     let onRequestEndConversation: () -> Void
@@ -46,7 +46,10 @@ struct ChatHeaderView: View {
             } else if !isConnected {
                 statusPill(icon: "wifi.slash", text: "Offline", color: Theme.textMuted)
             } else if let error = endConversationError {
-                Button(action: onRequestEndConversation) {
+                Button(action: {
+                    guard !isInputLocked else { return }
+                    onRequestEndConversation()
+                }) {
                     statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
                 }
                 .buttonStyle(.plain)
@@ -57,7 +60,7 @@ struct ChatHeaderView: View {
                     .clipShape(Capsule())
             } else {
                 Button(action: {
-                    guard !isGenerating && canEndConversation else { return }
+                    guard !isInputLocked && canEndConversation else { return }
                     onRequestEndConversation()
                 }) {
                     statusPill(icon: "book.closed", text: "End conversation")
