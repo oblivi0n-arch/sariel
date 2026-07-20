@@ -28,6 +28,7 @@ struct MessageBubble: View {
     private var isGuide: Bool { message.messageRole == .guide }
     private var isError: Bool { isGuide && message.content.hasPrefix("⚠️") }
     private var isCommitment: Bool { message.commitment != nil }
+    private var isTribunalMessage: Bool { message.conversation?.isTribunal ?? false }
 
     private var errorParts: (description: String, suggestion: String?) {
         let cleaned = message.content.replacingOccurrences(of: "⚠️ ", with: "")
@@ -87,7 +88,9 @@ struct MessageBubble: View {
                     )
                     .overlay(alignment: .leading) {
                         if isGuide {
-                            Rectangle().fill(Theme.borderStrong).frame(width: 2)
+                            Rectangle()
+                                .fill(isTribunalMessage ? Color.red.opacity(0.6) : Theme.borderStrong)
+                                .frame(width: 2)
                         }
                     }
             }
