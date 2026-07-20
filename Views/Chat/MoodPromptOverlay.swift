@@ -27,7 +27,7 @@ struct MoodPromptOverlay: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
             .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
-            .onTapGesture {} // pochłania tapnięcie, żeby nie przechodziło do tła pod spodem
+            .onTapGesture {}
         }
         .transition(.opacity.combined(with: .scale(scale: 0.96)))
     }
