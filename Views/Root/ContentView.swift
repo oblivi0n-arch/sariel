@@ -70,6 +70,9 @@ struct ContentView: View {
                             
                         case .journal:
                             JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation)
+                        
+                        case .tribunal:
+                            TribunalView()
                         }
                     }
                     

@@ -3,6 +3,7 @@ import Foundation
 enum AppSection: String, CaseIterable, Identifiable {
     case chat
     case journal
+    case tribunal
     
     var id: String { rawValue }
     
@@ -12,6 +13,8 @@ enum AppSection: String, CaseIterable, Identifiable {
             return "text.bubble.fill"
         case .journal:
             return "bookmark.fill"
+        case .tribunal:
+            return "scalemass.fill"
         }
     }
 }
