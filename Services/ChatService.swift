@@ -8,6 +8,7 @@ final class ChatService: ObservableObject {
     @Published var endingConversationIDs: Set<UUID> = []
     @Published var lastErrors: [UUID: String] = [:]
     @Published var endConversationErrors: [UUID: String] = [:]
+    @Published var isGeneratingVerdicts: Set<UUID> = []
 
     private let client: OllamaClient
     
@@ -363,6 +364,51 @@ final class ChatService: ObservableObject {
         try? modelContext.save()
 
         return conversation
+    }
+    
+    func generateVerdicts(for conversation: Conversation, modelContext: ModelContext) async -> [TribunalVerdict] {
+        guard conversation.isTribunal else { return [] }
+        let pending = fetchPendingCommitments(modelContext: modelContext)
+        guard !pending.isEmpty else { return [] }
+
+        isGeneratingVerdicts.insert(conversation.id)
+        defer { isGeneratingVerdicts.remove(conversation.id) }
+
+        let history = conversation.messages
+            .sorted { $0.timestamp < $1.timestamp }
+            .filter { $0.isValidExchange }
+
+        var verdicts: [TribunalVerdict] = []
+        for commitment in pending {
+            guard let response = try? await client.complete(
+                messages: PromptBuilder.buildVerdictMessages(commitment: commitment, history: history)
+            ) else { continue }
+
+            let (status, reasoning) = parseVerdict(response)
+            verdicts.append(TribunalVerdict(commitment: commitment, proposedStatus: status, reasoning: reasoning))
+        }
+
+        return verdicts
+    }
+
+    private func parseVerdict(_ text: String) -> (CommitmentStatus, String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lines = trimmed.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: false)
+
+        let firstLine = lines.first?.uppercased() ?? ""
+        let status: CommitmentStatus = firstLine.contains("FULFILLED") ? .fulfilled : .broken
+        let reasoning = lines.count > 1 ? String(lines[1]).trimmingCharacters(in: .whitespacesAndNewlines) : ""
+
+        return (status, reasoning)
+    }
+
+    func applyVerdicts(_ verdicts: [TribunalVerdict], for conversation: Conversation, modelContext: ModelContext) {
+        for verdict in verdicts {
+            verdict.commitment.commitmentStatus = verdict.proposedStatus
+            verdict.commitment.resolvedAt = Date()
+            verdict.commitment.verdictReasoning = verdict.reasoning
+        }
+        try? modelContext.save()
     }
 
     private func fetchPendingCommitments(modelContext: ModelContext) -> [Commitment] {

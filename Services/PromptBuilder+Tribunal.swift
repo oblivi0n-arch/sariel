@@ -47,4 +47,27 @@ extension PromptBuilder {
         messages.append(OllamaMessage(role: "user", content: "Open the Tribunal session now."))
         return messages
     }
+
+    static let tribunalVerdictSystemPrompt = """
+    You are Sariel, delivering a final verdict on a single declared commitment, based on the Tribunal conversation transcript below.
+
+    Respond in exactly this format, nothing else:
+    FULFILLED or BROKEN
+    <one or two sentences of direct, unsoftened reasoning>
+
+    Judge based only on concrete evidence the user provided about what they actually did. Vague or evasive answers count as BROKEN.
+    """
+
+    static func buildVerdictMessages(commitment: Commitment, history: [ChatMessage]) -> [OllamaMessage] {
+        var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: tribunalVerdictSystemPrompt)]
+        messages.append(OllamaMessage(role: "system", content: "The declaration being judged: \"\(commitment.declarationText)\""))
+
+        for message in history {
+            let role = message.messageRole == .user ? "user" : "assistant"
+            messages.append(OllamaMessage(role: role, content: message.content))
+        }
+
+        messages.append(OllamaMessage(role: "user", content: "Deliver your verdict on this specific declaration now."))
+        return messages
+    }
 }

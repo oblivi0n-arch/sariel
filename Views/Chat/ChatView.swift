@@ -14,6 +14,8 @@ struct ChatView: View {
     @State private var editingMessageID: UUID?
     @State private var isMoodPromptShown = false
     @State private var isRevealFinishing = false
+    @State private var tribunalVerdicts: [TribunalVerdict] = []
+    @State private var isVerdictOverlayShown = false
     private var isEnded: Bool { conversation.journalEntry != nil }
     private var successfulExchangeCount: Int {
         conversation.messages.filter { $0.messageRole == .guide && $0.isValidExchange }.count
@@ -143,6 +145,19 @@ struct ChatView: View {
                         .padding(.horizontal, 16)
                         .padding(.top, 12)
                     }
+                    
+                    if conversation.isTribunal && !sortedMessages.isEmpty {
+                        HStack(spacing: 8) {
+                            StarterChip(
+                                icon: "scalemass",
+                                label: chatService.isGeneratingVerdicts.contains(conversation.id) ? "judging..." : "deliver verdicts",
+                                onTap: deliverVerdicts
+                            )
+                            Spacer()
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 12)
+                    }
 
                     ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, onSend: sendMessage)
                 }
@@ -168,6 +183,18 @@ struct ChatView: View {
                     onCancel: {
                         isMoodPromptShown = false
                     }
+                )
+            }
+        }
+        .overlay {
+            if isVerdictOverlayShown {
+                TribunalVerdictOverlay(
+                    verdicts: $tribunalVerdicts,
+                    onConfirm: { finalVerdicts in
+                        chatService.applyVerdicts(finalVerdicts, for: conversation, modelContext: modelContext)
+                        isVerdictOverlayShown = false
+                    },
+                    onCancel: { isVerdictOverlayShown = false }
                 )
             }
         }
@@ -260,5 +287,15 @@ struct ChatView: View {
     private func startProvocation() {
         guard !isInputLocked else { return }
         Task { await chatService.startProvocation(for: conversation, modelContext: modelContext) }
+    }
+    
+    private func deliverVerdicts() {
+        guard !chatService.isGeneratingVerdicts.contains(conversation.id) else { return }
+        Task {
+            let verdicts = await chatService.generateVerdicts(for: conversation, modelContext: modelContext)
+            guard !verdicts.isEmpty else { return }
+            tribunalVerdicts = verdicts
+            isVerdictOverlayShown = true
+        }
     }
 }
