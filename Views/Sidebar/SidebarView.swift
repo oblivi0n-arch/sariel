@@ -4,6 +4,7 @@ struct SidebarView: View {
     @EnvironmentObject var connectionMonitor: ConnectionMonitor
     @Binding var selectedSection: AppSection
     @Binding var isSettingsOpen: Bool
+    let isTribunalLocked: Bool
 
     var body: some View {
         VStack(spacing: 16) {
@@ -13,12 +14,13 @@ struct SidebarView: View {
                 SidebarIconButton(
                     iconName: section.iconName,
                     isActive: section == selectedSection,
+                    isLocked: isTribunalLocked && section != .chat,
                     onTap: { selectedSection = section }
                 )
             }
 
             Spacer()
-            
+
             SidebarIconButton(
                 iconName: "gearshape.fill",
                 isActive: isSettingsOpen,
@@ -31,9 +33,7 @@ struct SidebarView: View {
         .frame(maxHeight: .infinity)
         .background(Theme.background)
         .overlay(alignment: .trailing) {
-            Rectangle()
-                .fill(Theme.border)
-                .frame(width: 0.5)
+            Rectangle().fill(Theme.border).frame(width: 0.5)
         }
     }
 

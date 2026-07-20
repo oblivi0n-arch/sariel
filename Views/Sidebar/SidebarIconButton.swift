@@ -3,6 +3,7 @@ import SwiftUI
 struct SidebarIconButton: View {
     let iconName: String
     let isActive: Bool
+    var isLocked: Bool = false
     let onTap: () -> Void
 
     @State private var isHovering = false
@@ -17,9 +18,28 @@ struct SidebarIconButton: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(borderColor, lineWidth: 1)
             )
+            .overlay(alignment: .bottomTrailing) {
+                if isLocked {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 8, weight: .medium))
+                        .foregroundStyle(Theme.textFaint)
+                        .padding(3)
+                        .background(Theme.background)
+                        .clipShape(Circle())
+                        .offset(x: 4, y: 4)
+                }
+            }
+            .opacity(isLocked ? 0.35 : 1)
             .contentShape(Rectangle())
-            .onTapGesture(perform: onTap)
-            .onHover { hovering in isHovering = hovering }
+            .onTapGesture {
+                guard !isLocked else { return }
+                onTap()
+            }
+            .onHover { hovering in
+                guard !isLocked else { return }
+                isHovering = hovering
+            }
+            .help(isLocked ? "End Tribunal session first" : "")
     }
 
     private var foregroundColor: Color {

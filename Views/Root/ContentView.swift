@@ -17,6 +17,11 @@ struct ContentView: View {
         sort: \Conversation.startedAt,
         order: .reverse
     ) private var tribunalConversations: [Conversation]
+    
+    private var isTribunalInProgress: Bool {
+        guard let activeConversation else { return false }
+        return activeConversation.isTribunal && activeConversation.tribunalResolvedAt == nil
+    }
 
     @State private var activeConversation: Conversation?
     @State private var isConversationListOpen = false
@@ -30,7 +35,11 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             HStack(spacing: 0) {
-                SidebarView(selectedSection: $selectedSection, isSettingsOpen: $isSettingsOpen)
+                SidebarView(
+                    selectedSection: $selectedSection,
+                    isSettingsOpen: $isSettingsOpen,
+                    isTribunalLocked: isTribunalInProgress
+                )
                 
                 ZStack {
                     Group {
