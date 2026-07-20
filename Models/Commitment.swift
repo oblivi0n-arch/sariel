@@ -12,6 +12,7 @@ final class Commitment {
     var verdictReasoning: String?
     var stepsDescription: String?
 
+    @Relationship(deleteRule: .cascade, inverse: \ChatMessage.commitment)
     var sourceMessage: ChatMessage?
 
     init(declarationText: String, sourceMessage: ChatMessage? = nil) {

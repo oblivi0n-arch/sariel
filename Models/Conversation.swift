@@ -34,6 +34,7 @@ final class ChatMessage {
     var timestamp: Date
 
     var conversation: Conversation?
+    var commitment: Commitment? 
 
     init(role: MessageRole, content: String) {
         self.id = UUID()

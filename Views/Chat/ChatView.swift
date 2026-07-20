@@ -77,13 +77,13 @@ struct ChatView: View {
                             let isStreamingMessage = isGenerating && message.id == lastGuideMessage?.id
                             MessageBubble(
                                 message: message,
-                                showActions: isLastUser && !isInputLocked && !isEnded,
+                                showActions: isLastUser && !isInputLocked && !isEnded && message.commitment == nil,
                                 onDelete: { deleteLastExchange() },
                                 isEditing: editingMessageID == message.id,
                                 onStartEdit: { editingMessageID = message.id },
                                 onSaveEdit: { newText in saveEdit(for: message, newText: newText) },
                                 onCancelEdit: { editingMessageID = nil },
-                                showRewind: message.messageRole == .user && !isLastUser && !isInputLocked && !isEnded,
+                                showRewind: message.messageRole == .user && !isLastUser && !isInputLocked && !isEnded && message.commitment == nil,
                                 onRewind: { rewind(to: message) },
                                 onRetry: { retryLastResponse() },
                                 isStreaming: isStreamingMessage,
