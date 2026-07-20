@@ -332,6 +332,10 @@ final class ChatService: ObservableObject {
     }
     
     func startTribunal(modelContext: ModelContext) async -> Conversation? {
+        if let existing = fetchInProgressTribunal(modelContext: modelContext) {
+            return existing
+        }
+
         let pending = fetchPendingCommitments(modelContext: modelContext)
         guard !pending.isEmpty else { return nil }
 
@@ -435,6 +439,14 @@ final class ChatService: ObservableObject {
             sortBy: [SortDescriptor(\.createdAt)]
         )
         return (try? modelContext.fetch(descriptor)) ?? []
+    }
+    
+    private func fetchInProgressTribunal(modelContext: ModelContext) -> Conversation? {
+        let descriptor = FetchDescriptor<Conversation>(
+            predicate: #Predicate<Conversation> { $0.isTribunal && $0.tribunalResolvedAt == nil },
+            sortBy: [SortDescriptor(\.startedAt, order: .reverse)]
+        )
+        return (try? modelContext.fetch(descriptor))?.first
     }
     
     private func fetchTribunalSessionCount(modelContext: ModelContext) -> Int {
