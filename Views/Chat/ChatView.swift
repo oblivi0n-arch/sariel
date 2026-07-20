@@ -37,7 +37,11 @@ struct ChatView: View {
     var onBackToTribunal: () -> Void
     
     private var isPendingProvocationStart: Bool {
-        sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
+        !conversation.isTribunal && sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
+    }
+
+    private var isPendingTribunalOpening: Bool {
+        conversation.isTribunal && sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
     }
 
     init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, onBackToTribunal: @escaping () -> Void, isActive: Bool) {
@@ -162,6 +166,8 @@ struct ChatView: View {
             guard lastStreamError != nil, !isInputLocked else { return }
             if isPendingProvocationStart {
                 Task { await chatService.retryProvocation(for: conversation, modelContext: modelContext) }
+            } else if isPendingTribunalOpening {
+                Task { await chatService.retryTribunalOpening(for: conversation, modelContext: modelContext) }
             } else {
                 retryLastResponse()
             }

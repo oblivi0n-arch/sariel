@@ -340,11 +340,28 @@ final class ChatService: ObservableObject {
         let conversation = Conversation(title: "Tribunal — session \(sessionNumber) — \(dateString)")
         conversation.isTribunal = true
         modelContext.insert(conversation)
+
         let guideMessage = ChatMessage(role: .guide, content: "")
         guideMessage.conversation = conversation
         conversation.messages.append(guideMessage)
         modelContext.insert(guideMessage)
         try? modelContext.save()
+
+        await runTribunalOpening(into: guideMessage, for: conversation, modelContext: modelContext)
+
+        return conversation
+    }
+
+    func retryTribunalOpening(for conversation: Conversation, modelContext: ModelContext) async {
+        let sorted = conversation.messages.sorted { $0.timestamp < $1.timestamp }
+        guard let guideMessage = sorted.first, guideMessage.messageRole == .guide else { return }
+        guideMessage.content = ""
+
+        await runTribunalOpening(into: guideMessage, for: conversation, modelContext: modelContext)
+    }
+
+    private func runTribunalOpening(into guideMessage: ChatMessage, for conversation: Conversation, modelContext: ModelContext) async {
+        let pending = fetchPendingCommitments(modelContext: modelContext)
 
         generatingConversationIDs.insert(conversation.id)
         lastErrors[conversation.id] = nil
@@ -363,8 +380,6 @@ final class ChatService: ObservableObject {
 
         generatingConversationIDs.remove(conversation.id)
         try? modelContext.save()
-
-        return conversation
     }
     
     func generateVerdicts(for conversation: Conversation, modelContext: ModelContext) async -> [TribunalVerdict] {
