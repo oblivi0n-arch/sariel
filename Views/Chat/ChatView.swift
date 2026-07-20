@@ -22,7 +22,9 @@ struct ChatView: View {
     }
     private var isGenerating: Bool { chatService.generatingConversationIDs.contains(conversation.id) }
     private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
-    private var isInputLocked: Bool { isGenerating || isEndingConversation || isRevealFinishing }
+    private var isInputLocked: Bool {
+        isGenerating || isEndingConversation || isRevealFinishing || chatService.isGeneratingVerdicts.contains(conversation.id)
+    }
     private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
     private var lastStreamError: String? { chatService.lastErrors[conversation.id] }
     private var lastUserMessage: ChatMessage? {
