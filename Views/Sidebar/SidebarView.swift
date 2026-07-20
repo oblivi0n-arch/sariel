@@ -14,7 +14,7 @@ struct SidebarView: View {
                 SidebarIconButton(
                     iconName: section.iconName,
                     isActive: section == selectedSection,
-                    isLocked: isTribunalLocked && section != .chat,
+                    isLocked: isTribunalLocked,
                     onTap: { selectedSection = section }
                 )
             }
