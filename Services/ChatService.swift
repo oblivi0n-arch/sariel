@@ -335,10 +335,11 @@ final class ChatService: ObservableObject {
         let pending = fetchPendingCommitments(modelContext: modelContext)
         guard !pending.isEmpty else { return nil }
 
-        let conversation = Conversation(title: "Tribunal")
+        let sessionNumber = fetchTribunalSessionCount(modelContext: modelContext) + 1
+        let dateString = Date().formatted(date: .abbreviated, time: .omitted)
+        let conversation = Conversation(title: "Tribunal — session \(sessionNumber) — \(dateString)")
         conversation.isTribunal = true
         modelContext.insert(conversation)
-
         let guideMessage = ChatMessage(role: .guide, content: "")
         guideMessage.conversation = conversation
         conversation.messages.append(guideMessage)
@@ -419,6 +420,13 @@ final class ChatService: ObservableObject {
             sortBy: [SortDescriptor(\.createdAt)]
         )
         return (try? modelContext.fetch(descriptor)) ?? []
+    }
+    
+    private func fetchTribunalSessionCount(modelContext: ModelContext) -> Int {
+        let descriptor = FetchDescriptor<Conversation>(
+            predicate: #Predicate<Conversation> { $0.isTribunal }
+        )
+        return (try? modelContext.fetchCount(descriptor)) ?? 0
     }
     
     private func provocationTag(modelContext: ModelContext) -> JournalEntryTag {
