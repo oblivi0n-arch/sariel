@@ -20,7 +20,7 @@ final class ChatService: ObservableObject {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
         let hasSuccessfulExchange = conversation.messages.contains {
-            $0.messageRole == .guide && !$0.content.isEmpty && !$0.content.hasPrefix("⚠️")
+            $0.messageRole == .guide && $0.isValidExchange
         }
 
         let userMessage = ChatMessage(role: .user, content: text)
@@ -58,7 +58,7 @@ final class ChatService: ObservableObject {
     private func refreshSummaryIfNeeded(for conversation: Conversation, modelContext: ModelContext) async {
         let sortedMessages = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
-            .filter { !$0.content.isEmpty && !$0.content.hasPrefix("⚠️") }
+            .filter { $0.isValidExchange }
 
         let unsummarizedCount = sortedMessages.count - conversation.summarizedMessageCount
         guard unsummarizedCount > PromptBuilder.summaryRefreshThreshold else { return }
@@ -102,7 +102,7 @@ final class ChatService: ObservableObject {
 
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
-            .filter { !$0.content.isEmpty && !$0.content.hasPrefix("⚠️") }
+            .filter { $0.isValidExchange }
         
         do {
             let content = try await client.complete(messages: PromptBuilder.buildJournalMessages(history: history))
@@ -150,7 +150,7 @@ final class ChatService: ObservableObject {
     }
 
     private func reconcileSummary(for conversation: Conversation) {
-        let remainingCount = conversation.messages.filter { !$0.content.isEmpty && !$0.content.hasPrefix("⚠️") }.count
+        let remainingCount = conversation.messages.filter { $0.isValidExchange }.count
         if remainingCount < conversation.summarizedMessageCount {
             conversation.summarizedMessageCount = remainingCount
             conversation.summary = ""
@@ -239,7 +239,7 @@ final class ChatService: ObservableObject {
         guard let guideMessage = sorted.last(where: { $0.messageRole == .guide }) else { return }
 
         let hasSuccessfulExchange = sorted.contains {
-            $0.messageRole == .guide && $0.id != guideMessage.id && !$0.content.isEmpty && !$0.content.hasPrefix("⚠️")
+            $0.messageRole == .guide && $0.id != guideMessage.id && $0.isValidExchange
         }
         let precedingUserText = sorted.last(where: { $0.messageRole == .user && $0.timestamp < guideMessage.timestamp })?.content
 

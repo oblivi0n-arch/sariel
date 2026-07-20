@@ -45,6 +45,10 @@ final class ChatMessage {
     var messageRole: MessageRole {
         MessageRole(rawValue: role) ?? .user
     }
+    
+    var isValidExchange: Bool {
+        !content.isEmpty && !content.hasPrefix("⚠️")
+    }
 }
 
 enum MessageRole: String {
