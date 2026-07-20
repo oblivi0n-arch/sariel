@@ -10,6 +10,8 @@ struct TribunalView: View {
     @State private var isStarting = false
     @State private var isHistoryExpanded = false
     @State private var isInfoShown = false
+    @State private var now: Date = Date()
+    @State private var tickTask: Task<Void, Never>?
     
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
     private var pendingCommitments: [Commitment]
@@ -31,10 +33,14 @@ struct TribunalView: View {
         return Date().timeIntervalSince(oldest) >= unlockInterval
     }
     
-    private var daysRemaining: Int? {
+    private var remainingComponents: (days: Int, hours: Int, minutes: Int)? {
         guard let oldest = oldestPendingDate, !isUnlocked else { return nil }
-        let remaining = unlockInterval - Date().timeIntervalSince(oldest)
-        return max(0, Int(ceil(remaining / (24 * 60 * 60))))
+        let remaining = max(0, unlockInterval - now.timeIntervalSince(oldest))
+        let totalMinutes = Int(remaining) / 60
+        let days = totalMinutes / (24 * 60)
+        let hours = (totalMinutes % (24 * 60)) / 60
+        let minutes = totalMinutes % 60
+        return (days, hours, minutes)
     }
     
     private let tribunalSteps = [
@@ -81,6 +87,8 @@ struct TribunalView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: isInfoShown)
+        .onAppear { startTicking() }
+        .onDisappear { tickTask?.cancel() }
     }
     
     private var infoOverlay: some View {
@@ -158,29 +166,60 @@ struct TribunalView: View {
     private var statusSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             if pendingCommitments.isEmpty {
-                statusPill(icon: "checkmark.circle", text: "No pending commitments")
+                noCommitmentsView
             } else if isUnlocked {
-                statusPill(
-                    icon: "lock.open.fill",
-                    text: "\(pendingCommitments.count) commitments awaiting trial",
-                    color: Theme.textPrimary
-                )
+                unlockedView
                 startButton
-            } else if let days = daysRemaining {
-                statusPill(icon: "lock.fill", text: "Locked — \(days) days left")
+            } else if let components = remainingComponents {
+                countdownView(components)
             }
         }
+    }
+    
+    private var noCommitmentsView: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "checkmark.seal")
+                .font(.system(size: 20))
+                .foregroundStyle(Theme.textFaint)
+
+            Text("Nothing awaits judgment. No pending commitments.")
+                .font(Theme.uiFont)
+                .foregroundStyle(Theme.textMuted)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Theme.fieldBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.border, lineWidth: 0.5))
+    }
+
+    private var unlockedView: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "lock.open.fill")
+                .font(.system(size: 20))
+                .foregroundStyle(Color.red.opacity(0.85))
+
+            Text("\(pendingCommitments.count) commitment\(pendingCommitments.count == 1 ? "" : "s") await\(pendingCommitments.count == 1 ? "s" : "") trial")
+                .font(Theme.uiFont)
+                .foregroundStyle(Theme.textPrimary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Theme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.red.opacity(0.4), lineWidth: 0.5))
     }
     
     private var startButton: some View {
         Button(action: startTribunal) {
             Text(isStarting ? "Opening..." : "Face the Tribunal")
                 .font(Typography.label)
-                .foregroundStyle(Theme.background)
+                .foregroundStyle(Color.red.opacity(0.9))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
-                .background(Theme.textPrimary)
+                .background(Color.red.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.4), lineWidth: 0.5))
         }
         .buttonStyle(.plain)
         .disabled(isStarting)
@@ -196,21 +235,6 @@ struct TribunalView: View {
             }
             isStarting = false
         }
-    }
-    
-    private func statusPill(icon: String, text: String, color: Color = Theme.textSecondary) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 11, weight: .medium))
-            Text(text)
-                .font(Typography.caption)
-        }
-        .foregroundStyle(color)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 7)
-        .background(Theme.fieldBackground)
-        .clipShape(Capsule())
-        .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
     }
     
     private var historySection: some View {
@@ -249,6 +273,35 @@ struct TribunalView: View {
     private func toggleHistory() {
         withAnimation(.easeInOut(duration: 0.2)) {
             isHistoryExpanded.toggle()
+        }
+    }
+    
+    private func countdownView(_ components: (days: Int, hours: Int, minutes: Int)) -> some View {
+        VStack(spacing: 6) {
+            Text(String(format: "%02d:%02d:%02d", components.days, components.hours, components.minutes))
+                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(Theme.textPrimary)
+
+            Text("days : hours : minutes")
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+                .kerning(0.5)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .background(Theme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.borderStrong, lineWidth: 0.5))
+    }
+    
+    private func startTicking() {
+        tickTask?.cancel()
+        tickTask = Task {
+            while !Task.isCancelled {
+                now = Date()
+                try? await Task.sleep(nanoseconds: 30_000_000_000) // 30s
+            }
         }
     }
 }
