@@ -2,6 +2,12 @@ import SwiftUI
 import SwiftData
 
 struct TribunalView: View {
+    @ObservedObject var chatService: ChatService
+    let onTribunalStarted: (Conversation) -> Void
+
+    @Environment(\.modelContext) private var modelContext
+    @State private var isStarting = false
+
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
     private var pendingCommitments: [Commitment]
 
@@ -74,10 +80,8 @@ struct TribunalView: View {
     }
 
     private var startButton: some View {
-        Button(action: {
-            // TODO: launch the actual Tribunal conversation (next step)
-        }) {
-            Text("Face the Tribunal")
+        Button(action: startTribunal) {
+            Text(isStarting ? "Opening..." : "Face the Tribunal")
                 .font(Typography.label)
                 .foregroundStyle(Theme.background)
                 .frame(maxWidth: .infinity)
@@ -86,6 +90,19 @@ struct TribunalView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
+        .disabled(isStarting)
+        .opacity(isStarting ? 0.6 : 1)
+    }
+
+    private func startTribunal() {
+        guard !isStarting else { return }
+        isStarting = true
+        Task {
+            if let conversation = await chatService.startTribunal(modelContext: modelContext) {
+                onTribunalStarted(conversation)
+            }
+            isStarting = false
+        }
     }
 
     private func statusPill(icon: String, text: String, color: Color = Theme.textSecondary) -> some View {

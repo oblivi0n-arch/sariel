@@ -72,7 +72,10 @@ struct ContentView: View {
                             JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation)
                         
                         case .tribunal:
-                            TribunalView()
+                            TribunalView(chatService: chatService, onTribunalStarted: { conversation in
+                                activeConversation = conversation
+                                selectedSection = .chat
+                            })
                         }
                     }
                     

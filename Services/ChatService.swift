@@ -51,14 +51,14 @@ final class ChatService: ObservableObject {
 
         generatingConversationIDs.remove(conversation.id)
 
-        if !hasSuccessfulExchange && !guideMessage.content.hasPrefix("⚠️") {
-            await generateTitle(for: conversation, userText: text, guideText: guideMessage.content, modelContext: modelContext)
-        }
-
-        if !guideMessage.content.hasPrefix("⚠️") {
-            Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
-        }
-    }
+        if !conversation.isTribunal {
+            if !hasSuccessfulExchange && !guideMessage.content.hasPrefix("⚠️") {
+                await generateTitle(for: conversation, userText: text, guideText: guideMessage.content, modelContext: modelContext)
+            }
+            if !guideMessage.content.hasPrefix("⚠️") {
+                Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
+            }
+        }    }
 
     private func refreshSummaryIfNeeded(for conversation: Conversation, modelContext: ModelContext) async {
         let sortedMessages = conversation.messages
@@ -197,8 +197,14 @@ final class ChatService: ObservableObject {
     }
 
     private func streamGuideResponse(into guideMessage: ChatMessage, history: [ChatMessage], conversation: Conversation, modelContext: ModelContext) async {
-        let journalContext = fetchJournalContextIfEnabled(modelContext: modelContext)
-        let messages = PromptBuilder.buildMessages(history: history, summary: conversation.summary, journalContext: journalContext)
+        let messages: [OllamaMessage]
+        if conversation.isTribunal {
+            let pending = fetchPendingCommitments(modelContext: modelContext)
+            messages = PromptBuilder.buildTribunalMessages(history: history, commitments: pending)
+        } else {
+            let journalContext = fetchJournalContextIfEnabled(modelContext: modelContext)
+            messages = PromptBuilder.buildMessages(history: history, summary: conversation.summary, journalContext: journalContext)
+        }
 
         var buffer = ""
         var lastFlush = Date()
@@ -261,12 +267,13 @@ final class ChatService: ObservableObject {
 
         generatingConversationIDs.remove(conversation.id)
 
-        if !hasSuccessfulExchange, !guideMessage.content.hasPrefix("⚠️"), let userText = precedingUserText {
-            await generateTitle(for: conversation, userText: userText, guideText: guideMessage.content, modelContext: modelContext)
-        }
-
-        if !guideMessage.content.hasPrefix("⚠️") {
-            Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
+        if !conversation.isTribunal {
+            if !hasSuccessfulExchange, !guideMessage.content.hasPrefix("⚠️"), let userText = precedingUserText {
+                await generateTitle(for: conversation, userText: userText, guideText: guideMessage.content, modelContext: modelContext)
+            }
+            if !guideMessage.content.hasPrefix("⚠️") {
+                Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
+            }
         }
     }
     
@@ -321,6 +328,49 @@ final class ChatService: ObservableObject {
         }
 
         try? modelContext.save()
+    }
+    
+    func startTribunal(modelContext: ModelContext) async -> Conversation? {
+        let pending = fetchPendingCommitments(modelContext: modelContext)
+        guard !pending.isEmpty else { return nil }
+
+        let conversation = Conversation(title: "Tribunal")
+        conversation.isTribunal = true
+        modelContext.insert(conversation)
+
+        let guideMessage = ChatMessage(role: .guide, content: "")
+        guideMessage.conversation = conversation
+        conversation.messages.append(guideMessage)
+        modelContext.insert(guideMessage)
+        try? modelContext.save()
+
+        generatingConversationIDs.insert(conversation.id)
+        lastErrors[conversation.id] = nil
+
+        do {
+            for try await chunk in client.streamChat(messages: PromptBuilder.buildTribunalOpeningMessages(commitments: pending)) {
+                guideMessage.content += chunk
+            }
+        } catch {
+            let message = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
+            lastErrors[conversation.id] = message
+            if guideMessage.content.isEmpty {
+                guideMessage.content = "⚠️ \(message)"
+            }
+        }
+
+        generatingConversationIDs.remove(conversation.id)
+        try? modelContext.save()
+
+        return conversation
+    }
+
+    private func fetchPendingCommitments(modelContext: ModelContext) -> [Commitment] {
+        let descriptor = FetchDescriptor<Commitment>(
+            predicate: #Predicate<Commitment> { $0.status == "pending" },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        return (try? modelContext.fetch(descriptor)) ?? []
     }
     
     private func provocationTag(modelContext: ModelContext) -> JournalEntryTag {
