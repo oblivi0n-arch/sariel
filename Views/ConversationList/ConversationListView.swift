@@ -11,6 +11,7 @@ struct ConversationListView: View {
     let conversations: [Conversation]
     @Binding var activeConversation: Conversation?
     @Binding var isConversationListOpen: Bool
+    @ObservedObject var chatService: ChatService
     
     private var filteredConversations: [Conversation] {
         guard !searchText.isEmpty else { return conversations }
@@ -95,6 +96,7 @@ struct ConversationListView: View {
                         ConversationRow(
                             conversation: conversation,
                             isActive: conversation.id == activeConversation?.id,
+                            isGenerating: chatService.generatingConversationIDs.contains(conversation.id),
                             onSelect: {
                                 activeConversation = conversation
                                 isConversationListOpen = false

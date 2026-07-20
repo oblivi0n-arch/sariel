@@ -3,6 +3,7 @@ import SwiftUI
 struct ConversationRow: View {
     let conversation: Conversation
     let isActive: Bool
+    let isGenerating: Bool
     let onSelect: () -> Void
     let onDelete: () -> Void
     let onRename: (String) -> Void
@@ -77,6 +78,7 @@ struct ConversationRow: View {
             Button(role: .destructive, action: onDelete) {
                 Label("Delete", systemImage: "trash")
             }
+            .disabled(isGenerating)
         }
     }
 

@@ -60,7 +60,8 @@ struct ContentView: View {
                                     ConversationListView(
                                         conversations: conversations,
                                         activeConversation: $activeConversation,
-                                        isConversationListOpen: $isConversationListOpen
+                                        isConversationListOpen: $isConversationListOpen,
+                                        chatService: chatService
                                     )
                                     .transition(.move(edge: .leading))
                                 }
