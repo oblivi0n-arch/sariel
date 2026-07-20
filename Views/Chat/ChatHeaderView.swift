@@ -66,8 +66,8 @@ struct ChatHeaderView: View {
                     statusPill(icon: "book.closed", text: "End conversation")
                 }
                 .buttonStyle(.plain)
-                .opacity(canEndConversation ? 1 : 0.4)
-                .help(canEndConversation ? "" : "conversation is too short to save")
+                .opacity(!isInputLocked && canEndConversation ? 1 : 0.4)
+                .help(canEndConversation ? "" : "keep going – nothing to mirror yet.")
             }
         }
         .padding(.horizontal, 16)
