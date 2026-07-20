@@ -391,7 +391,26 @@ struct SettingsView: View {
             .font(Typography.caption)
             .buttonStyle(.plain)
             .foregroundStyle(Theme.textMuted)
+
+            Button("Backdate pending commitments (unlock Tribunal)") {
+                backdatePendingCommitments()
+            }
+            .font(Typography.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textMuted)
         }
+    }
+    
+    // MARK: DEBUG ONLY
+    private func backdatePendingCommitments() {
+        let descriptor = FetchDescriptor<Commitment>(
+            predicate: #Predicate<Commitment> { $0.status == "pending" }
+        )
+        guard let pending = try? modelContext.fetch(descriptor) else { return }
+        for commitment in pending {
+            commitment.createdAt = Date().addingTimeInterval(-8 * 24 * 60 * 60)
+        }
+        try? modelContext.save()
     }
 }
 
