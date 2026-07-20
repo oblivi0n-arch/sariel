@@ -28,6 +28,11 @@ final class ChatService: ObservableObject {
         conversation.messages.append(userMessage)
         modelContext.insert(userMessage)
 
+        if Commitment.isDeclaration(text) {
+            let commitment = Commitment(declarationText: text, sourceMessage: userMessage)
+            modelContext.insert(commitment)
+        }
+
         let guideMessage = ChatMessage(role: .guide, content: "")
         guideMessage.conversation = conversation
         conversation.messages.append(guideMessage)

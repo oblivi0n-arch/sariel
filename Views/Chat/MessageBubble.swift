@@ -27,6 +27,7 @@ struct MessageBubble: View {
 
     private var isGuide: Bool { message.messageRole == .guide }
     private var isError: Bool { isGuide && message.content.hasPrefix("⚠️") }
+    private var isCommitment: Bool { message.commitment != nil }
 
     private var errorParts: (description: String, suggestion: String?) {
         let cleaned = message.content.replacingOccurrences(of: "⚠️ ", with: "")
@@ -76,8 +77,14 @@ struct MessageBubble: View {
                     .foregroundStyle(isGuide ? Theme.textPrimary : Theme.textSecondary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
+                    .background(isCommitment ? Color.red.opacity(0.1) : Color.clear)
                     .clipShape(bubbleShape)
-                    .overlay(bubbleShape.stroke(Theme.border, lineWidth: 0.5))
+                    .overlay(
+                        bubbleShape.stroke(
+                            isCommitment ? Color.red.opacity(0.65) : Theme.border,
+                            lineWidth: isCommitment ? 1.2 : 0.5
+                        )
+                    )
                     .overlay(alignment: .leading) {
                         if isGuide {
                             Rectangle().fill(Theme.borderStrong).frame(width: 2)

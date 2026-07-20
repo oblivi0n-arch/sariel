@@ -26,6 +26,12 @@ final class Commitment {
         get { CommitmentStatus(rawValue: status) ?? .pending }
         set { status = newValue.rawValue }
     }
+
+    static func isDeclaration(_ text: String) -> Bool {
+        text.trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .hasPrefix("i declare")
+    }
 }
 
 enum CommitmentStatus: String {
