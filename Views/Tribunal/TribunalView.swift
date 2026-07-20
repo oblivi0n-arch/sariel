@@ -180,17 +180,17 @@ struct TribunalView: View {
         HStack(spacing: 10) {
             Image(systemName: "checkmark.seal")
                 .font(.system(size: 20))
-                .foregroundStyle(Theme.textFaint)
+                .foregroundStyle(Theme.textPrimary)
 
             Text("Nothing awaits judgment. No pending commitments.")
                 .font(Theme.uiFont)
-                .foregroundStyle(Theme.textMuted)
+                .foregroundStyle(Theme.textPrimary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(Theme.fieldBackground)
+        .background(Theme.background)
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.border, lineWidth: 0.5))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.borderStrong, lineWidth: 0.5))
     }
 
     private var unlockedView: some View {

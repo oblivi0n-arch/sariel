@@ -14,12 +14,16 @@ struct CommitmentHistoryRow: View {
         commitment.resolvingConversation != nil
     }
 
+    private var borderColor: Color {
+        isFulfilled ? Theme.textPrimary : Color.red.opacity(0.6)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .top) {
                 Text(commitment.declarationText)
                     .font(Theme.uiFont)
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(isFulfilled ? Theme.textPrimary : Theme.textSecondary)
                     .lineLimit(2)
 
                 Spacer()
@@ -41,11 +45,11 @@ struct CommitmentHistoryRow: View {
             }
         }
         .padding(12)
-        .background(Theme.fieldBackground)
+        .background(Theme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isHovering && isSelectable ? Theme.borderStrong : (isFulfilled ? Theme.border : Color.red.opacity(0.4)), lineWidth: 0.5)
+                .stroke(borderColor, lineWidth: isHovering && isSelectable ? 1 : 0.5)
         )
         .contentShape(Rectangle())
         .onTapGesture {
