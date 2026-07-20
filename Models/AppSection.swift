@@ -14,7 +14,7 @@ enum AppSection: String, CaseIterable, Identifiable {
         case .journal:
             return "bookmark.fill"
         case .tribunal:
-            return "scalemass.fill"
+            return "seal"
         }
     }
 }

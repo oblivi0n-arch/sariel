@@ -27,6 +27,13 @@ struct TribunalView: View {
         let remaining = unlockInterval - Date().timeIntervalSince(oldest)
         return max(0, Int(ceil(remaining / (24 * 60 * 60))))
     }
+    
+    private let tribunalSteps = [
+        "A message starting with \"I declare\" becomes a commitment.",
+        "Seven days pass from the oldest unresolved commitment.",
+        "The Tribunal unlocks — it cannot be rushed or skipped.",
+        "You face it and account for what you promised. Nothing is self-approved outside the Tribunal."
+    ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -45,16 +52,27 @@ struct TribunalView: View {
     }
 
     private var explanation: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("HOW IT WORKS")
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
                 .kerning(0.5)
 
-            Text("A message starting with \"I declare\" becomes a commitment. Seven days after the oldest unresolved commitment, the Tribunal unlocks — you must face it and account for what you promised. Nothing can be self-approved outside the Tribunal.")
-                .font(Theme.uiFont)
-                .foregroundStyle(Theme.textSecondary)
-                .lineSpacing(3)
+            VStack(alignment: .leading, spacing: 10) {
+                ForEach(Array(tribunalSteps.enumerated()), id: \.offset) { index, step in
+                    HStack(alignment: .top, spacing: 10) {
+                        Text("\(index + 1)")
+                            .font(Typography.label)
+                            .foregroundStyle(Theme.textFaint)
+                            .frame(width: 16, alignment: .leading)
+
+                        Text(step)
+                            .font(Theme.uiFont)
+                            .foregroundStyle(Theme.textSecondary)
+                            .lineSpacing(3)
+                    }
+                }
+            }
         }
         .padding(14)
         .background(Theme.fieldBackground)
