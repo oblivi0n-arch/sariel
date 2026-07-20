@@ -8,6 +8,7 @@ struct TribunalView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var isStarting = false
     @State private var isHistoryExpanded = false
+    @State private var isInfoShown = false
 
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
     private var pendingCommitments: [Commitment]
@@ -44,14 +45,24 @@ struct TribunalView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Tribunal")
-                .font(Typography.sectionTitle)
-                .foregroundStyle(Theme.textPrimary)
-                .padding(.bottom, 20)
+            HStack(spacing: 8) {
+                Text("Tribunal")
+                    .font(Typography.sectionTitle)
+                    .foregroundStyle(Theme.textPrimary)
+                
+                Spacer()
+
+                Button(action: { isInfoShown = true }) {
+                    Image(systemName: "info.circle")
+                        .font(Typography.icon)
+                        .foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.bottom, 20)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    explanation
                     statusSection
 
                     if !resolvedCommitments.isEmpty {
@@ -63,6 +74,12 @@ struct TribunalView: View {
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Theme.background)
+        .overlay {
+            if isInfoShown {
+                infoOverlay
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isInfoShown)
     }
 
     private var explanation: some View {
@@ -185,5 +202,20 @@ struct TribunalView: View {
         withAnimation(.easeInOut(duration: 0.2)) {
             isHistoryExpanded.toggle()
         }
+    }
+    
+    private var infoOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.5)
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture { isInfoShown = false }
+
+            explanation
+                .frame(maxWidth: 420)
+                .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
+                .onTapGesture {}
+        }
+        .transition(.opacity.combined(with: .scale(scale: 0.96)))
     }
 }
