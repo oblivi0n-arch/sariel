@@ -43,7 +43,7 @@ struct OllamaClient {
     }
     
     var model: String {
-        UserDefaults.standard.string(forKey: "ollamaModel") ?? "gemma3:12b"
+        UserDefaults.standard.string(forKey: "ollamaModel") ?? "gemma4:e4b"
     }
     
     func streamChat(messages: [OllamaMessage]) -> AsyncThrowingStream<String, Error> {
