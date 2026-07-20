@@ -7,6 +7,7 @@ struct TribunalView: View {
 
     @Environment(\.modelContext) private var modelContext
     @State private var isStarting = false
+    @State private var isHistoryExpanded = false
 
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
     private var pendingCommitments: [Commitment]
@@ -153,16 +154,36 @@ struct TribunalView: View {
     
     private var historySection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("HISTORY")
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textFaint)
-                .kerning(0.5)
+            Button(action: toggleHistory) {
+                HStack(spacing: 6) {
+                    Text("HISTORY")
+                        .font(Typography.caption)
+                        .foregroundStyle(Theme.textFaint)
+                        .kerning(0.5)
 
-            VStack(spacing: 8) {
-                ForEach(resolvedCommitments) { commitment in
-                    CommitmentHistoryRow(commitment: commitment)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(Theme.textFaint)
+                        .rotationEffect(.degrees(isHistoryExpanded ? 90 : 0))
+                    
+                    Spacer()
                 }
             }
+            .buttonStyle(.plain)
+
+            if isHistoryExpanded {
+                VStack(spacing: 8) {
+                    ForEach(resolvedCommitments) { commitment in
+                        CommitmentHistoryRow(commitment: commitment)
+                    }
+                }
+            }
+        }
+    }
+
+    private func toggleHistory() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            isHistoryExpanded.toggle()
         }
     }
 }
