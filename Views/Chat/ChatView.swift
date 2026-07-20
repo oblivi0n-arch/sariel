@@ -78,6 +78,7 @@ struct ChatView: View {
                 isTribunal: conversation.isTribunal,
                 isGeneratingVerdicts: chatService.isGeneratingVerdicts.contains(conversation.id),
                 onDeliverVerdicts: deliverVerdicts,
+                verdictError: chatService.verdictErrors[conversation.id],
                 onBackToTribunal: onBackToTribunal
             )
 
@@ -289,10 +290,10 @@ struct ChatView: View {
     }
     
     private func deliverVerdicts() {
-        guard !chatService.isGeneratingVerdicts.contains(conversation.id) else { return }
+        guard !isInputLocked, !chatService.isGeneratingVerdicts.contains(conversation.id) else { return }
         Task {
             let verdicts = await chatService.generateVerdicts(for: conversation, modelContext: modelContext)
-            guard !verdicts.isEmpty else { return }
+            guard !verdicts.isEmpty, chatService.verdictErrors[conversation.id] == nil else { return }
             tribunalVerdicts = verdicts
             isVerdictOverlayShown = true
         }

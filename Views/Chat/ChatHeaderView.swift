@@ -14,6 +14,7 @@ struct ChatHeaderView: View {
     let isTribunal: Bool
     let isGeneratingVerdicts: Bool
     let onDeliverVerdicts: () -> Void
+    let verdictError: String?
     let onBackToTribunal: () -> Void
 
     @State private var isHoveringSavedPill = false
@@ -55,14 +56,25 @@ struct ChatHeaderView: View {
             } else if !isConnected {
                 statusPill(icon: "wifi.slash", text: "Offline", color: Theme.textMuted)
             } else if isTribunal {
-                Button(action: onDeliverVerdicts) {
-                    statusPill(
-                        icon: "scalemass",
-                        text: isGeneratingVerdicts ? "judging..." : "deliver verdicts"
-                    )
+                if let verdictError {
+                    Button(action: {
+                        guard !isInputLocked else { return }
+                        onDeliverVerdicts()
+                    }) {
+                        statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
+                    }
+                    .buttonStyle(.plain)
+                    .help(verdictError)
+                } else {
+                    Button(action: onDeliverVerdicts) {
+                        statusPill(
+                            icon: "scalemass",
+                            text: isGeneratingVerdicts ? "judging..." : "deliver verdicts"
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isGeneratingVerdicts || isInputLocked)
                 }
-                .buttonStyle(.plain)
-                .disabled(isGeneratingVerdicts)
             } else if let error = endConversationError {
                 Button(action: {
                     guard !isInputLocked else { return }

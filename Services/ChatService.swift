@@ -9,6 +9,7 @@ final class ChatService: ObservableObject {
     @Published var lastErrors: [UUID: String] = [:]
     @Published var endConversationErrors: [UUID: String] = [:]
     @Published var isGeneratingVerdicts: Set<UUID> = []
+    @Published var verdictErrors: [UUID: String] = [:]
 
     private let client: OllamaClient
     
@@ -392,6 +393,7 @@ final class ChatService: ObservableObject {
         guard !pending.isEmpty else { return [] }
 
         isGeneratingVerdicts.insert(conversation.id)
+        verdictErrors[conversation.id] = nil
         defer { isGeneratingVerdicts.remove(conversation.id) }
 
         let history = conversation.messages
@@ -399,13 +401,22 @@ final class ChatService: ObservableObject {
             .filter { $0.isValidExchange }
 
         var verdicts: [TribunalVerdict] = []
+        var failedCount = 0
+
         for commitment in pending {
             guard let response = try? await client.complete(
                 messages: PromptBuilder.buildVerdictMessages(commitment: commitment, history: history)
-            ) else { continue }
+            ) else {
+                failedCount += 1
+                continue
+            }
 
             let (status, reasoning) = parseVerdict(response)
             verdicts.append(TribunalVerdict(commitment: commitment, proposedStatus: status, reasoning: reasoning))
+        }
+
+        if failedCount > 0 {
+            verdictErrors[conversation.id] = "Could not reach Ollama for \(failedCount) of \(pending.count) commitment\(pending.count == 1 ? "" : "s")."
         }
 
         return verdicts
