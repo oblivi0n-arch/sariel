@@ -9,8 +9,6 @@ struct TribunalVerdictOverlay: View {
         ZStack {
             Color.black.opacity(0.5)
                 .ignoresSafeArea()
-                .contentShape(Rectangle())
-                .onTapGesture(perform: onCancel)
 
             VStack(alignment: .leading, spacing: 16) {
                 Text("The Tribunal's Verdicts")
