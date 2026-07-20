@@ -314,6 +314,7 @@ struct SettingsView: View {
         deleteAll(JournalEntry.self)
         deleteAll(JournalEntryTag.self)
         deleteAll(Conversation.self)
+        deleteAll(Commitment.self)
 
         try? modelContext.save()
 
