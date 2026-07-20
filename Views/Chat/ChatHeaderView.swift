@@ -20,90 +20,101 @@ struct ChatHeaderView: View {
     @State private var isHoveringSavedPill = false
 
     var body: some View {
-        HStack {
-            Button(action: { isConversationListOpen.toggle() }) {
-                Image(systemName: "sidebar.left")
-                    .font(.system(size: 16))
-                    .foregroundStyle(Theme.textMuted)
-            }
-            .buttonStyle(.plain)
-            .opacity(isConversationListOpen ? 0 : 1)
-            .disabled(isConversationListOpen)
-
+        ZStack {
             Text(title)
                 .font(Typography.label)
                 .foregroundStyle(Theme.textSecondary)
                 .lineLimit(1)
-                .padding(.leading, 4)
+                .frame(maxWidth: 220)
 
-            Spacer()
-
-            if isEnded && isTribunal {
-                Button(action: onBackToTribunal) {
-                    statusPill(icon: "arrow.uturn.backward", text: "Back to Tribunal")
-                }
-                .buttonStyle(.plain)
-            } else if isEnded {
-                Button(action: onOpenSavedEntry) {
-                    statusPill(
-                        icon: "checkmark.circle",
-                        text: "Saved — tap to view",
-                        color: isHoveringSavedPill ? Theme.textPrimary : Theme.textSecondary
-                    )
-                }
-                .buttonStyle(.plain)
-                .onHover { hovering in isHoveringSavedPill = hovering }
-            } else if !isConnected {
-                statusPill(icon: "wifi.slash", text: "Offline", color: Theme.textMuted)
-            } else if isTribunal {
-                if let verdictError {
-                    Button(action: {
-                        guard !isInputLocked else { return }
-                        onDeliverVerdicts()
-                    }) {
-                        statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
-                    }
-                    .buttonStyle(.plain)
-                    .help(verdictError)
+            HStack {
+                if isTribunal {
+                    Color.clear.frame(width: 16, height: 16)
                 } else {
-                    Button(action: onDeliverVerdicts) {
-                        statusPill(
-                            icon: "scalemass",
-                            text: isGeneratingVerdicts ? "judging..." : "deliver verdicts"
-                        )
+                    Button(action: { isConversationListOpen.toggle() }) {
+                        Image(systemName: "sidebar.left")
+                            .font(.system(size: 16))
+                            .foregroundStyle(Theme.textMuted)
                     }
                     .buttonStyle(.plain)
-                    .disabled(isGeneratingVerdicts || isInputLocked)
+                    .opacity(isConversationListOpen ? 0 : 1)
+                    .disabled(isConversationListOpen)
                 }
-            } else if let error = endConversationError {
-                Button(action: {
-                    guard !isInputLocked else { return }
-                    onRequestEndConversation()
-                }) {
-                    statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
-                }
-                .buttonStyle(.plain)
-                .help(error)
-            } else if isEndingConversation {
-                EndConversationLoadingBar()
-                    .frame(width: 120)
-                    .clipShape(Capsule())
-            } else {
-                Button(action: {
-                    guard !isInputLocked && canEndConversation else { return }
-                    onRequestEndConversation()
-                }) {
-                    statusPill(icon: "book.closed", text: "End conversation")
-                }
-                .buttonStyle(.plain)
-                .opacity(!isInputLocked && canEndConversation ? 1 : 0.4)
-                .help(canEndConversation ? "" : "keep going – nothing to mirror yet.")
+
+                Spacer()
+
+                trailingContent
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .overlay(alignment: .bottom) {
             Rectangle().fill(Theme.border).frame(height: 0.5)
+        }
+    }
+    
+    @ViewBuilder
+    private var trailingContent: some View {
+        if isEnded && isTribunal {
+            Button(action: onBackToTribunal) {
+                statusPill(icon: "arrow.uturn.backward", text: "Back to Tribunal")
+            }
+            .buttonStyle(.plain)
+        } else if isEnded {
+            Button(action: onOpenSavedEntry) {
+                statusPill(
+                    icon: "checkmark.circle",
+                    text: "Saved — tap to view",
+                    color: isHoveringSavedPill ? Theme.textPrimary : Theme.textSecondary
+                )
+            }
+            .buttonStyle(.plain)
+            .onHover { hovering in isHoveringSavedPill = hovering }
+        } else if !isConnected {
+            statusPill(icon: "wifi.slash", text: "Offline", color: Theme.textMuted)
+        } else if isTribunal {
+            if let verdictError {
+                Button(action: {
+                    guard !isInputLocked else { return }
+                    onDeliverVerdicts()
+                }) {
+                    statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
+                }
+                .buttonStyle(.plain)
+                .help(verdictError)
+            } else {
+                Button(action: onDeliverVerdicts) {
+                    statusPill(
+                        icon: "scalemass",
+                        text: isGeneratingVerdicts ? "judging..." : "deliver verdicts"
+                    )
+                }
+                .buttonStyle(.plain)
+                .disabled(isGeneratingVerdicts || isInputLocked)
+            }
+        } else if let error = endConversationError {
+            Button(action: {
+                guard !isInputLocked else { return }
+                onRequestEndConversation()
+            }) {
+                statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
+            }
+            .buttonStyle(.plain)
+            .help(error)
+        } else if isEndingConversation {
+            EndConversationLoadingBar()
+                .frame(width: 120)
+                .clipShape(Capsule())
+        } else {
+            Button(action: {
+                guard !isInputLocked && canEndConversation else { return }
+                onRequestEndConversation()
+            }) {
+                statusPill(icon: "book.closed", text: "End conversation")
+            }
+            .buttonStyle(.plain)
+            .opacity(!isInputLocked && canEndConversation ? 1 : 0.4)
+            .help(canEndConversation ? "" : "keep going – nothing to mirror yet.")
         }
     }
 
