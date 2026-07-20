@@ -4,6 +4,7 @@ import SwiftData
 struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") private var isPostReset: Bool = false
+    @AppStorage("lastActiveConversationID") private var lastActiveConversationIDString: String = ""
     @Environment(\.modelContext) private var modelContext
     @Query(
         filter: #Predicate<Conversation> { !$0.isTribunal },
@@ -132,6 +133,9 @@ struct ContentView: View {
             .background(Theme.background.ignoresSafeArea())
             .onAppear(perform: setupConversation)
             .onChange(of: activeConversation) {
+                if let activeConversation {
+                    lastActiveConversationIDString = activeConversation.id.uuidString
+                }
                 if activeConversation == nil {
                     setupConversation()
                 }
@@ -154,6 +158,14 @@ struct ContentView: View {
 
     private func setupConversation() {
         guard activeConversation == nil else { return }
+
+        if !lastActiveConversationIDString.isEmpty,
+           let uuid = UUID(uuidString: lastActiveConversationIDString),
+           let restored = fetchConversation(id: uuid) {
+            activeConversation = restored
+            return
+        }
+
         if let latest = conversations.first {
             activeConversation = latest
         } else {
@@ -167,5 +179,13 @@ struct ContentView: View {
     private func openConversation(_ conversation: Conversation) {
         activeConversation = conversation
         selectedSection = .chat
+    }
+    
+    private func fetchConversation(id: UUID) -> Conversation? {
+        var descriptor = FetchDescriptor<Conversation>(
+            predicate: #Predicate<Conversation> { $0.id == id }
+        )
+        descriptor.fetchLimit = 1
+        return (try? modelContext.fetch(descriptor))?.first
     }
 }
