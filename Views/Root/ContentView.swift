@@ -49,6 +49,9 @@ struct ContentView: View {
                                                 activeEntry = entry
                                                 selectedSection = .journal
                                             },
+                                            onBackToTribunal: {
+                                                selectedSection = .tribunal
+                                            },
                                             isActive: selectedSection == .chat
                                         )
                                         .id(conversation.id)

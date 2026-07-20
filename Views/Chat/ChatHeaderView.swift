@@ -12,6 +12,9 @@ struct ChatHeaderView: View {
     let onOpenSavedEntry: () -> Void
     let onRequestEndConversation: () -> Void
     let isTribunal: Bool
+    let isGeneratingVerdicts: Bool
+    let onDeliverVerdicts: () -> Void
+    let onBackToTribunal: () -> Void
 
     @State private var isHoveringSavedPill = false
 
@@ -34,7 +37,12 @@ struct ChatHeaderView: View {
 
             Spacer()
 
-            if isEnded {
+            if isEnded && isTribunal {
+                Button(action: onBackToTribunal) {
+                    statusPill(icon: "arrow.uturn.backward", text: "Back to Tribunal")
+                }
+                .buttonStyle(.plain)
+            } else if isEnded {
                 Button(action: onOpenSavedEntry) {
                     statusPill(
                         icon: "checkmark.circle",
@@ -47,7 +55,14 @@ struct ChatHeaderView: View {
             } else if !isConnected {
                 statusPill(icon: "wifi.slash", text: "Offline", color: Theme.textMuted)
             } else if isTribunal {
-                EmptyView()
+                Button(action: onDeliverVerdicts) {
+                    statusPill(
+                        icon: "scalemass",
+                        text: isGeneratingVerdicts ? "judging..." : "deliver verdicts"
+                    )
+                }
+                .buttonStyle(.plain)
+                .disabled(isGeneratingVerdicts)
             } else if let error = endConversationError {
                 Button(action: {
                     guard !isInputLocked else { return }

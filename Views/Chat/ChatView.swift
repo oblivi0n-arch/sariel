@@ -34,17 +34,19 @@ struct ChatView: View {
     
     var onJournalEntryCreated: (JournalEntry) -> Void
     var onOpenJournalEntry: (JournalEntry) -> Void
+    var onBackToTribunal: () -> Void
     
     private var isPendingProvocationStart: Bool {
         sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
     }
 
-    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, isActive: Bool) {
+    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, onBackToTribunal: @escaping () -> Void, isActive: Bool) {
         self.conversation = conversation
         self._isConversationListOpen = isConversationListOpen
         self.chatService = chatService
         self.onJournalEntryCreated = onJournalEntryCreated
         self.onOpenJournalEntry = onOpenJournalEntry
+        self.onBackToTribunal = onBackToTribunal
         self.isActive = isActive
     }
 
@@ -69,7 +71,10 @@ struct ChatView: View {
                     }
                 },
                 onRequestEndConversation: { isMoodPromptShown = true },
-                isTribunal: conversation.isTribunal
+                isTribunal: conversation.isTribunal,
+                isGeneratingVerdicts: chatService.isGeneratingVerdicts.contains(conversation.id),
+                onDeliverVerdicts: deliverVerdicts,
+                onBackToTribunal: onBackToTribunal
             )
 
             ScrollViewReader { proxy in
@@ -147,19 +152,6 @@ struct ChatView: View {
                         .padding(.top, 12)
                     }
                     
-                    if conversation.isTribunal && !sortedMessages.isEmpty {
-                        HStack(spacing: 8) {
-                            StarterChip(
-                                icon: "scalemass",
-                                label: chatService.isGeneratingVerdicts.contains(conversation.id) ? "judging..." : "deliver verdicts",
-                                onTap: deliverVerdicts
-                            )
-                            Spacer()
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 12)
-                    }
-
                     ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, onSend: sendMessage)
                 }
             }
