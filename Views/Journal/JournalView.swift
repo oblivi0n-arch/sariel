@@ -155,7 +155,11 @@ struct JournalView: View {
     }
     
     private func delete(_ entry: JournalEntry) {
+        let tags = entry.tags
         modelContext.delete(entry)
+        for tag in tags {
+            JournalEntryTag.deleteIfOrphaned(tag, modelContext: modelContext)
+        }
         try? modelContext.save()
     }
     
@@ -182,7 +186,11 @@ struct JournalView: View {
             let trimmedTitle = entry.title.trimmingCharacters(in: .whitespacesAndNewlines)
             let isEffectivelyEmpty = (trimmedTitle.isEmpty || trimmedTitle == "New entry") && entry.content.isEmpty
             if isEffectivelyEmpty {
+                let tags = entry.tags
                 modelContext.delete(entry)
+                for tag in tags {
+                    JournalEntryTag.deleteIfOrphaned(tag, modelContext: modelContext)
+                }
                 try? modelContext.save()
             }
         }

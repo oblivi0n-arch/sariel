@@ -149,6 +149,7 @@ struct JournalEntryEditor: View {
 
     private func removeTag(_ tag: JournalEntryTag) {
         entry.tags.removeAll { $0.id == tag.id }
+        JournalEntryTag.deleteIfOrphaned(tag, modelContext: modelContext)
         try? modelContext.save()
     }
 }

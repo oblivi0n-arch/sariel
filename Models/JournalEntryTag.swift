@@ -12,4 +12,9 @@ final class JournalEntryTag {
         self.name = name
         self.entries = []
     }
+    
+    static func deleteIfOrphaned(_ tag: JournalEntryTag, modelContext: ModelContext) {
+        guard tag.entries.isEmpty else { return }
+        modelContext.delete(tag)
+    }
 }

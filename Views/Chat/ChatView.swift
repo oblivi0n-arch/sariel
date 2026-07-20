@@ -16,7 +16,7 @@ struct ChatView: View {
     @State private var isRevealFinishing = false
     private var isEnded: Bool { conversation.journalEntry != nil }
     private var successfulExchangeCount: Int {
-        conversation.messages.filter { $0.messageRole == .guide && !$0.content.isEmpty && !$0.content.hasPrefix("⚠️") }.count
+        conversation.messages.filter { $0.messageRole == .guide && $0.isValidExchange }.count
     }
     private var isGenerating: Bool { chatService.generatingConversationIDs.contains(conversation.id) }
     private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
