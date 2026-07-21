@@ -5,6 +5,7 @@ enum AppSection: String, CaseIterable, Identifiable {
     case journal
     case tribunal
     case vent
+    case map
     
     var id: String { rawValue }
     
@@ -18,6 +19,8 @@ enum AppSection: String, CaseIterable, Identifiable {
             return "seal"
         case .vent:
             return "flame"
+        case .map:
+            return "moon.stars.fill"
         }
     }
 }

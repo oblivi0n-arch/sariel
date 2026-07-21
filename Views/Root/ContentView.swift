@@ -111,6 +111,10 @@ struct ContentView: View {
                             
                         case .vent:
                             VentView()
+                            
+                        case .map:
+                            Text("Stellaris map — coming soon")
+                                .foregroundStyle(Theme.textMuted)
                         }
                     }
                     
