@@ -121,7 +121,9 @@ struct ChatView: View {
                                 onRevealTick: { scrollToBottom(proxy, animated: false) },
                                 onRevealComplete: {
                                     isRevealFinishing = false
-                                    isInputFocused = true
+                                    if !isEnded {
+                                        isInputFocused = true
+                                    }
                                 }
                             )
                             .id(message.id)
