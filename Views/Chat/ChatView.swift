@@ -77,6 +77,27 @@ struct ChatView: View {
     }
 
     var body: some View {
+        contentStack
+            .background(Theme.background)
+            .onChange(of: connectionMonitor.isConnected) { oldValue, newValue in
+                guard newValue, !oldValue else { return }
+                guard lastStreamError != nil, !isInputLocked else { return }
+                if isPendingProvocationStart {
+                    Task { await chatService.retryProvocation(for: conversation, modelContext: modelContext) }
+                } else if isPendingTribunalOpening {
+                    Task { await chatService.retryTribunalOpening(for: conversation, modelContext: modelContext) }
+                } else {
+                    retryLastResponse()
+                }
+            }
+            .overlay { moodPromptOverlayContent }
+            .overlay { tribunalVerdictOverlayContent }
+            .overlay { sealCenterOverlayContent }
+            .animation(.easeInOut(duration: 0.2), value: isMoodPromptShown)
+    }
+
+    @ViewBuilder
+    private var contentStack: some View {
         VStack(spacing: 0) {
             ChatHeaderView(
                 title: conversation.title,
@@ -161,39 +182,26 @@ struct ChatView: View {
                         TribunalSealBanner(isDocked: true)
                             .matchedGeometryEffect(id: "sealBanner", in: sealNamespace)
                     }
-                    
+
                     ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, isTribunal: conversation.isTribunal, isDeclarationLimitReached: isDeclarationLimitReached, onSend: sendMessage)
                 }
             }
         }
-        .background(Theme.background)
-        .onChange(of: connectionMonitor.isConnected) { oldValue, newValue in
-            guard newValue, !oldValue else { return }
-            guard lastStreamError != nil, !isInputLocked else { return }
-            if isPendingProvocationStart {
-                Task { await chatService.retryProvocation(for: conversation, modelContext: modelContext) }
-            } else if isPendingTribunalOpening {
-                Task { await chatService.retryTribunalOpening(for: conversation, modelContext: modelContext) }
-            } else {
-                retryLastResponse()
-            }
+    }
+
+    @ViewBuilder
+    private var moodPromptOverlayContent: some View {
+        if isMoodPromptShown {
+            MoodPromptOverlay(
+                onSelect: { mood in
+                    isMoodPromptShown = false
+                    endConversation(mood: mood)
+                },
+                onCancel: {
+                    isMoodPromptShown = false
+                }
+            )
         }
-        .overlay {
-            if isMoodPromptShown {
-                MoodPromptOverlay(
-                    onSelect: { mood in
-                        isMoodPromptShown = false
-                        endConversation(mood: mood)
-                    },
-                    onCancel: {
-                        isMoodPromptShown = false
-                    }
-                )
-            }
-        }
-        .overlay { tribunalVerdictOverlayContent }
-        .overlay { sealCenterOverlayContent }
-        .animation(.easeInOut(duration: 0.2), value: isMoodPromptShown)
     }
     
     @ViewBuilder

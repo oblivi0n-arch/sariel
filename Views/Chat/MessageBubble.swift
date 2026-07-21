@@ -282,12 +282,12 @@ struct MessageBubble: View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(Typography.label)
-                .foregroundStyle(Theme.textPrimary)
+                .foregroundStyle(isTribunalMessage ? Color.red.opacity(0.85) : Theme.textPrimary)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(errorParts.description)
                     .font(Theme.uiFont)
-                    .foregroundStyle(Theme.textPrimary)
+                    .foregroundStyle(isTribunalMessage ? Color.red.opacity(0.9) : Theme.textPrimary)
 
                 if let suggestion = errorParts.suggestion {
                     Text(suggestion).italic()
@@ -298,8 +298,12 @@ struct MessageBubble: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
+        .background(isTribunalMessage ? Color.red.opacity(0.1) : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.borderStrong, lineWidth: 1))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(isTribunalMessage ? Color.red.opacity(0.4) : Theme.borderStrong, lineWidth: isTribunalMessage ? 1 : 1)
+        )
     }
 
     private var bubbleShape: some Shape {

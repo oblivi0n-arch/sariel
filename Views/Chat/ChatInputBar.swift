@@ -74,13 +74,13 @@ struct ChatInputBar: View {
                 .foregroundStyle(Theme.textPrimary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background(isDeclaration ? Color.red.opacity(0.12) : Theme.fieldBackground)
+                .background((isDeclaration || isTribunal) ? Color.red.opacity(0.12) : Theme.fieldBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .stroke(
-                            isDeclaration ? Color.red.opacity(0.45) : (isFocused.wrappedValue ? Theme.borderStrong : Theme.border),
-                            lineWidth: isDeclaration ? 1 : (isFocused.wrappedValue ? 1 : 0.5)
+                            (isDeclaration || isTribunal) ? Color.red.opacity(0.45) : (isFocused.wrappedValue ? Theme.borderStrong : Theme.border),
+                            lineWidth: (isDeclaration || isTribunal) ? 1 : (isFocused.wrappedValue ? 1 : 0.5)
                         )
                 )
                 .onSubmit { if canSend { handleSend() } }
