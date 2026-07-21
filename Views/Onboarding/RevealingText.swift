@@ -5,6 +5,7 @@ struct RevealingText: View {
     let font: Font
     let color: Color
     var charsPerSecond: Double = 40
+    var onComplete: (() -> Void)? = nil
 
     @State private var revealedCount: Int = 0
     @State private var revealTask: Task<Void, Never>?
@@ -27,6 +28,8 @@ struct RevealingText: View {
                 guard !Task.isCancelled else { return }
                 revealedCount = fullText.distance(from: fullText.startIndex, to: index) + 1
             }
+            guard !Task.isCancelled else { return }
+            onComplete?()
         }
     }
 }
