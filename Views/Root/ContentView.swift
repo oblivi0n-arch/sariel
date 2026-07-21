@@ -14,14 +14,22 @@ struct ContentView: View {
     ) private var conversations: [Conversation]
 
     @Query(
-        filter: #Predicate<Conversation> { $0.isTribunal },
-        sort: \Conversation.startedAt,
-        order: .reverse
-    ) private var tribunalConversations: [Conversation]
-    
-    private var isTribunalInProgress: Bool {
-        tribunalConversations.contains { $0.tribunalResolvedAt == nil }
-    }
+            filter: #Predicate<Conversation> { $0.isTribunal },
+            sort: \Conversation.startedAt,
+            order: .reverse
+        ) private var tribunalConversations: [Conversation]
+
+        @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
+        private var pendingCommitments: [Commitment]
+
+        private var isTribunalInProgress: Bool {
+            tribunalConversations.contains { $0.tribunalResolvedAt == nil }
+        }
+
+        private var isTribunalUnlocked: Bool {
+            guard let oldest = pendingCommitments.first else { return false }
+            return Date().timeIntervalSince(oldest.createdAt) >= Commitment.tribunalUnlockInterval
+        }
 
     @State private var activeConversation: Conversation?
     @State private var isConversationListOpen = false
@@ -39,7 +47,8 @@ struct ContentView: View {
                 SidebarView(
                     selectedSection: $selectedSection,
                     isSettingsOpen: $isSettingsOpen,
-                    isTribunalLocked: isTribunalInProgress
+                    isTribunalLocked: isTribunalInProgress,
+                    isTribunalAwaitingJudgment: isTribunalUnlocked
                 )
                 
                 ZStack {

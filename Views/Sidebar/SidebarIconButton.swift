@@ -4,9 +4,11 @@ struct SidebarIconButton: View {
     let iconName: String
     let isActive: Bool
     var isLocked: Bool = false
+    var showAlertBadge: Bool = false
     let onTap: () -> Void
 
     @State private var isHovering = false
+    @State private var isPulsing = false
 
     var body: some View {
         Image(systemName: iconName)
@@ -40,15 +42,35 @@ struct SidebarIconButton: View {
                 isHovering = hovering
             }
             .help(isLocked ? "End Tribunal session first" : "")
+            .onAppear { startPulsingIfNeeded() }
+            .onChange(of: showAlertBadge) { _, _ in startPulsingIfNeeded() }
+    }
+
+    private func startPulsingIfNeeded() {
+        guard showAlertBadge, !isLocked else {
+            isPulsing = false
+            return
+        }
+        withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+            isPulsing = true
+        }
     }
 
     private var foregroundColor: Color {
+        if isLocked { return Theme.textFaint }
+        if showAlertBadge {
+            return isPulsing ? Color.red.opacity(0.9) : Theme.textFaint
+        }
         if isActive { return Theme.textPrimary }
         if isHovering { return Theme.textMuted }
         return Theme.textFaint
     }
 
     private var borderColor: Color {
+        if isLocked { return .clear }
+        if showAlertBadge {
+            return isPulsing ? Color.red.opacity(0.5) : Theme.border
+        }
         if isActive { return Theme.borderStrong }
         if isHovering { return Theme.border }
         return .clear
