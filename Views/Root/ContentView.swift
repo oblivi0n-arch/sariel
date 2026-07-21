@@ -30,6 +30,10 @@ struct ContentView: View {
             guard let oldest = pendingCommitments.first else { return false }
             return Date().timeIntervalSince(oldest.createdAt) >= Commitment.tribunalUnlockInterval
         }
+    
+    private var shouldShowTribunalGate: Bool {
+        isTribunalUnlocked && !isTribunalGateDismissed && !isTribunalInProgress
+    }
 
     @State private var activeConversation: Conversation?
     @State private var isConversationListOpen = false
@@ -38,6 +42,7 @@ struct ContentView: View {
     @State private var activeEntry: JournalEntry?
     @State private var showSplash = true
     @State private var tribunalCheckTask: Task<Void, Never>?
+    @State private var isTribunalGateDismissed = false
     @StateObject private var chatService = ChatService()
     @StateObject private var toastManager = ToastManager()
 
@@ -175,6 +180,17 @@ struct ContentView: View {
                     hasCompletedOnboarding = true
                     isPostReset = false
                 }
+            } else if shouldShowTribunalGate {
+                TribunalGateView(
+                    pendingCount: pendingCommitments.count,
+                    onFaceTribunal: {
+                        isTribunalGateDismissed = true
+                        selectedSection = .tribunal
+                    },
+                    onDismiss: {
+                        isTribunalGateDismissed = true
+                    }
+                )
             }
         }
     }
