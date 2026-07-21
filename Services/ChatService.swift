@@ -47,7 +47,7 @@ final class ChatService: ObservableObject {
 
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
-            .filter { !$0.content.isEmpty }
+            .filter { $0.isValidExchange }
 
         await streamGuideResponse(into: guideMessage, history: Array(history), conversation: conversation, modelContext: modelContext)
 
@@ -263,7 +263,7 @@ final class ChatService: ObservableObject {
 
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
-            .filter { !$0.content.isEmpty }
+            .filter { $0.isValidExchange }
 
         await streamGuideResponse(into: guideMessage, history: Array(history), conversation: conversation, modelContext: modelContext)
 
