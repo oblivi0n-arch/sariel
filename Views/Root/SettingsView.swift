@@ -11,7 +11,6 @@ struct SettingsView: View {
     @AppStorage("isPostReset") private var isPostReset: Bool = false
     @AppStorage("ollamaHost") private var host: String = "http://localhost:11434"
     @AppStorage("ollamaModel") private var model: String = "gemma3:12b"
-    @AppStorage("customSystemPrompt") private var customPrompt: String = ""
     @AppStorage("useJournalContext") private var useJournalContext: Bool = false
 
     @State private var availableModels: [String] = []
@@ -39,7 +38,6 @@ struct SettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     ollamaSection
-                    personalitySection
                     contextSection
                     dangerZone
                     debugOnboardingSection //DEBUG ONLY
@@ -106,49 +104,6 @@ struct SettingsView: View {
             Text(connectionMonitor.isConnected ? "connected" : "offline")
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
-        }
-    }
-
-    private var personalitySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            sectionHeader(icon: "text.quote", title: "SARIEL PERSONALITY") {
-                Button(action: resetPrompt) {
-                    Text("restore default")
-                        .font(Typography.caption)
-                        .foregroundStyle(Theme.textMuted)
-                        .underline()
-                }
-                .buttonStyle(.plain)
-                .opacity(customPrompt.isEmpty ? 0.4 : 1)
-                .disabled(customPrompt.isEmpty)
-            }
-
-            ZStack(alignment: .topLeading) {
-                if customPrompt.isEmpty {
-                    Text(PromptBuilder.systemPrompt)
-                        .font(Theme.voiceFont)
-                        .foregroundStyle(Theme.textFaint)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 10)
-                        .allowsHitTesting(false)
-                }
-
-                TextEditor(text: $customPrompt)
-                    .font(Theme.voiceFont)
-                    .foregroundStyle(Theme.textPrimary)
-                    .scrollContentBackground(.hidden)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-            }
-            .frame(height: 260)
-            .background(Theme.fieldBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
-
-            Text("Recommended: keep the default prompt. It has been tested and tuned to fit the app's purpose — overriding it may weaken Sariel's tone and consistency.")
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textFaint)
-                .padding(.top, 2)
         }
     }
 
@@ -261,9 +216,9 @@ struct SettingsView: View {
                 Text("Model")
                     .font(Typography.label)
                     .foregroundStyle(Theme.textMuted)
-
+                
                 Spacer()
-
+                
                 Button(action: { Task { await fetchAvailableModels() } }) {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.clockwise")
@@ -276,7 +231,7 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
                 .disabled(isLoadingModels)
             }
-
+            
             if isLoadingModels {
                 Text("Loading models...")
                     .font(Typography.caption)
@@ -298,16 +253,12 @@ struct SettingsView: View {
                 .pickerStyle(.menu)
                 .tint(Theme.textPrimary)
             }
-
+            
             Text("Recommended: gemma4:e4b — natively supports system-role instructions, which this app relies on heavily (personality prompt, journal context, conversation summary). Smaller or older models may struggle with memory and long context.")
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
                 .padding(.top, 2)
         }
-    }
-
-    private func resetPrompt() {
-        customPrompt = ""
     }
 
     private func resetEverything() {
@@ -323,7 +274,6 @@ struct SettingsView: View {
 
         host = "http://localhost:11434"
         model = "gemma3:12b"
-        customPrompt = ""
         useJournalContext = false
 
         relaunchApp()

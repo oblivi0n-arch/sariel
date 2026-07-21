@@ -60,11 +60,6 @@ struct PromptBuilder {
     static let journalContextEntryCount = 5
     static let journalContextExcerptLength = 200
 
-    static var activeSystemPrompt: String {
-        let custom = UserDefaults.standard.string(forKey: "customSystemPrompt") ?? ""
-        return custom.isEmpty ? systemPrompt : custom
-    }
-
     static func buildJournalContextText(entries: [JournalEntry]) -> String {
         guard !entries.isEmpty else { return "" }
 
@@ -77,7 +72,7 @@ struct PromptBuilder {
     }
 
     static func buildMessages(history: [ChatMessage], summary: String = "", journalContext: String = "") -> [OllamaMessage] {
-        var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: activeSystemPrompt)]
+        var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: systemPrompt)]
 
         if !journalContext.isEmpty {
             messages.append(OllamaMessage(
