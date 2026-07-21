@@ -19,6 +19,7 @@ struct ChatView: View {
     @State private var isRevealFinishing = false
     @State var tribunalVerdicts: [TribunalVerdict] = []
     @State var isVerdictOverlayShown = false
+    @State private var justDeclared = false
 
     @Namespace var sealNamespace
     @State var showSeal = false
@@ -104,39 +105,7 @@ struct ChatView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 14) {
                         ForEach(sortedMessages) { message in
-                            let isLastUser = message.id == lastUserMessage?.id
-                            let isStreamingMessage = isGenerating && message.id == lastGuideMessage?.id
-                            MessageBubble(
-                                message: message,
-                                showActions: isLastUser
-                                    && !isInputLocked
-                                    && !isEnded
-                                    && !conversation.isTribunal
-                                    && message.commitment == nil,
-                                onDelete: { deleteLastExchange() },
-                                isEditing: editingMessageID == message.id,
-                                onStartEdit: { editingMessageID = message.id },
-                                onSaveEdit: { newText in saveEdit(for: message, newText: newText) },
-                                onCancelEdit: { editingMessageID = nil },
-                                showRewind: message.messageRole == .user
-                                    && !isLastUser
-                                    && !isInputLocked
-                                    && !isEnded
-                                    && !conversation.isTribunal
-                                    && message.commitment == nil
-                                    && !rewindWouldDeleteCommitment(message),
-                                onRewind: { rewind(to: message) },
-                                onRetry: { retryLastResponse() },
-                                isStreaming: isStreamingMessage,
-                                onRevealTick: { scrollToBottom(proxy, animated: false) },
-                                onRevealComplete: {
-                                    isRevealFinishing = false
-                                    if !isEnded {
-                                        isInputFocused = true
-                                    }
-                                }
-                            )
-                            .id(message.id)
+                            messageRow(for: message, proxy: proxy)
                         }
                     }
                     .padding(20)
@@ -226,6 +195,51 @@ struct ChatView: View {
         .overlay { sealCenterOverlayContent }
         .animation(.easeInOut(duration: 0.2), value: isMoodPromptShown)
     }
+    
+    @ViewBuilder
+    private func messageRow(for message: ChatMessage, proxy: ScrollViewProxy) -> some View {
+        let isLastUser = message.id == lastUserMessage?.id
+        let isStreamingMessage = isGenerating && message.id == lastGuideMessage?.id
+        let isNewlyDeclaredMessage = justDeclared && isLastUser
+
+        let showActions = isLastUser
+            && !isInputLocked
+            && !isEnded
+            && !conversation.isTribunal
+            && message.commitment == nil
+
+        let showRewind = message.messageRole == .user
+            && !isLastUser
+            && !isInputLocked
+            && !isEnded
+            && !conversation.isTribunal
+            && message.commitment == nil
+            && !rewindWouldDeleteCommitment(message)
+
+        MessageBubble(
+            message: message,
+            showActions: showActions,
+            onDelete: { deleteLastExchange() },
+            isEditing: editingMessageID == message.id,
+            onStartEdit: { editingMessageID = message.id },
+            onSaveEdit: { newText in saveEdit(for: message, newText: newText) },
+            onCancelEdit: { editingMessageID = nil },
+            showRewind: showRewind,
+            onRewind: { rewind(to: message) },
+            onRetry: { retryLastResponse() },
+            isStreaming: isStreamingMessage,
+            onRevealTick: { scrollToBottom(proxy, animated: false) },
+            onRevealComplete: {
+                isRevealFinishing = false
+                if !isEnded {
+                    isInputFocused = true
+                }
+            },
+            isNewlyDeclared: isNewlyDeclaredMessage
+
+        )
+        .id(message.id)
+    }
 
     private func scrollToBottom(_ proxy: ScrollViewProxy, animated: Bool = true) {
         guard let last = sortedMessages.last else { return }
@@ -271,8 +285,18 @@ struct ChatView: View {
             return
         }
         let text = draft
+        let isDeclaringNow = !conversation.isTribunal && Commitment.isDeclaration(text)
         draft = ""
-        Task { await chatService.send(text: text, in: conversation, modelContext: modelContext) }
+
+        if isDeclaringNow { justDeclared = true }
+
+        Task {
+            await chatService.send(text: text, in: conversation, modelContext: modelContext)
+            if isDeclaringNow {
+                try? await Task.sleep(nanoseconds: 900_000_000)
+                justDeclared = false
+            }
+        }
     }
 
     private func endConversation(mood: Mood) {

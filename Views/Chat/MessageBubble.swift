@@ -14,6 +14,7 @@ struct MessageBubble: View {
     var isStreaming: Bool = false
     var onRevealTick: (() -> Void)? = nil
     var onRevealComplete: (() -> Void)? = nil
+    var isNewlyDeclared: Bool = false
 
     @State private var isHovering = false
     @State private var editedText: String = ""
@@ -22,6 +23,9 @@ struct MessageBubble: View {
     @State private var revealTask: Task<Void, Never>? = nil
     @State private var revealProgress: Double = 0
     @State private var streamingFinished: Bool = true
+    @State private var stampProgress: CGFloat = 0
+    @State private var stampScale: CGFloat = 1
+    @State private var stampFlashOpacity: Double = 0
 
     private let charsPerSecond: Double = 60
 
@@ -93,6 +97,29 @@ struct MessageBubble: View {
                                 .frame(width: 2)
                         }
                     }
+                    .overlay(alignment: .topTrailing) {
+                        if isCommitment {
+                            Image(systemName: "seal.fill")
+                                .font(.system(size: 13))
+                                .foregroundStyle(Color.red.opacity(0.9))
+                                .opacity(stampProgress)
+                                .scaleEffect(0.4 + 0.6 * stampProgress)
+                                .offset(x: 6, y: -6)
+                        }
+                    }
+                    .scaleEffect(isCommitment ? stampScale : 1)
+                    .background {
+                        if isCommitment {
+                            bubbleShape.fill(Color.red.opacity(stampFlashOpacity))
+                        }
+                    }
+                    .overlay(alignment: .leading) {
+                        if isGuide {
+                            Rectangle()
+                                .fill(isTribunalMessage ? Color.red.opacity(0.6) : Theme.borderStrong)
+                                .frame(width: 2)
+                        }
+                    }
             }
         }
         .frame(maxWidth: 420, alignment: isGuide ? .leading : .trailing)
@@ -156,6 +183,14 @@ struct MessageBubble: View {
                 streamingFinished = true
                 revealedCount = message.content.count
             }
+
+            if isCommitment {
+                if isNewlyDeclared {
+                    playDeclareStamp()
+                } else {
+                    stampProgress = 1
+                }
+            }
         }
         .onChange(of: isStreaming) { _, newValue in
             if newValue {
@@ -200,6 +235,20 @@ struct MessageBubble: View {
 
                 try? await Task.sleep(nanoseconds: 16_000_000)
             }
+        }
+    }
+    
+    private func playDeclareStamp() {
+        stampProgress = 0
+        stampScale = 1.4
+        stampFlashOpacity = 0.3
+
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.55)) {
+            stampProgress = 1
+            stampScale = 1
+        }
+        withAnimation(.easeOut(duration: 0.5)) {
+            stampFlashOpacity = 0
         }
     }
 
