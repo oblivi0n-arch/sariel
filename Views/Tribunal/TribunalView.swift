@@ -11,6 +11,7 @@ struct TribunalView: View {
     @State private var now: Date = Date()
     @State private var tickTask: Task<Void, Never>?
     @State private var activeTribunalConversation: Conversation?
+    @State private var emptyStateText: String = TribunalView.emptyStateTexts.randomElement()!
     
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
     private var pendingCommitments: [Commitment]
@@ -48,6 +49,19 @@ struct TribunalView: View {
         "Seven days pass from the oldest unresolved commitment.",
         "The Tribunal unlocks — it cannot be rushed or skipped.",
         "You face it and account for what you promised. Nothing is self-approved outside the Tribunal."
+    ]
+    
+    private static let emptyStateTexts = [
+        "Nothing awaits judgment. For now, your word is clean.",
+        "No pending commitments. Keep it that way, or don't — but know which one you're choosing.",
+        "The Tribunal has nothing to try you for. Yet.",
+        "Silence here isn't peace. It's just an absence of promises.",
+        "You haven't declared anything you could break. That's not the same as keeping your word.",
+        "Empty, because you haven't tested yourself. That's worth noticing too.",
+        "No verdicts pending. No proof of anything, either.",
+        "Nothing to answer for right now. Don't mistake that for progress.",
+        "The docket is clear. It won't stay that way if you mean anything you say.",
+        "No one is waiting to judge you today. That was your choice, not an accident."
     ]
     
     var body: some View {
@@ -200,7 +214,7 @@ struct TribunalView: View {
                 .font(.system(size: 20))
                 .foregroundStyle(Theme.textPrimary)
 
-            Text("Nothing awaits judgment. No pending commitments.")
+            Text(emptyStateText)
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textPrimary)
         }
