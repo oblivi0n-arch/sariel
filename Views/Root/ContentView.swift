@@ -30,10 +30,6 @@ struct ContentView: View {
             guard let oldest = pendingCommitments.first else { return false }
             return Date().timeIntervalSince(oldest.createdAt) >= Commitment.tribunalUnlockInterval
         }
-    
-    private var shouldShowTribunalGate: Bool {
-        isTribunalUnlocked && !isTribunalGateDismissed && !isTribunalInProgress
-    }
 
     @State private var activeConversation: Conversation?
     @State private var isConversationListOpen = false
@@ -42,7 +38,8 @@ struct ContentView: View {
     @State private var activeEntry: JournalEntry?
     @State private var showSplash = true
     @State private var tribunalCheckTask: Task<Void, Never>?
-    @State private var isTribunalGateDismissed = false
+    @State private var isGateShown = false
+    @State private var hasEvaluatedGate = false
     @StateObject private var chatService = ChatService()
     @StateObject private var toastManager = ToastManager()
 
@@ -156,6 +153,13 @@ struct ContentView: View {
             .onAppear {
                 setupConversation()
                 startTribunalUnlockChecking()
+                evaluateTribunalGateIfNeeded()
+            }
+            .onChange(of: isTribunalUnlocked) { _, _ in
+                evaluateTribunalGateIfNeeded()
+            }
+            .onChange(of: isTribunalInProgress) { _, _ in
+                evaluateTribunalGateIfNeeded()
             }
             .onDisappear {
                 tribunalCheckTask?.cancel()
@@ -180,15 +184,15 @@ struct ContentView: View {
                     hasCompletedOnboarding = true
                     isPostReset = false
                 }
-            } else if shouldShowTribunalGate {
+            } else if isGateShown {
                 TribunalGateView(
                     pendingCount: pendingCommitments.count,
                     onFaceTribunal: {
-                        isTribunalGateDismissed = true
+                        isGateShown = false
                         selectedSection = .tribunal
                     },
                     onDismiss: {
-                        isTribunalGateDismissed = true
+                        isGateShown = false
                     }
                 )
             }
@@ -250,6 +254,15 @@ struct ContentView: View {
                 checkTribunalUnlock()
                 try? await Task.sleep(nanoseconds: 60_000_000_000) // 60s
             }
+        }
+    }
+    
+    private func evaluateTribunalGateIfNeeded() {
+        guard !hasEvaluatedGate else { return }
+        hasEvaluatedGate = true
+
+        if isTribunalUnlocked && !isTribunalInProgress {
+            isGateShown = true
         }
     }
 }
