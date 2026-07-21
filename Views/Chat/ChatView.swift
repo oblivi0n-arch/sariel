@@ -99,7 +99,11 @@ struct ChatView: View {
                             let isStreamingMessage = isGenerating && message.id == lastGuideMessage?.id
                             MessageBubble(
                                 message: message,
-                                showActions: isLastUser && !isInputLocked && !isEnded && message.commitment == nil,
+                                showActions: isLastUser
+                                    && !isInputLocked
+                                    && !isEnded
+                                    && !conversation.isTribunal
+                                    && message.commitment == nil,
                                 onDelete: { deleteLastExchange() },
                                 isEditing: editingMessageID == message.id,
                                 onStartEdit: { editingMessageID = message.id },
@@ -109,6 +113,7 @@ struct ChatView: View {
                                     && !isLastUser
                                     && !isInputLocked
                                     && !isEnded
+                                    && !conversation.isTribunal
                                     && message.commitment == nil
                                     && !rewindWouldDeleteCommitment(message),
                                 onRewind: { rewind(to: message) },
