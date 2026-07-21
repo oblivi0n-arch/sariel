@@ -26,4 +26,8 @@ final class ToastManager: ObservableObject {
     func dismiss(_ toast: Toast) {
         toasts.removeAll { $0.id == toast.id }
     }
+    
+    func showDeclarationLimitBlocked() {
+        show(kind: .declarationLimitBlocked)
+    }
 }

@@ -5,26 +5,37 @@ struct ChatInputBar: View {
     let isLocked: Bool
     var isFocused: FocusState<Bool>.Binding
     let isTribunal: Bool
+    let isDeclarationLimitReached: Bool
     let onSend: () -> Void
 
     private var canSend: Bool {
-        !draft.trimmingCharacters(in: .whitespaces).isEmpty && !isLocked
+        !draft.trimmingCharacters(in: .whitespaces).isEmpty && !isLocked && !isBlockedByLimit
     }
-    
+
     private var isDeclaration: Bool {
         !isTribunal && Commitment.isDeclaration(draft)
     }
 
+    private var isBlockedByLimit: Bool {
+        isDeclaration && isDeclarationLimitReached
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            if isDeclaration {
-                Text("no take-backs. that's the whole point of declaring.")
-                    .font(Typography.caption)
-                    .foregroundStyle(Color.red.opacity(0.75))
-                    .padding(.horizontal, 4)
-                    .transition(.opacity)
-            }
-        }
+                    if isBlockedByLimit {
+                        Text("you're carrying \(Commitment.maxPendingDeclarations) unresolved declarations already. face the Tribunal before adding another.")
+                            .font(Typography.caption)
+                            .foregroundStyle(Color.red.opacity(0.75))
+                            .padding(.horizontal, 4)
+                            .transition(.opacity)
+                    } else if isDeclaration {
+                        Text("no take-backs. that's the whole point of declaring.")
+                            .font(Typography.caption)
+                            .foregroundStyle(Color.red.opacity(0.75))
+                            .padding(.horizontal, 4)
+                            .transition(.opacity)
+                    }
+                }
         HStack(alignment: .bottom, spacing: 10) {
             TextField("Write a message...", text: $draft, axis: .vertical)
                 .textFieldStyle(.plain)
@@ -39,7 +50,7 @@ struct ChatInputBar: View {
                         .stroke(isFocused.wrappedValue ? Theme.borderStrong : Theme.border,
                                 lineWidth: isFocused.wrappedValue ? 1 : 0.5)
                 )
-                .onSubmit(onSend)
+                .onSubmit { if canSend { onSend() } }
                 .disabled(isLocked)
                 .focused(isFocused)
 

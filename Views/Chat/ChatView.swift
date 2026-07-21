@@ -44,18 +44,28 @@ struct ChatView: View {
     }
     
     var onJournalEntryCreated: (JournalEntry) -> Void
+    var onDeclarationLimitBlocked: () -> Void
     var onOpenJournalEntry: (JournalEntry) -> Void
     var onBackToTribunal: () -> Void
     
     private var isPendingProvocationStart: Bool {
         !conversation.isTribunal && sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
     }
+    
+    var isDeclarationLimitReached: Bool {
+            pendingCommitments.count >= Commitment.maxPendingDeclarations
+        }
+    
+    private func wouldExceedDeclarationLimit(_ text: String) -> Bool {
+        !conversation.isTribunal && Commitment.isDeclaration(text) && isDeclarationLimitReached
+    }
 
-    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, onBackToTribunal: @escaping () -> Void, isActive: Bool) {
+    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onDeclarationLimitBlocked: @escaping () -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, onBackToTribunal: @escaping () -> Void, isActive: Bool) {
         self.conversation = conversation
         self._isConversationListOpen = isConversationListOpen
         self.chatService = chatService
         self.onJournalEntryCreated = onJournalEntryCreated
+        self.onDeclarationLimitBlocked = onDeclarationLimitBlocked
         self.onOpenJournalEntry = onOpenJournalEntry
         self.onBackToTribunal = onBackToTribunal
         self.isActive = isActive
@@ -183,7 +193,7 @@ struct ChatView: View {
                             .matchedGeometryEffect(id: "sealBanner", in: sealNamespace)
                     }
                     
-                    ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, isTribunal: conversation.isTribunal, onSend: sendMessage)
+                    ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, isTribunal: conversation.isTribunal, isDeclarationLimitReached: isDeclarationLimitReached, onSend: sendMessage)
                 }
             }
         }
@@ -256,6 +266,10 @@ struct ChatView: View {
 
     private func sendMessage() {
         guard !isInputLocked else { return }
+        guard !wouldExceedDeclarationLimit(draft) else {
+            onDeclarationLimitBlocked()
+            return
+        }
         let text = draft
         draft = ""
         Task { await chatService.send(text: text, in: conversation, modelContext: modelContext) }
@@ -296,6 +310,11 @@ struct ChatView: View {
     private func saveEdit(for message: ChatMessage, newText: String) {
         let trimmed = newText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        guard !wouldExceedDeclarationLimit(trimmed) else {
+            editingMessageID = nil
+            onDeclarationLimitBlocked()
+            return
+        }
         editingMessageID = nil
         chatService.deleteMessages(from: message, in: conversation, modelContext: modelContext)
         Task { await chatService.send(text: trimmed, in: conversation, modelContext: modelContext) }

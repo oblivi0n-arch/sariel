@@ -70,6 +70,7 @@ struct TribunalView: View {
                     chatService: chatService,
                     isConversationListOpen: .constant(false),
                     onJournalEntryCreated: { _ in },
+                    onDeclarationLimitBlocked: {},
                     onOpenJournalEntry: { _ in },
                     onBackToTribunal: { activeTribunalConversation = nil },
                     isActive: true

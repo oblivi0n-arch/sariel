@@ -3,6 +3,7 @@ import Foundation
 enum ToastKind {
     case journalEntrySaved(JournalEntry)
     case tribunalUnlocked
+    case declarationLimitBlocked
 }
 
 struct Toast: Identifiable {

@@ -12,6 +12,8 @@ struct ToastView: View {
             return "book.closed"
         case .tribunalUnlocked:
             return "seal"
+        case .declarationLimitBlocked:
+            return "hand.raised.fill"
         }
     }
 
@@ -21,6 +23,8 @@ struct ToastView: View {
             return entry.title
         case .tribunalUnlocked:
             return "The Tribunal awaits"
+        case .declarationLimitBlocked:
+            return "Declaration blocked"
         }
     }
 
@@ -30,6 +34,8 @@ struct ToastView: View {
             return "entry saved"
         case .tribunalUnlocked:
             return "a commitment is ready for judgment"
+        case .declarationLimitBlocked:
+            return "resolve one before adding another"
         }
     }
 

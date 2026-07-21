@@ -67,6 +67,9 @@ struct ContentView: View {
                                             onJournalEntryCreated: { entry in
                                                 toastManager.show(entry: entry)
                                             },
+                                            onDeclarationLimitBlocked: {
+                                                toastManager.showDeclarationLimitBlocked()
+                                            },
                                             onOpenJournalEntry: { entry in
                                                 activeEntry = entry
                                                 selectedSection = .journal
@@ -144,6 +147,8 @@ struct ContentView: View {
                                     activeEntry = entry
                                     selectedSection = .journal
                                 case .tribunalUnlocked:
+                                    selectedSection = .tribunal
+                                case .declarationLimitBlocked:
                                     selectedSection = .tribunal
                                 }
                                 toastManager.dismiss(toast)

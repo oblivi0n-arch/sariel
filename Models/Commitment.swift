@@ -30,7 +30,8 @@ final class Commitment {
         set { status = newValue.rawValue }
     }
     
-    static let tribunalUnlockInterval: TimeInterval = 7 * 24 * 60 * 60
+    static let tribunalUnlockInterval: TimeInterval = 3 * 24 * 60 * 60
+    static let maxPendingDeclarations = 3
 
     static func isDeclaration(_ text: String) -> Bool {
         text.trimmingCharacters(in: .whitespacesAndNewlines)

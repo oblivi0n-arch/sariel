@@ -21,6 +21,11 @@ final class ChatService: ObservableObject {
     func send(text: String, in conversation: Conversation, modelContext: ModelContext) async {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
+        if !conversation.isTribunal, Commitment.isDeclaration(text) {
+            let pendingCount = fetchPendingCommitments(modelContext: modelContext).count
+            guard pendingCount < Commitment.maxPendingDeclarations else { return }
+        }
+
         let hasSuccessfulExchange = conversation.messages.contains {
             $0.messageRole == .guide && $0.isValidExchange
         }
