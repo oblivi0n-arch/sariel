@@ -46,10 +46,15 @@ extension ChatService {
                 guideMessage.content += chunk
             }
         } catch {
-            let message = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
-            lastErrors[conversation.id] = message
+            let ollamaError = error as? OllamaError
+            let description = ollamaError?.errorDescription ?? error.localizedDescription
+            lastErrors[conversation.id] = description
             if guideMessage.content.isEmpty {
-                guideMessage.content = "⚠️ \(message)"
+                var fullMessage = "⚠️ \(description)"
+                if let suggestion = ollamaError?.recoverySuggestion {
+                    fullMessage += "\n\(suggestion)"
+                }
+                guideMessage.content = fullMessage
             }
         }
 
