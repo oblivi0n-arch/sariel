@@ -67,19 +67,21 @@ struct VentView: View {
                 .focused($isTextFocused)
                 .padding(20)
 
-            Button(action: beginBurning) {
-                Text("burn it")
-                    .font(Typography.label)
-                    .foregroundStyle(Color.red.opacity(0.85))
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.red.opacity(0.4), lineWidth: 0.5)
-                    )
+            Group {
+                if ventText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text("hold to burn")
+                        .font(Typography.label)
+                        .foregroundStyle(Theme.textFaint)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Theme.border, lineWidth: 0.5)
+                        )
+                } else {
+                    BurnHoldButton(onCommitted: beginBurning)
+                }
             }
-            .buttonStyle(.plain)
-            .disabled(ventText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .padding(.bottom, 30)
         }
         .onAppear { isTextFocused = true }
