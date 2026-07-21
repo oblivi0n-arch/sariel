@@ -6,7 +6,7 @@ struct TribunalSealBanner: View {
     @State private var isIconVisible = false
     @State private var isTextStarted = false
 
-    private let message = "Once it leaves your draft, it's sealed. No edits. No rewinds."
+    private let message = "everything here is sealed the moment it leaves your draft. no edits, no rewinds."
 
     var body: some View {
         VStack(spacing: isDocked ? 6 : 12) {

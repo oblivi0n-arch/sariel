@@ -18,7 +18,7 @@ struct ChatInputBar: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             if isDeclaration {
-                Text("no edits. no rewinds. say it if you mean it.")
+                Text("no take-backs. that's the whole point of declaring.")
                     .font(Typography.caption)
                     .foregroundStyle(Color.red.opacity(0.75))
                     .padding(.horizontal, 4)
