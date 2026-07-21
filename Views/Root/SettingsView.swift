@@ -12,11 +12,32 @@ struct SettingsView: View {
     @AppStorage("ollamaHost") private var host: String = "http://localhost:11434"
     @AppStorage("ollamaModel") private var model: String = "gemma3:12b"
     @AppStorage("useJournalContext") private var useJournalContext: Bool = false
+    @AppStorage("useCredibilityContext") private var useCredibilityContext: Bool = false
 
     @State private var availableModels: [String] = []
     @State private var isLoadingModels = false
     @State private var modelsLoadError: String?
     @State private var showResetConfirmation = false
+    
+    private var credibilitySection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(icon: "scalemass", title: "CREDIBILITY CONTEXT") {
+                EmptyView()
+            }
+
+            Toggle(isOn: $useCredibilityContext) {
+                Text("Let Sariel factor in your track record on declarations")
+                    .font(Theme.uiFont)
+                    .foregroundStyle(Theme.textPrimary)
+            }
+            .toggleStyle(.switch)
+            .tint(Theme.textPrimary)
+
+            Text("When enabled, Sariel sees which of your declared commitments were fulfilled or broken from past Tribunal sessions, and adjusts its tone toward you accordingly. Requires at least \(Commitment.credibilitySampleMinimum) resolved declarations.")
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+        }
+    }
 
     private var isHostValid: Bool {
         guard let url = URL(string: host), let scheme = url.scheme else { return false }
@@ -39,6 +60,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     ollamaSection
                     contextSection
+                    credibilitySection
                     dangerZone
                     debugOnboardingSection //DEBUG ONLY
                 }
