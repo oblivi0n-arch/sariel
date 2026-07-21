@@ -44,6 +44,7 @@ struct TribunalView: View {
     
     private let tribunalSteps = [
         "In any conversation, type a message starting with \"I declare\" — it's saved as a commitment.",
+        "A declaration is permanent. It cannot be edited, deleted, or rewound once sent.",
         "Seven days pass from the oldest unresolved commitment.",
         "The Tribunal unlocks — it cannot be rushed or skipped.",
         "You face it and account for what you promised. Nothing is self-approved outside the Tribunal."
