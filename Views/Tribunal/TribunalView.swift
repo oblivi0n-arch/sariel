@@ -78,6 +78,9 @@ struct TribunalView: View {
                 mainTribunalContent
             }
         }
+        .onAppear {
+            restoreInProgressTribunalIfNeeded()
+        }
     }
     
     private var credibilityPercentage: Double? {
@@ -304,6 +307,11 @@ struct TribunalView: View {
             }
             isStarting = false
         }
+    }
+    
+    private func restoreInProgressTribunalIfNeeded() {
+        guard activeTribunalConversation == nil else { return }
+        activeTribunalConversation = chatService.fetchInProgressTribunal(modelContext: modelContext)
     }
     
     private var historySection: some View {

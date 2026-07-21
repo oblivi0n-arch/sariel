@@ -154,6 +154,9 @@ struct ContentView: View {
                 setupConversation()
                 startTribunalUnlockChecking()
                 evaluateTribunalGateIfNeeded()
+                if isTribunalInProgress {
+                    selectedSection = .tribunal
+                }
             }
             .onChange(of: isTribunalUnlocked) { _, _ in
                 evaluateTribunalGateIfNeeded()
