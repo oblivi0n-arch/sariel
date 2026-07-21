@@ -6,10 +6,14 @@ struct SidebarIconButton: View {
     var isLocked: Bool = false
     var showAlertBadge: Bool = false
     let onTap: () -> Void
-
+    
     @State private var isHovering = false
     @State private var isPulsing = false
-
+    
+    private var effectivelyLocked: Bool {
+        isLocked && !isActive
+    }
+    
     var body: some View {
         Image(systemName: iconName)
             .font(.system(size: 18))
@@ -21,7 +25,7 @@ struct SidebarIconButton: View {
                     .stroke(borderColor, lineWidth: 1)
             )
             .overlay(alignment: .bottomTrailing) {
-                if isLocked {
+                if effectivelyLocked {
                     Image(systemName: "lock.fill")
                         .font(.system(size: 8, weight: .medium))
                         .foregroundStyle(Theme.textFaint)
@@ -31,23 +35,24 @@ struct SidebarIconButton: View {
                         .offset(x: 4, y: 4)
                 }
             }
-            .opacity(isLocked ? 0.35 : 1)
+            .opacity(effectivelyLocked ? 0.35 : 1)
             .contentShape(Rectangle())
             .onTapGesture {
-                guard !isLocked else { return }
+                guard !effectivelyLocked else { return }
                 onTap()
             }
             .onHover { hovering in
-                guard !isLocked else { return }
+                guard !effectivelyLocked else { return }
                 isHovering = hovering
             }
-            .help(isLocked ? "End Tribunal session first" : "")
+            .help(effectivelyLocked ? "End Tribunal session first" : "")
+            .focusEffectDisabled()
             .onAppear { startPulsingIfNeeded() }
             .onChange(of: showAlertBadge) { _, _ in startPulsingIfNeeded() }
     }
-
+    
     private func startPulsingIfNeeded() {
-        guard showAlertBadge, !isLocked else {
+        guard showAlertBadge, !effectivelyLocked else {
             isPulsing = false
             return
         }
@@ -55,9 +60,9 @@ struct SidebarIconButton: View {
             isPulsing = true
         }
     }
-
+    
     private var foregroundColor: Color {
-        if isLocked { return Theme.textFaint }
+        if effectivelyLocked { return Theme.textFaint }
         if showAlertBadge {
             return isPulsing ? Color.red.opacity(0.9) : Theme.textFaint
         }
@@ -65,9 +70,9 @@ struct SidebarIconButton: View {
         if isHovering { return Theme.textMuted }
         return Theme.textFaint
     }
-
+    
     private var borderColor: Color {
-        if isLocked { return .clear }
+        if effectivelyLocked { return .clear }
         if showAlertBadge {
             return isPulsing ? Color.red.opacity(0.5) : Theme.border
         }
