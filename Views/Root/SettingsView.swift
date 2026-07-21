@@ -9,8 +9,8 @@ struct SettingsView: View {
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") private var isPostReset: Bool = false
-    @AppStorage("ollamaHost") private var host: String = "http://localhost:11434"
-    @AppStorage("ollamaModel") private var model: String = "gemma3:12b"
+    @AppStorage("ollamaHost") private var host: String = OllamaDefaults.host
+    @AppStorage("ollamaModel") private var model: String = OllamaDefaults.model
     @AppStorage("useJournalContext") private var useJournalContext: Bool = false
     @AppStorage("useCredibilityContext") private var useCredibilityContext: Bool = false
 
@@ -294,8 +294,8 @@ struct SettingsView: View {
         hasCompletedOnboarding = skipOnboarding
         isPostReset = !skipOnboarding
 
-        host = "http://localhost:11434"
-        model = "gemma3:12b"
+        host = OllamaDefaults.host
+        model = OllamaDefaults.model
         useJournalContext = false
 
         relaunchApp()

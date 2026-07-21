@@ -5,6 +5,11 @@ struct OllamaMessage: Codable {
     let content: String
 }
 
+enum OllamaDefaults {
+    static let host = "http://localhost:11434"
+    static let model = "gemma3:12b"
+}
+
 enum OllamaError: LocalizedError {
     case connectionFailed
     case modelNotFound(String)
@@ -38,12 +43,12 @@ enum OllamaError: LocalizedError {
 
 struct OllamaClient {
     var url: URL {
-        let host = UserDefaults.standard.string(forKey: "ollamaHost") ?? "http://localhost:11434"
-        return URL(string: "\(host)/api/chat") ?? URL(string: "http://localhost:11434/api/chat")!
+        let host = UserDefaults.standard.string(forKey: "ollamaHost") ?? OllamaDefaults.host
+        return URL(string: "\(host)/api/chat") ?? URL(string: "\(OllamaDefaults.host)/api/chat")!
     }
     
     var model: String {
-        UserDefaults.standard.string(forKey: "ollamaModel") ?? "gemma4:e4b"
+        UserDefaults.standard.string(forKey: "ollamaModel") ?? OllamaDefaults.model
     }
     
     func streamChat(messages: [OllamaMessage]) -> AsyncThrowingStream<String, Error> {
