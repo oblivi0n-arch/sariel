@@ -9,8 +9,21 @@ struct ChatInputBar: View {
     private var canSend: Bool {
         !draft.trimmingCharacters(in: .whitespaces).isEmpty && !isLocked
     }
+    
+    private var isDeclaration: Bool {
+        Commitment.isDeclaration(draft)
+    }
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if isDeclaration {
+                Text("no edits. no rewinds. say it if you mean it.")
+                    .font(Typography.caption)
+                    .foregroundStyle(Color.red.opacity(0.75))
+                    .padding(.horizontal, 4)
+                    .transition(.opacity)
+            }
+        }
         HStack(alignment: .bottom, spacing: 10) {
             TextField("Write a message...", text: $draft, axis: .vertical)
                 .textFieldStyle(.plain)
@@ -30,17 +43,18 @@ struct ChatInputBar: View {
                 .focused(isFocused)
 
             Button(action: onSend) {
-                Image(systemName: "arrow.up")
+                Image(systemName: isDeclaration ? "seal.fill" : "arrow.up")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(canSend ? Theme.background : Theme.textFaint)
+                    .foregroundStyle(canSend ? (isDeclaration ? Color.white : Theme.background) : Theme.textFaint)
                     .frame(width: 32, height: 32)
-                    .background(canSend ? Theme.textPrimary : Theme.fieldBackground)
+                    .background(canSend ? (isDeclaration ? Color.red.opacity(0.85) : Theme.textPrimary) : Theme.fieldBackground)
                     .clipShape(Circle())
-                    .overlay(Circle().stroke(Theme.border, lineWidth: 0.5))
+                    .overlay(Circle().stroke(isDeclaration && canSend ? Color.red.opacity(0.5) : Theme.border, lineWidth: 0.5))
             }
             .buttonStyle(.plain)
             .disabled(!canSend)
         }
         .padding(16)
+        .animation(.easeInOut(duration: 0.15), value: isDeclaration)
     }
 }
