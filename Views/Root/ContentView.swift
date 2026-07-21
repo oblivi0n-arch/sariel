@@ -19,8 +19,7 @@ struct ContentView: View {
     ) private var tribunalConversations: [Conversation]
     
     private var isTribunalInProgress: Bool {
-        guard let activeConversation else { return false }
-        return activeConversation.isTribunal && activeConversation.tribunalResolvedAt == nil
+        tribunalConversations.contains { $0.tribunalResolvedAt == nil }
     }
 
     @State private var activeConversation: Conversation?
@@ -95,14 +94,7 @@ struct ContentView: View {
                             JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation)
                         
                         case .tribunal:
-                            TribunalView(
-                                chatService: chatService,
-                                onTribunalStarted: { conversation in
-                                    activeConversation = conversation
-                                    selectedSection = .chat
-                                },
-                                onOpenConversation: openConversation
-                            )
+                            TribunalView(chatService: chatService)
                         }
                     }
                     

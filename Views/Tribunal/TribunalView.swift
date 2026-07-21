@@ -3,8 +3,6 @@ import SwiftData
 
 struct TribunalView: View {
     @ObservedObject var chatService: ChatService
-    let onTribunalStarted: (Conversation) -> Void
-    let onOpenConversation: (Conversation) -> Void
     
     @Environment(\.modelContext) private var modelContext
     @State private var isStarting = false
@@ -12,6 +10,7 @@ struct TribunalView: View {
     @State private var isInfoShown = false
     @State private var now: Date = Date()
     @State private var tickTask: Task<Void, Never>?
+    @State private var activeTribunalConversation: Conversation?
     
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
     private var pendingCommitments: [Commitment]
@@ -51,6 +50,24 @@ struct TribunalView: View {
     ]
     
     var body: some View {
+        Group {
+            if let conversation = activeTribunalConversation {
+                ChatView(
+                    conversation: conversation,
+                    chatService: chatService,
+                    isConversationListOpen: .constant(false),
+                    onJournalEntryCreated: { _ in },
+                    onOpenJournalEntry: { _ in },
+                    onBackToTribunal: { activeTribunalConversation = nil },
+                    isActive: true
+                )
+            } else {
+                mainTribunalContent
+            }
+        }
+    }
+    
+    private var mainTribunalContent: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 Text("Tribunal")
@@ -231,7 +248,7 @@ struct TribunalView: View {
         isStarting = true
         Task {
             if let conversation = await chatService.startTribunal(modelContext: modelContext) {
-                onTribunalStarted(conversation)
+                activeTribunalConversation = conversation
             }
             isStarting = false
         }
@@ -261,7 +278,7 @@ struct TribunalView: View {
                     ForEach(resolvedCommitments) { commitment in
                         CommitmentHistoryRow(commitment: commitment, onSelect: {
                             if let conversation = commitment.resolvingConversation {
-                                onOpenConversation(conversation)
+                                activeTribunalConversation = conversation
                             }
                         })
                     }
