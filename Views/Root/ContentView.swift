@@ -108,6 +108,10 @@ struct ContentView: View {
                         
                         case .tribunal:
                             TribunalView(chatService: chatService)
+                            
+                        case .vent:
+                            Text("Vent — coming soon")
+                                .foregroundStyle(Theme.textMuted)
                         }
                     }
                     
