@@ -6,23 +6,62 @@ struct SidebarIconButton: View {
     var isLocked: Bool = false
     var showAlertBadge: Bool = false
     let onTap: () -> Void
-    
+
     @State private var isHovering = false
-    @State private var isPulsing = false
-    
+
     private var effectivelyLocked: Bool {
         isLocked && !isActive
     }
-    
+
+    private var isPulseActive: Bool {
+        showAlertBadge && !effectivelyLocked
+    }
+
     var body: some View {
+        Group {
+            if isPulseActive {
+                TimelineView(.periodic(from: .now, by: 1.0 / 30.0)) { context in
+                    pulsingIcon(intensity: pulseIntensity(at: context.date))
+                }
+            } else {
+                pulsingIcon(intensity: 0)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            guard !effectivelyLocked else { return }
+            onTap()
+        }
+        .onHover { hovering in
+            guard !effectivelyLocked else { return }
+            isHovering = hovering
+        }
+        .help(effectivelyLocked ? "End Tribunal session first" : "")
+        .focusEffectDisabled()
+    }
+
+    private func baseIcon() -> some View {
+        iconShape(foreground: baseForegroundColor, border: baseBorderColor)
+    }
+
+    private func redIcon() -> some View {
+        iconShape(foreground: Color.red.opacity(0.9), border: Color.red.opacity(0.5))
+    }
+
+    private func pulsingIcon(intensity: Double) -> some View {
+        baseIcon()
+            .overlay(redIcon().opacity(intensity))
+    }
+
+    private func iconShape(foreground: Color, border: Color) -> some View {
         Image(systemName: iconName)
             .font(.system(size: 18))
-            .foregroundStyle(foregroundColor)
+            .foregroundStyle(foreground)
             .frame(width: 36, height: 36)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(borderColor, lineWidth: 1)
+                    .stroke(border, lineWidth: 1)
             )
             .overlay(alignment: .bottomTrailing) {
                 if effectivelyLocked {
@@ -36,46 +75,23 @@ struct SidebarIconButton: View {
                 }
             }
             .opacity(effectivelyLocked ? 0.35 : 1)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                guard !effectivelyLocked else { return }
-                onTap()
-            }
-            .onHover { hovering in
-                guard !effectivelyLocked else { return }
-                isHovering = hovering
-            }
-            .help(effectivelyLocked ? "End Tribunal session first" : "")
-            .focusEffectDisabled()
-            .onAppear { startPulsingIfNeeded() }
-            .onChange(of: showAlertBadge) { _, _ in startPulsingIfNeeded() }
     }
-    
-    private func startPulsingIfNeeded() {
-        guard showAlertBadge, !effectivelyLocked else {
-            isPulsing = false
-            return
-        }
-        withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
-            isPulsing = true
-        }
+
+    private func pulseIntensity(at date: Date) -> Double {
+        let period = 1.8
+        let t = date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: period) / period
+        return t < 0.5 ? t * 2 : (1 - t) * 2
     }
-    
-    private var foregroundColor: Color {
+
+    private var baseForegroundColor: Color {
         if effectivelyLocked { return Theme.textFaint }
-        if showAlertBadge {
-            return isPulsing ? Color.red.opacity(0.9) : Theme.textFaint
-        }
         if isActive { return Theme.textPrimary }
         if isHovering { return Theme.textMuted }
         return Theme.textFaint
     }
-    
-    private var borderColor: Color {
+
+    private var baseBorderColor: Color {
         if effectivelyLocked { return .clear }
-        if showAlertBadge {
-            return isPulsing ? Color.red.opacity(0.5) : Theme.border
-        }
         if isActive { return Theme.borderStrong }
         if isHovering { return Theme.border }
         return .clear
