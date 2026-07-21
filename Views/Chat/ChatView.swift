@@ -2,39 +2,36 @@ import SwiftUI
 import SwiftData
 
 struct ChatView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.modelContext) var modelContext
     @Bindable var conversation: Conversation
     @Binding var isConversationListOpen: Bool
     let isActive: Bool
     
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" })
-    private var pendingCommitments: [Commitment]
+    var pendingCommitments: [Commitment]
 
-    @ObservedObject private var chatService: ChatService
+    @ObservedObject var chatService: ChatService
     @State private var draft: String = ""
     @EnvironmentObject private var connectionMonitor: ConnectionMonitor
     @FocusState private var isInputFocused: Bool
     @State private var editingMessageID: UUID?
     @State private var isMoodPromptShown = false
     @State private var isRevealFinishing = false
-    @State private var tribunalVerdicts: [TribunalVerdict] = []
-    @State private var isVerdictOverlayShown = false
-    
-    @Namespace private var sealNamespace
-    @State private var showSeal = false
-    @State private var sealDocked = false
-    @State private var hasPlayedSealIntro = false
-    
+    @State var tribunalVerdicts: [TribunalVerdict] = []
+    @State var isVerdictOverlayShown = false
+
+    @Namespace var sealNamespace
+    @State var showSeal = false
+    @State var sealDocked = false
+    @State var hasPlayedSealIntro = false
+
     private var isEnded: Bool { conversation.journalEntry != nil || conversation.tribunalResolvedAt != nil }
-    private var successfulExchangeCount: Int {
+    var successfulExchangeCount: Int {
         conversation.messages.filter { $0.messageRole == .guide && $0.isValidExchange }.count
     }
-    private var canDeliverVerdicts: Bool {
-        successfulExchangeCount >= max(pendingCommitments.count, 1)
-    }
-    private var isGenerating: Bool { chatService.generatingConversationIDs.contains(conversation.id) }
+    var isGenerating: Bool { chatService.generatingConversationIDs.contains(conversation.id) }
     private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
-    private var isInputLocked: Bool {
+    var isInputLocked: Bool {
         isGenerating || isEndingConversation || isRevealFinishing || chatService.isGeneratingVerdicts.contains(conversation.id)
     }
     private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
@@ -54,10 +51,6 @@ struct ChatView: View {
         !conversation.isTribunal && sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
     }
 
-    private var isPendingTribunalOpening: Bool {
-        conversation.isTribunal && sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
-    }
-
     init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, onBackToTribunal: @escaping () -> Void, isActive: Bool) {
         self.conversation = conversation
         self._isConversationListOpen = isConversationListOpen
@@ -68,7 +61,7 @@ struct ChatView: View {
         self.isActive = isActive
     }
 
-    private var sortedMessages: [ChatMessage] {
+    var sortedMessages: [ChatMessage] {
         conversation.messages.sorted { $0.timestamp < $1.timestamp }
     }
 
@@ -163,7 +156,9 @@ struct ChatView: View {
                 }
                 .onAppear {
                     scrollToBottom(proxy, animated: false)
-                    DispatchQueue.main.async { isInputFocused = true }
+                    DispatchQueue.main.async {
+                        isInputFocused = true
+                    }
                     setupSealIfNeeded()
                 }
             }
@@ -180,8 +175,8 @@ struct ChatView: View {
                         .padding(.horizontal, 16)
                         .padding(.top, 12)
                     }
-                    
-                    if showSeal && sealDocked {
+
+                    if conversation.isTribunal, showSeal, sealDocked {
                         TribunalSealBanner(isDocked: true)
                             .matchedGeometryEffect(id: "sealBanner", in: sealNamespace)
                     }
@@ -215,28 +210,8 @@ struct ChatView: View {
                 )
             }
         }
-        .overlay {
-            if showSeal && !sealDocked {
-                Color.black.opacity(0.4)
-                    .ignoresSafeArea()
-                    .transition(.opacity)
-
-                TribunalSealBanner(isDocked: false)
-                    .matchedGeometryEffect(id: "sealBanner", in: sealNamespace)
-            }
-        }
-        .overlay {
-            if isVerdictOverlayShown {
-                TribunalVerdictOverlay(
-                    verdicts: $tribunalVerdicts,
-                    onConfirm: { finalVerdicts in
-                        chatService.applyVerdicts(finalVerdicts, for: conversation, modelContext: modelContext)
-                        isVerdictOverlayShown = false
-                    },
-                    onCancel: { isVerdictOverlayShown = false }
-                )
-            }
-        }
+        .overlay { tribunalVerdictOverlayContent }
+        .overlay { sealCenterOverlayContent }
         .animation(.easeInOut(duration: 0.2), value: isMoodPromptShown)
     }
 
@@ -331,33 +306,5 @@ struct ChatView: View {
     private func startProvocation() {
         guard !isInputLocked else { return }
         Task { await chatService.startProvocation(for: conversation, modelContext: modelContext) }
-    }
-    
-    private func deliverVerdicts() {
-        guard !isInputLocked, !chatService.isGeneratingVerdicts.contains(conversation.id), canDeliverVerdicts else { return }
-        Task {
-            let verdicts = await chatService.generateVerdicts(for: conversation, modelContext: modelContext)
-            guard !verdicts.isEmpty, chatService.verdictErrors[conversation.id] == nil else { return }
-            tribunalVerdicts = verdicts
-            isVerdictOverlayShown = true
-        }
-    }
-    
-    private func setupSealIfNeeded() {
-        guard conversation.isTribunal, !hasPlayedSealIntro else { return }
-        hasPlayedSealIntro = true
-        showSeal = true
-
-        if isPendingTribunalOpening {
-            sealDocked = false
-            Task {
-                try? await Task.sleep(nanoseconds: 2_500_000_000)
-                withAnimation(.spring(response: 0.55, dampingFraction: 0.82)) {
-                    sealDocked = true
-                }
-            }
-        } else {
-            sealDocked = true
-        }
     }
 }
