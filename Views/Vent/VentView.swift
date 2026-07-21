@@ -10,9 +10,12 @@ enum VentPhase {
 struct VentView: View {
     @State private var phase: VentPhase = .invitation
     @State private var ventText: String = ""
+    @State private var textBeingBurned: String = ""
     @State private var currentPrompt: String = VentTexts.prompts.randomElement()!
     @State private var currentAftermath: String = ""
     @FocusState private var isTextFocused: Bool
+    
+    private let characterLimit = 1000
 
     var body: some View {
         ZStack {
@@ -24,7 +27,7 @@ struct VentView: View {
             case .writing:
                 writingView
             case .burning:
-                burningPlaceholder
+                BurningTextView(text: textBeingBurned, onFinished: handleBurnFinished)
             case .aftermath:
                 aftermathView
             }
@@ -66,6 +69,16 @@ struct VentView: View {
                 .scrollContentBackground(.hidden)
                 .focused($isTextFocused)
                 .padding(20)
+                .onChange(of: ventText) { _, newValue in
+                    if newValue.count > characterLimit {
+                        ventText = String(newValue.prefix(characterLimit))
+                    }
+                }
+            
+            Text("\(ventText.count) / \(characterLimit)")
+                .font(Typography.caption)
+                .foregroundStyle(ventText.count >= characterLimit ? Color.red.opacity(0.8) : Theme.textFaint)
+                .padding(.horizontal, 20)
 
             Group {
                 if ventText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -84,19 +97,23 @@ struct VentView: View {
             }
             .padding(.bottom, 30)
         }
+        .overlay { vignetteOverlay }
         .onAppear { isTextFocused = true }
     }
 
-    // Temporary placeholder
-    private var burningPlaceholder: some View {
-        Text("burning...")
-            .foregroundStyle(Theme.textMuted)
-            .onAppear {
-                Task {
-                    try? await Task.sleep(nanoseconds: 500_000_000)
-                    finishBurning()
-                }
-            }
+    private var vignetteOverlay: some View {
+        RadialGradient(
+            colors: [Color.clear, Color.black.opacity(vignetteOpacity)],
+            center: .center,
+            startRadius: 80,
+            endRadius: 420
+        )
+        .allowsHitTesting(false)
+        .animation(.easeInOut(duration: 0.3), value: vignetteOpacity)
+    }
+
+    private var vignetteOpacity: Double {
+        min(Double(ventText.count) / 350.0, 0.8)
     }
 
     private var aftermathView: some View {
@@ -106,13 +123,19 @@ struct VentView: View {
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 380)
-
-            Button(action: reset) {
-                Text("okay")
-                    .font(Typography.label)
-                    .foregroundStyle(Theme.textMuted)
+        }
+        .opacity(currentAftermath.isEmpty ? 0 : 1)
+        .animation(.easeIn(duration: 0.5), value: currentAftermath)
+        .overlay(alignment: .bottom) {
+            if !currentAftermath.isEmpty {
+                Button(action: reset) {
+                    Text("okay")
+                        .font(Typography.label)
+                        .foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
+                .padding(.bottom, 40)
             }
-            .buttonStyle(.plain)
         }
     }
 
@@ -121,17 +144,23 @@ struct VentView: View {
     }
 
     private func beginBurning() {
+        textBeingBurned = ventText
+        ventText = ""
         phase = .burning
     }
 
-    private func finishBurning() {
-        currentAftermath = VentTexts.aftermaths.randomElement()!
-        ventText = ""
-        phase = .aftermath
+    private func handleBurnFinished() {
+        Task {
+            try? await Task.sleep(nanoseconds: 450_000_000)
+            currentAftermath = VentTexts.aftermaths.randomElement()!
+            phase = .aftermath
+        }
     }
 
     private func reset() {
         currentPrompt = VentTexts.prompts.randomElement()!
+        currentAftermath = ""
+        textBeingBurned = ""
         phase = .invitation
     }
 }
