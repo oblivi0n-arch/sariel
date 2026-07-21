@@ -98,7 +98,12 @@ struct ChatView: View {
                                 onStartEdit: { editingMessageID = message.id },
                                 onSaveEdit: { newText in saveEdit(for: message, newText: newText) },
                                 onCancelEdit: { editingMessageID = nil },
-                                showRewind: message.messageRole == .user && !isLastUser && !isInputLocked && !isEnded && message.commitment == nil,
+                                showRewind: message.messageRole == .user
+                                    && !isLastUser
+                                    && !isInputLocked
+                                    && !isEnded
+                                    && message.commitment == nil
+                                    && !rewindWouldDeleteCommitment(message),
                                 onRewind: { rewind(to: message) },
                                 onRetry: { retryLastResponse() },
                                 isStreaming: isStreamingMessage,
@@ -272,6 +277,11 @@ struct ChatView: View {
         guard message.messageRole == .user else { return }
         let cutoffMessage = replyMessage(for: message) ?? message
         chatService.deleteMessages(after: cutoffMessage, in: conversation, modelContext: modelContext)
+    }
+    
+    private func rewindWouldDeleteCommitment(_ message: ChatMessage) -> Bool {
+        let cutoffMessage = replyMessage(for: message) ?? message
+        return sortedMessages.contains { $0.timestamp > cutoffMessage.timestamp && $0.commitment != nil }
     }
     
     private func saveEdit(for message: ChatMessage, newText: String) {
