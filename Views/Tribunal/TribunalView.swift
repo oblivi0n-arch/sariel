@@ -80,6 +80,44 @@ struct TribunalView: View {
         }
     }
     
+    private var credibilityPercentage: Double? {
+        Commitment.credibilityPercentage(from: resolvedCommitments)
+    }
+
+    private var credibilityBand: CredibilityBand {
+        Commitment.credibilityBand(from: resolvedCommitments)
+    }
+
+    private var credibilitySection: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "scalemass")
+                .font(.system(size: 20))
+                .foregroundStyle(Theme.textMuted)
+
+            if let percentage = credibilityPercentage {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(Int(percentage.rounded()))% credibility")
+                        .font(Theme.uiFont)
+                        .foregroundStyle(Theme.textPrimary)
+
+                    Text(credibilityBand.rawValue.uppercased())
+                        .font(Typography.caption)
+                        .foregroundStyle(Theme.textFaint)
+                        .kerning(0.5)
+                }
+            } else {
+                Text("Not enough resolved declarations yet to judge your credibility.")
+                    .font(Theme.uiFont)
+                    .foregroundStyle(Theme.textMuted)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Theme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.border, lineWidth: 0.5))
+    }
+    
     private var mainTribunalContent: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
@@ -101,6 +139,7 @@ struct TribunalView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     statusSection
+                    credibilitySection
                     
                     if !resolvedCommitments.isEmpty {
                         historySection

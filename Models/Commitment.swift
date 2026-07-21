@@ -53,6 +53,14 @@ final class Commitment {
         default: return .solid
         }
     }
+    
+    static func credibilityPercentage(from commitments: [Commitment]) -> Double? {
+        let resolved = commitments.filter { $0.commitmentStatus != .pending }
+        guard resolved.count >= credibilitySampleMinimum else { return nil }
+
+        let fulfilledCount = resolved.filter { $0.commitmentStatus == .fulfilled }.count
+        return Double(fulfilledCount) / Double(resolved.count) * 100
+    }
 }
 
 enum CommitmentStatus: String {
