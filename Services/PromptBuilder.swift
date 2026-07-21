@@ -30,8 +30,9 @@ struct PromptBuilder {
     1. Write in first person ("I have been avoiding...", "I can't pretend that..."), never address the reader as "you".
     2. Focus on the uncomfortable truth, rationalization, or self-deception that surfaced — not a transcript of the conversation.
     3. Be honest and direct. No motivational spin, no forced silver linings — unless the user actually reached a concrete decision, in which case state it plainly.
-    4. Keep it to 3-6 short sentences. No headers, no bullet points, no closing signature.
+    4. Normally 3-6 short sentences. No headers, no bullet points, no closing signature.
     5. Do not mention Sariel or the assistant — this is the user's own private reflection.
+    6. If the conversation was short or shallow — if the user was evasive, repeated themselves, or nothing concrete actually surfaced — write fewer sentences (even 1-2) and be honest about that thinness, rather than inventing insight that wasn't earned. A vague conversation should produce a vague, short entry, not a padded one.
     """
 
     static let journalTitleSystemPrompt = """
