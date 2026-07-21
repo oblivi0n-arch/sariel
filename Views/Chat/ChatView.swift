@@ -6,6 +6,9 @@ struct ChatView: View {
     @Bindable var conversation: Conversation
     @Binding var isConversationListOpen: Bool
     let isActive: Bool
+    
+    @Query(filter: #Predicate<Commitment> { $0.status == "pending" })
+    private var pendingCommitments: [Commitment]
 
     @ObservedObject private var chatService: ChatService
     @State private var draft: String = ""
@@ -19,6 +22,9 @@ struct ChatView: View {
     private var isEnded: Bool { conversation.journalEntry != nil || conversation.tribunalResolvedAt != nil }
     private var successfulExchangeCount: Int {
         conversation.messages.filter { $0.messageRole == .guide && $0.isValidExchange }.count
+    }
+    private var canDeliverVerdicts: Bool {
+        successfulExchangeCount >= max(pendingCommitments.count, 1)
     }
     private var isGenerating: Bool { chatService.generatingConversationIDs.contains(conversation.id) }
     private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
@@ -79,6 +85,7 @@ struct ChatView: View {
                 onRequestEndConversation: { isMoodPromptShown = true },
                 isTribunal: conversation.isTribunal,
                 isGeneratingVerdicts: chatService.isGeneratingVerdicts.contains(conversation.id),
+                canDeliverVerdicts: canDeliverVerdicts,
                 onDeliverVerdicts: deliverVerdicts,
                 verdictError: chatService.verdictErrors[conversation.id],
                 onBackToTribunal: onBackToTribunal
@@ -302,7 +309,7 @@ struct ChatView: View {
     }
     
     private func deliverVerdicts() {
-        guard !isInputLocked, !chatService.isGeneratingVerdicts.contains(conversation.id) else { return }
+        guard !isInputLocked, !chatService.isGeneratingVerdicts.contains(conversation.id), canDeliverVerdicts else { return }
         Task {
             let verdicts = await chatService.generateVerdicts(for: conversation, modelContext: modelContext)
             guard !verdicts.isEmpty, chatService.verdictErrors[conversation.id] == nil else { return }

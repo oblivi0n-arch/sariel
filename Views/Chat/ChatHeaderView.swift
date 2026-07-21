@@ -13,6 +13,7 @@ struct ChatHeaderView: View {
     let onRequestEndConversation: () -> Void
     let isTribunal: Bool
     let isGeneratingVerdicts: Bool
+    let canDeliverVerdicts: Bool
     let onDeliverVerdicts: () -> Void
     let verdictError: String?
     let onBackToTribunal: () -> Void
@@ -90,7 +91,9 @@ struct ChatHeaderView: View {
                     )
                 }
                 .buttonStyle(.plain)
-                .disabled(isGeneratingVerdicts || isInputLocked)
+                .disabled(isGeneratingVerdicts || isInputLocked || !canDeliverVerdicts)
+                .opacity(canDeliverVerdicts ? 1 : 0.4)
+                .help(canDeliverVerdicts ? "" : "keep going – each declaration deserves its own accounting.")
             }
         } else if let error = endConversationError {
             Button(action: {
