@@ -22,15 +22,13 @@ struct TribunalView: View {
     )
     private var resolvedCommitments: [Commitment]
     
-    private let unlockInterval: TimeInterval = 7 * 24 * 60 * 60
-    
     private var oldestPendingDate: Date? {
         pendingCommitments.first?.createdAt
     }
     
     private var isUnlocked: Bool {
         guard let oldest = oldestPendingDate else { return false }
-        return Date().timeIntervalSince(oldest) >= Commitment.tribunalUnlockInterval
+        return now.timeIntervalSince(oldest) >= Commitment.tribunalUnlockInterval
     }
     
     private var remainingComponents: (days: Int, hours: Int, minutes: Int)? {
