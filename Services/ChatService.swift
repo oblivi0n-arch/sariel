@@ -217,7 +217,8 @@ final class ChatService: ObservableObject {
             messages = PromptBuilder.buildTribunalMessages(history: history, commitments: pending)
         } else {
             let journalContext = fetchJournalContextIfEnabled(modelContext: modelContext)
-            messages = PromptBuilder.buildMessages(history: history, summary: conversation.summary, journalContext: journalContext)
+            let credibilityContext = fetchCredibilityContextIfEnabled(modelContext: modelContext)
+            messages = PromptBuilder.buildMessages(history: history, summary: conversation.summary, journalContext: journalContext, credibilityContext: credibilityContext)
         }
 
         var buffer = ""

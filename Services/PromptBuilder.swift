@@ -72,13 +72,20 @@ struct PromptBuilder {
         }.joined(separator: "\n")
     }
 
-    static func buildMessages(history: [ChatMessage], summary: String = "", journalContext: String = "") -> [OllamaMessage] {
+    static func buildMessages(history: [ChatMessage], summary: String = "", journalContext: String = "", credibilityContext: String = "") -> [OllamaMessage] {
         var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: systemPrompt)]
 
         if !journalContext.isEmpty {
             messages.append(OllamaMessage(
                 role: "system",
                 content: "Recent journal entries from the user, for spotting recurring patterns. Use them only if relevant — don't force references to them:\n\(journalContext)"
+            ))
+        }
+
+        if !credibilityContext.isEmpty {
+            messages.append(OllamaMessage(
+                role: "system",
+                content: "Context on the user's track record with declared commitments, from past Tribunal sessions. Use it to calibrate your tone toward them — don't force references to it if it isn't relevant to what they're saying right now:\n\(credibilityContext)"
             ))
         }
 
