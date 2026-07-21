@@ -19,6 +19,12 @@ struct ChatView: View {
     @State private var isRevealFinishing = false
     @State private var tribunalVerdicts: [TribunalVerdict] = []
     @State private var isVerdictOverlayShown = false
+    
+    @Namespace private var sealNamespace
+    @State private var showSeal = false
+    @State private var sealDocked = false
+    @State private var hasPlayedSealIntro = false
+    
     private var isEnded: Bool { conversation.journalEntry != nil || conversation.tribunalResolvedAt != nil }
     private var successfulExchangeCount: Int {
         conversation.messages.filter { $0.messageRole == .guide && $0.isValidExchange }.count
@@ -157,9 +163,8 @@ struct ChatView: View {
                 }
                 .onAppear {
                     scrollToBottom(proxy, animated: false)
-                    DispatchQueue.main.async {
-                        isInputFocused = true
-                    }
+                    DispatchQueue.main.async { isInputFocused = true }
+                    setupSealIfNeeded()
                 }
             }
 
@@ -174,6 +179,11 @@ struct ChatView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.top, 12)
+                    }
+                    
+                    if showSeal && sealDocked {
+                        TribunalSealBanner(isDocked: true)
+                            .matchedGeometryEffect(id: "sealBanner", in: sealNamespace)
                     }
                     
                     ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, isTribunal: conversation.isTribunal, onSend: sendMessage)
@@ -203,6 +213,16 @@ struct ChatView: View {
                         isMoodPromptShown = false
                     }
                 )
+            }
+        }
+        .overlay {
+            if showSeal && !sealDocked {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+
+                TribunalSealBanner(isDocked: false)
+                    .matchedGeometryEffect(id: "sealBanner", in: sealNamespace)
             }
         }
         .overlay {
@@ -320,6 +340,24 @@ struct ChatView: View {
             guard !verdicts.isEmpty, chatService.verdictErrors[conversation.id] == nil else { return }
             tribunalVerdicts = verdicts
             isVerdictOverlayShown = true
+        }
+    }
+    
+    private func setupSealIfNeeded() {
+        guard conversation.isTribunal, !hasPlayedSealIntro else { return }
+        hasPlayedSealIntro = true
+        showSeal = true
+
+        if isPendingTribunalOpening {
+            sealDocked = false
+            Task {
+                try? await Task.sleep(nanoseconds: 2_500_000_000)
+                withAnimation(.spring(response: 0.55, dampingFraction: 0.82)) {
+                    sealDocked = true
+                }
+            }
+        } else {
+            sealDocked = true
         }
     }
 }
