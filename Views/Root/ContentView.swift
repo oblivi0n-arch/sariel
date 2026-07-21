@@ -110,8 +110,7 @@ struct ContentView: View {
                             TribunalView(chatService: chatService)
                             
                         case .vent:
-                            Text("Vent — coming soon")
-                                .foregroundStyle(Theme.textMuted)
+                            VentView()
                         }
                     }
                     
