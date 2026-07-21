@@ -243,7 +243,8 @@ struct ContentView: View {
         guard Date().timeIntervalSince(oldest.createdAt) >= Commitment.tribunalUnlockInterval else { return }
         guard lastNotifiedCommitmentIDString != oldest.id.uuidString else { return }
 
-        toastManager.showTribunalUnlocked()
+        // TODO: tribunal-unlocked toast is broken (fires incorrectly / needs rework) — re-enable once fixed
+        // toastManager.showTribunalUnlocked()
         lastNotifiedCommitmentIDString = oldest.id.uuidString
     }
     
