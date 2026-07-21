@@ -37,10 +37,42 @@ final class Commitment {
             .lowercased()
             .hasPrefix("i declare")
     }
+    
+    static let credibilitySampleMinimum = 3
+
+    static func credibilityBand(from commitments: [Commitment]) -> CredibilityBand {
+        let resolved = commitments.filter { $0.commitmentStatus != .pending }
+        guard resolved.count >= credibilitySampleMinimum else { return .insufficientData }
+
+        let fulfilledCount = resolved.filter { $0.commitmentStatus == .fulfilled }.count
+        let percentage = Double(fulfilledCount) / Double(resolved.count) * 100
+
+        switch percentage {
+        case 0..<40: return .poor
+        case 40..<70: return .mixed
+        default: return .solid
+        }
+    }
 }
 
 enum CommitmentStatus: String {
     case pending
     case fulfilled
     case broken
+}
+
+enum CredibilityBand: String {
+    case insufficientData
+    case poor
+    case mixed
+    case solid
+
+    var promptDescription: String {
+        switch self {
+        case .insufficientData: return "not enough resolved declarations yet to judge"
+        case .poor:   return "poor — mostly breaks declared commitments"
+        case .mixed:  return "mixed — sometimes keeps declared commitments, sometimes breaks them"
+        case .solid:  return "solid — mostly keeps declared commitments"
+        }
+    }
 }

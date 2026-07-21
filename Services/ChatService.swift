@@ -197,6 +197,18 @@ final class ChatService: ObservableObject {
         guard let entries = try? modelContext.fetch(descriptor) else { return "" }
         return PromptBuilder.buildJournalContextText(entries: entries)
     }
+    
+    private func fetchCredibilityContextIfEnabled(modelContext: ModelContext) -> String {
+        guard UserDefaults.standard.bool(forKey: "useCredibilityContext") else { return "" }
+
+        let descriptor = FetchDescriptor<Commitment>(
+            predicate: #Predicate<Commitment> { $0.status != "pending" },
+            sortBy: [SortDescriptor(\.resolvedAt)]
+        )
+
+        guard let resolved = try? modelContext.fetch(descriptor) else { return "" }
+        return PromptBuilder.buildCredibilityContextText(resolvedCommitments: resolved)
+    }
 
     func streamGuideResponse(into guideMessage: ChatMessage, history: [ChatMessage], conversation: Conversation, modelContext: ModelContext) async {
         let messages: [OllamaMessage]
