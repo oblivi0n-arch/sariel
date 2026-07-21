@@ -261,7 +261,7 @@ struct SettingsView: View {
         }
     }
 
-    private func resetEverything() {
+    private func resetEverything(skipOnboarding: Bool = false) {
         deleteAll(JournalEntry.self)
         deleteAll(JournalEntryTag.self)
         deleteAll(Conversation.self)
@@ -269,8 +269,8 @@ struct SettingsView: View {
 
         try? modelContext.save()
 
-        hasCompletedOnboarding = false
-        isPostReset = true
+        hasCompletedOnboarding = skipOnboarding
+        isPostReset = !skipOnboarding
 
         host = "http://localhost:11434"
         model = "gemma3:12b"
@@ -345,6 +345,13 @@ struct SettingsView: View {
 
             Button("Backdate pending commitments (unlock Tribunal)") {
                 backdatePendingCommitments()
+            }
+            .font(Typography.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textMuted)
+            
+            Button("Reset data (skip onboarding)") {
+                resetEverything(skipOnboarding: true)
             }
             .font(Typography.caption)
             .buttonStyle(.plain)
