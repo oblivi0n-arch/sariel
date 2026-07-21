@@ -171,7 +171,7 @@ struct ChatView: View {
                         .padding(.top, 12)
                     }
                     
-                    ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, onSend: sendMessage)
+                    ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, isTribunal: conversation.isTribunal, onSend: sendMessage)
                 }
             }
         }

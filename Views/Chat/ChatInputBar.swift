@@ -4,6 +4,7 @@ struct ChatInputBar: View {
     @Binding var draft: String
     let isLocked: Bool
     var isFocused: FocusState<Bool>.Binding
+    let isTribunal: Bool
     let onSend: () -> Void
 
     private var canSend: Bool {
@@ -11,7 +12,7 @@ struct ChatInputBar: View {
     }
     
     private var isDeclaration: Bool {
-        Commitment.isDeclaration(draft)
+        !isTribunal && Commitment.isDeclaration(draft)
     }
 
     var body: some View {
