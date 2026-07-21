@@ -29,6 +29,8 @@ final class Commitment {
         get { CommitmentStatus(rawValue: status) ?? .pending }
         set { status = newValue.rawValue }
     }
+    
+    static let tribunalUnlockInterval: TimeInterval = 7 * 24 * 60 * 60
 
     static func isDeclaration(_ text: String) -> Bool {
         text.trimmingCharacters(in: .whitespacesAndNewlines)

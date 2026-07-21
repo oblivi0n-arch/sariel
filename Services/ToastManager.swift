@@ -6,7 +6,15 @@ final class ToastManager: ObservableObject {
     @Published var toasts: [Toast] = []
 
     func show(entry: JournalEntry) {
-        let toast = Toast(entry: entry)
+        show(kind: .journalEntrySaved(entry))
+    }
+
+    func showTribunalUnlocked() {
+        show(kind: .tribunalUnlocked)
+    }
+
+    private func show(kind: ToastKind) {
+        let toast = Toast(kind: kind)
         toasts.append(toast)
 
         Task {
@@ -19,4 +27,3 @@ final class ToastManager: ObservableObject {
         toasts.removeAll { $0.id == toast.id }
     }
 }
-

@@ -5,6 +5,7 @@ struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") private var isPostReset: Bool = false
     @AppStorage("lastActiveConversationID") private var lastActiveConversationIDString: String = ""
+    @AppStorage("lastNotifiedCommitmentID") private var lastNotifiedCommitmentIDString: String = ""
     @Environment(\.modelContext) private var modelContext
     @Query(
         filter: #Predicate<Conversation> { !$0.isTribunal },
@@ -28,6 +29,7 @@ struct ContentView: View {
     @State private var selectedSection: AppSection = .chat
     @State private var activeEntry: JournalEntry?
     @State private var showSplash = true
+    @State private var tribunalCheckTask: Task<Void, Never>?
     @StateObject private var chatService = ChatService()
     @StateObject private var toastManager = ToastManager()
 
@@ -119,8 +121,13 @@ struct ContentView: View {
                     VStack(alignment: .trailing, spacing: 8) {
                         ForEach(toastManager.toasts) { toast in
                             ToastView(toast: toast) {
-                                activeEntry = toast.entry
-                                selectedSection = .journal
+                                switch toast.kind {
+                                case .journalEntrySaved(let entry):
+                                    activeEntry = entry
+                                    selectedSection = .journal
+                                case .tribunalUnlocked:
+                                    selectedSection = .tribunal
+                                }
                                 toastManager.dismiss(toast)
                             }
                             .transition(.move(edge: .trailing).combined(with: .opacity))
@@ -132,7 +139,13 @@ struct ContentView: View {
             }
             .frame(minWidth: 760, minHeight: 660)
             .background(Theme.background.ignoresSafeArea())
-            .onAppear(perform: setupConversation)
+            .onAppear {
+                setupConversation()
+                startTribunalUnlockChecking()
+            }
+            .onDisappear {
+                tribunalCheckTask?.cancel()
+            }
             .onChange(of: activeConversation) {
                 if let activeConversation {
                     lastActiveConversationIDString = activeConversation.id.uuidString
@@ -188,5 +201,30 @@ struct ContentView: View {
         )
         descriptor.fetchLimit = 1
         return (try? modelContext.fetch(descriptor))?.first
+    }
+    
+    private func checkTribunalUnlock() {
+        var descriptor = FetchDescriptor<Commitment>(
+            predicate: #Predicate<Commitment> { $0.status == "pending" },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        descriptor.fetchLimit = 1
+
+        guard let oldest = try? modelContext.fetch(descriptor).first else { return }
+        guard Date().timeIntervalSince(oldest.createdAt) >= Commitment.tribunalUnlockInterval else { return }
+        guard lastNotifiedCommitmentIDString != oldest.id.uuidString else { return }
+
+        toastManager.showTribunalUnlocked()
+        lastNotifiedCommitmentIDString = oldest.id.uuidString
+    }
+    
+    private func startTribunalUnlockChecking() {
+        tribunalCheckTask?.cancel()
+        tribunalCheckTask = Task {
+            while !Task.isCancelled {
+                checkTribunalUnlock()
+                try? await Task.sleep(nanoseconds: 60_000_000_000) // 60s
+            }
+        }
     }
 }

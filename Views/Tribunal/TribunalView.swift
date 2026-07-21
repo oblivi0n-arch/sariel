@@ -29,12 +29,12 @@ struct TribunalView: View {
     
     private var isUnlocked: Bool {
         guard let oldest = oldestPendingDate else { return false }
-        return Date().timeIntervalSince(oldest) >= unlockInterval
+        return Date().timeIntervalSince(oldest) >= Commitment.tribunalUnlockInterval
     }
     
     private var remainingComponents: (days: Int, hours: Int, minutes: Int)? {
         guard let oldest = oldestPendingDate, !isUnlocked else { return nil }
-        let remaining = max(0, unlockInterval - now.timeIntervalSince(oldest))
+        let remaining = max(0, Commitment.tribunalUnlockInterval - now.timeIntervalSince(oldest))
         let totalMinutes = Int(remaining) / 60
         let days = totalMinutes / (24 * 60)
         let hours = (totalMinutes % (24 * 60)) / 60

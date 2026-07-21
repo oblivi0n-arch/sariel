@@ -1,7 +1,12 @@
 import Foundation
 
+enum ToastKind {
+    case journalEntrySaved(JournalEntry)
+    case tribunalUnlocked
+}
+
 struct Toast: Identifiable {
     let id = UUID()
-    let entry: JournalEntry
+    let kind: ToastKind
     let duration: TimeInterval = 7.0
 }
