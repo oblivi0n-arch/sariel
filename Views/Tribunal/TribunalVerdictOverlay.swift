@@ -11,9 +11,15 @@ struct TribunalVerdictOverlay: View {
                 .ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 16) {
-                Text("The Tribunal's Verdicts")
-                    .font(Typography.title)
-                    .foregroundStyle(Theme.textPrimary)
+                HStack(spacing: 8) {
+                    Image(systemName: "seal.fill")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Color.red.opacity(0.8))
+
+                    Text("The Tribunal's Verdicts")
+                        .font(Typography.title)
+                        .foregroundStyle(Theme.textPrimary)
+                }
 
                 Text("Review each verdict below. Override it if you disagree, then confirm to seal the record.")
                     .font(Typography.caption)
@@ -51,7 +57,9 @@ struct TribunalVerdictOverlay: View {
     }
 
     private func verdictRow(_ verdict: Binding<TribunalVerdict>) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        let isFulfilled = verdict.wrappedValue.proposedStatus == .fulfilled
+
+        return VStack(alignment: .leading, spacing: 8) {
             Text(verdict.wrappedValue.commitment.declarationText)
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textSecondary)
@@ -59,18 +67,47 @@ struct TribunalVerdictOverlay: View {
 
             if !verdict.wrappedValue.reasoning.isEmpty {
                 Text(verdict.wrappedValue.reasoning)
-                    .font(Typography.caption)
-                    .foregroundStyle(Theme.textFaint)
+                    .font(Theme.voiceFont)
+                    .foregroundStyle(Theme.textSecondary)
             }
 
-            Picker("", selection: verdict.proposedStatus) {
-                Text("Fulfilled").tag(CommitmentStatus.fulfilled)
-                Text("Broken").tag(CommitmentStatus.broken)
-            }
-            .pickerStyle(.segmented)
+            statusToggle(verdict)
         }
         .padding(10)
-        .background(Theme.fieldBackground)
+        .background(Theme.background)          // było: Theme.fieldBackground
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(isFulfilled ? Theme.borderStrong : Color.red.opacity(0.5), lineWidth: isFulfilled ? 0.5 : 1)
+                // było: Theme.border zamiast Theme.borderStrong
+        )
+    }
+
+    private func statusToggle(_ verdict: Binding<TribunalVerdict>) -> some View {
+        HStack(spacing: 8) {
+            statusOption("Fulfilled", isSelected: verdict.wrappedValue.proposedStatus == .fulfilled) {
+                verdict.wrappedValue.proposedStatus = .fulfilled
+            }
+            statusOption("Broken", isSelected: verdict.wrappedValue.proposedStatus == .broken) {
+                verdict.wrappedValue.proposedStatus = .broken
+            }
+        }
+    }
+
+    private func statusOption(_ label: String, isSelected: Bool, onTap: @escaping () -> Void) -> some View {
+        let isBroken = label == "Broken"
+
+        return Text(label)
+            .font(Typography.caption)
+            .foregroundStyle(isSelected ? (isBroken ? Color.red.opacity(0.9) : Theme.textPrimary) : Theme.textFaint)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(isSelected && isBroken ? Color.red.opacity(0.12) : Color.clear)
+            .clipShape(Capsule())
+            .overlay(
+                Capsule().stroke(isSelected ? (isBroken ? Color.red.opacity(0.5) : Theme.borderStrong) : Theme.border, lineWidth: 0.5)
+            )
+            .contentShape(Capsule())
+            .onTapGesture(perform: onTap)
     }
 }
