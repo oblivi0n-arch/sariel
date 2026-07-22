@@ -22,6 +22,10 @@ struct BurningTextView: View {
         perCharacterDelay * Double(characters.count) + charAnimationDuration
     }
 
+    private var vignetteOpacity: Double {
+        min(Double(characters.count) / 350.0, 0.8)
+    }
+
     var body: some View {
         ScrollView {
             FlowLayout(spacing: 0) {
@@ -38,12 +42,12 @@ struct BurningTextView: View {
                         )
                 }
             }
-            .padding(24)
+            .padding(20)
         }
         .scrollDisabled(true)
+        .vignette(opacity: vignetteOpacity)
         .onAppear {
             isBurning = true
-
             watchTask = Task {
                 try? await Task.sleep(nanoseconds: UInt64(totalDuration * 1_000_000_000))
                 guard !Task.isCancelled else { return }

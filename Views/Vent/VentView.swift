@@ -73,6 +73,7 @@ struct VentView: View {
                     )
             }
             .buttonStyle(.plain)
+            .hoverScale()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .topTrailing) {
@@ -83,6 +84,7 @@ struct VentView: View {
             }
             .buttonStyle(.plain)
             .padding(20)
+            .hoverScale()
         }
     }
 
@@ -122,19 +124,8 @@ struct VentView: View {
             }
             .padding(.bottom, 30)
         }
-        .overlay { vignetteOverlay }
+        .vignette(opacity: vignetteOpacity)
         .onAppear { isTextFocused = true }
-    }
-
-    private var vignetteOverlay: some View {
-        RadialGradient(
-            colors: [Color.clear, Color.black.opacity(vignetteOpacity)],
-            center: .center,
-            startRadius: 80,
-            endRadius: 420
-        )
-        .allowsHitTesting(false)
-        .animation(.easeInOut(duration: 0.3), value: vignetteOpacity)
     }
 
     private var vignetteOpacity: Double {
@@ -143,15 +134,16 @@ struct VentView: View {
 
     private var aftermathView: some View {
         VStack(spacing: 20) {
+            Spacer()
+
             Text(currentAftermath)
                 .font(Theme.voiceFont)
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 380)
-        }
-        .opacity(currentAftermath.isEmpty ? 0 : 1)
-        .animation(.easeIn(duration: 0.5), value: currentAftermath)
-        .overlay(alignment: .bottom) {
+
+            Spacer()
+
             if !currentAftermath.isEmpty {
                 Button(action: reset) {
                     Text("okay")
@@ -160,8 +152,12 @@ struct VentView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.bottom, 40)
+                .hoverScale()
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .opacity(currentAftermath.isEmpty ? 0 : 1)
+        .animation(.easeIn(duration: 0.5), value: currentAftermath)
     }
 
     private func startWriting() {
@@ -235,6 +231,7 @@ struct VentView: View {
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
+            .hoverScale()
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
@@ -258,6 +255,20 @@ struct VentView: View {
                         .lineSpacing(3)
                 }
             }
+        }
+    }
+}
+
+extension View {
+    func vignette(opacity: Double) -> some View {
+        overlay {
+            RadialGradient(
+                colors: [Color.clear, Color.black.opacity(opacity)],
+                center: .center,
+                startRadius: 80,
+                endRadius: 420
+            )
+            .allowsHitTesting(false)
         }
     }
 }
