@@ -3,13 +3,14 @@ import SwiftUI
 struct ChatInputBar: View {
     @Binding var draft: String
     let isLocked: Bool
+    let isSendBlocked: Bool
     var isFocused: FocusState<Bool>.Binding
     let isTribunal: Bool
     let isDeclarationLimitReached: Bool
     let onSend: () -> Void
 
     private var canSend: Bool {
-        !draft.trimmingCharacters(in: .whitespaces).isEmpty && !isLocked && !isBlockedByLimit
+        !draft.trimmingCharacters(in: .whitespaces).isEmpty && !isSendBlocked && !isBlockedByLimit
     }
 
     private var isDeclaration: Bool {

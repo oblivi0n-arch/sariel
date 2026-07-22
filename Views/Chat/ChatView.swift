@@ -35,6 +35,12 @@ struct ChatView: View {
     var isInputLocked: Bool {
         isGenerating || isEndingConversation || isRevealFinishing || chatService.isGeneratingVerdicts.contains(conversation.id)
     }
+    private var hasUnresolvedError: Bool {
+        lastGuideMessage?.content.hasPrefix("⚠️") == true
+    }
+    var isSendBlocked: Bool {
+        isInputLocked || hasUnresolvedError
+    }
     private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
     private var lastStreamError: String? { chatService.lastErrors[conversation.id] }
     private var lastUserMessage: ChatMessage? {
@@ -183,7 +189,7 @@ struct ChatView: View {
                             .matchedGeometryEffect(id: "sealBanner", in: sealNamespace)
                     }
 
-                    ChatInputBar(draft: $draft, isLocked: isInputLocked, isFocused: $isInputFocused, isTribunal: conversation.isTribunal, isDeclarationLimitReached: isDeclarationLimitReached, onSend: sendMessage)
+                    ChatInputBar(draft: $draft, isLocked: isInputLocked, isSendBlocked: isSendBlocked, isFocused: $isInputFocused, isTribunal: conversation.isTribunal, isDeclarationLimitReached: isDeclarationLimitReached, onSend: sendMessage)
                 }
             }
         }
