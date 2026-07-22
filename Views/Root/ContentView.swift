@@ -40,6 +40,7 @@ struct ContentView: View {
     @State private var tribunalCheckTask: Task<Void, Never>?
     @State private var isGateShown = false
     @State private var hasEvaluatedGate = false
+    @State private var isDimmed = false
     @StateObject private var chatService = ChatService()
     @StateObject private var toastManager = ToastManager()
 
@@ -50,7 +51,8 @@ struct ContentView: View {
                     selectedSection: $selectedSection,
                     isSettingsOpen: $isSettingsOpen,
                     isTribunalLocked: isTribunalInProgress,
-                    isTribunalAwaitingJudgment: isTribunalUnlocked
+                    isTribunalAwaitingJudgment: isTribunalUnlocked,
+                    onSelectSection: switchSection
                 )
                 
                 ZStack {
@@ -120,6 +122,10 @@ struct ContentView: View {
                                 .foregroundStyle(Theme.textMuted)
                         }
                     }
+                    Color.black
+                        .ignoresSafeArea()
+                        .opacity(isDimmed ? 1 : 0)
+                        .allowsHitTesting(isDimmed)
                     
                     if isSettingsOpen {
                         Color.black.opacity(0.5)
@@ -279,6 +285,21 @@ struct ContentView: View {
 
         if isTribunalUnlocked && !isTribunalInProgress {
             isGateShown = true
+        }
+    }
+    
+    private func switchSection(to section: AppSection) {
+        guard section != selectedSection else { return }
+
+        withAnimation(.easeInOut(duration: 0.18)) {
+            isDimmed = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+            selectedSection = section
+            withAnimation(.easeInOut(duration: 0.22)) {
+                isDimmed = false
+            }
         }
     }
 }

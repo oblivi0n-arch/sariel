@@ -6,6 +6,7 @@ struct SidebarView: View {
     @Binding var isSettingsOpen: Bool
     let isTribunalLocked: Bool
     let isTribunalAwaitingJudgment: Bool
+    let onSelectSection: (AppSection) -> Void
 
     var body: some View {
         VStack(spacing: 16) {
@@ -18,7 +19,7 @@ struct SidebarView: View {
                     isLocked: isTribunalLocked && section != .tribunal,
                     showAlertBadge: section == .tribunal && isTribunalAwaitingJudgment,
                     isSolidRed: section == .tribunal && isTribunalLocked,
-                    onTap: { selectedSection = section }
+                    onTap: { onSelectSection(section) }
                 )
             }
 
