@@ -42,12 +42,17 @@ struct ConversationRow: View {
 
                     Spacer(minLength: 0)
 
+                    if conversation.containsCommitments {
+                        Image(systemName: "seal.fill")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textFaint)
+                    }
+
                     if isEnded {
                         Image(systemName: "book.closed")
                             .font(.system(size: 11))
                             .foregroundStyle(Theme.textFaint)
-                    }
-                }
+                    }                }
             }
         }
         .padding(.horizontal, 16)
