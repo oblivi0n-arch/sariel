@@ -28,7 +28,13 @@ struct ChatView: View {
 
     private var isEnded: Bool { conversation.journalEntry != nil || conversation.tribunalResolvedAt != nil }
     var successfulExchangeCount: Int {
-        conversation.messages.filter { $0.messageRole == .guide && $0.isValidExchange }.count
+        let sorted = sortedMessages
+        return sorted.indices.filter { index in
+            let message = sorted[index]
+            guard message.messageRole == .guide, message.isValidExchange else { return false }
+            guard index > 0 else { return false }
+            return sorted[index - 1].messageRole == .user
+        }.count
     }
     var isGenerating: Bool { chatService.generatingConversationIDs.contains(conversation.id) }
     private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
