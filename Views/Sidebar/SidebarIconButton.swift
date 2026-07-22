@@ -5,6 +5,7 @@ struct SidebarIconButton: View {
     let isActive: Bool
     var isLocked: Bool = false
     var showAlertBadge: Bool = false
+    var isSolidRed: Bool = false
     let onTap: () -> Void
 
     @State private var isHovering = false
@@ -14,12 +15,14 @@ struct SidebarIconButton: View {
     }
 
     private var isPulseActive: Bool {
-        showAlertBadge && !effectivelyLocked
+        showAlertBadge && !effectivelyLocked && !isSolidRed
     }
 
     var body: some View {
         Group {
-            if isPulseActive {
+            if isSolidRed && !effectivelyLocked {
+                redIcon()
+            } else if isPulseActive {
                 TimelineView(.periodic(from: .now, by: 1.0 / 30.0)) { context in
                     pulsingIcon(intensity: pulseIntensity(at: context.date))
                 }
@@ -39,7 +42,6 @@ struct SidebarIconButton: View {
         .help(effectivelyLocked ? "End Tribunal session first" : "")
         .focusEffectDisabled()
     }
-
     private func baseIcon() -> some View {
         iconShape(foreground: baseForegroundColor, border: baseBorderColor)
     }

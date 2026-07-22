@@ -17,6 +17,7 @@ struct SidebarView: View {
                     isActive: section == selectedSection,
                     isLocked: isTribunalLocked && section != .tribunal,
                     showAlertBadge: section == .tribunal && isTribunalAwaitingJudgment,
+                    isSolidRed: section == .tribunal && isTribunalLocked,
                     onTap: { selectedSection = section }
                 )
             }
