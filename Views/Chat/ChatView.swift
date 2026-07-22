@@ -42,7 +42,6 @@ struct ChatView: View {
         isInputLocked || hasUnresolvedError
     }
     private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
-    private var lastStreamError: String? { chatService.lastErrors[conversation.id] }
     private var lastUserMessage: ChatMessage? {
         sortedMessages.last(where: { $0.messageRole == .user })
     }
@@ -85,16 +84,13 @@ struct ChatView: View {
     var body: some View {
         contentStack
             .background(Theme.background)
+            .onAppear {
+                guard connectionMonitor.isConnected else { return }
+                triggerAutoRetryIfNeeded()
+            }
             .onChange(of: connectionMonitor.isConnected) { oldValue, newValue in
                 guard newValue, !oldValue else { return }
-                guard lastStreamError != nil, !isInputLocked else { return }
-                if isPendingProvocationStart {
-                    Task { await chatService.retryProvocation(for: conversation, modelContext: modelContext) }
-                } else if isPendingTribunalOpening {
-                    Task { await chatService.retryTribunalOpening(for: conversation, modelContext: modelContext) }
-                } else {
-                    retryLastResponse()
-                }
+                triggerAutoRetryIfNeeded()
             }
             .overlay { moodPromptOverlayContent }
             .overlay { tribunalVerdictOverlayContent }
@@ -360,6 +356,17 @@ struct ChatView: View {
     
     private func retryLastResponse() {
         Task { await chatService.retryLastResponse(for: conversation, modelContext: modelContext) }
+    }
+    
+    private func triggerAutoRetryIfNeeded() {
+        guard hasUnresolvedError, !isInputLocked else { return }
+        if isPendingProvocationStart {
+            Task { await chatService.retryProvocation(for: conversation, modelContext: modelContext) }
+        } else if isPendingTribunalOpening {
+            Task { await chatService.retryTribunalOpening(for: conversation, modelContext: modelContext) }
+        } else {
+            retryLastResponse()
+        }
     }
     
     private func startProvocation() {
