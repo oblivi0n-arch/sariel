@@ -20,52 +20,53 @@ final class ChatService: ObservableObject {
 
     func send(text: String, in conversation: Conversation, modelContext: ModelContext) async {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-
+        
         if !conversation.isTribunal, Commitment.isDeclaration(text) {
             let pendingCount = fetchPendingCommitments(modelContext: modelContext).count
             guard pendingCount < Commitment.maxPendingDeclarations else { return }
         }
-
+        
         let hasSuccessfulExchange = conversation.messages.contains {
             $0.messageRole == .guide && $0.isValidExchange
         }
-
+        
         let userMessage = ChatMessage(role: .user, content: text)
         userMessage.conversation = conversation
         conversation.messages.append(userMessage)
         modelContext.insert(userMessage)
-
+        
         if !conversation.isTribunal, Commitment.isDeclaration(text) {
             let commitment = Commitment(declarationText: text, sourceMessage: userMessage)
             modelContext.insert(commitment)
         }
-
+        
         let guideMessage = ChatMessage(role: .guide, content: "")
         guideMessage.conversation = conversation
         conversation.messages.append(guideMessage)
         modelContext.insert(guideMessage)
-
+        
         try? modelContext.save()
-
+        
         generatingConversationIDs.insert(conversation.id)
         lastErrors[conversation.id] = nil
-
+        
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
             .filter { $0.isValidExchange }
-
+        
         await streamGuideResponse(into: guideMessage, history: Array(history), conversation: conversation, modelContext: modelContext)
-
+        
         generatingConversationIDs.remove(conversation.id)
-
+        
         if !conversation.isTribunal {
             if !hasSuccessfulExchange && !guideMessage.content.hasPrefix("⚠️") {
                 await generateTitle(for: conversation, userText: text, guideText: guideMessage.content, modelContext: modelContext)
             }
-            if !guideMessage.content.hasPrefix("⚠️") {
-                Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
-            }
-        }    }
+        }
+        if !guideMessage.content.hasPrefix("⚠️") {
+            Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
+        }
+    }
 
     private func refreshSummaryIfNeeded(for conversation: Conversation, modelContext: ModelContext) async {
         let sortedMessages = conversation.messages
@@ -219,7 +220,7 @@ final class ChatService: ObservableObject {
         let messages: [OllamaMessage]
         if conversation.isTribunal {
             let pending = fetchPendingCommitments(modelContext: modelContext)
-            messages = PromptBuilder.buildTribunalMessages(history: history, commitments: pending)
+            messages = PromptBuilder.buildTribunalMessages(history: history, commitments: pending, summary: conversation.summary)
         } else {
             let journalContext = fetchJournalContextIfEnabled(modelContext: modelContext)
             let credibilityContext = fetchCredibilityContextIfEnabled(modelContext: modelContext)
@@ -291,9 +292,9 @@ final class ChatService: ObservableObject {
             if !hasSuccessfulExchange, !guideMessage.content.hasPrefix("⚠️"), let userText = precedingUserText {
                 await generateTitle(for: conversation, userText: userText, guideText: guideMessage.content, modelContext: modelContext)
             }
-            if !guideMessage.content.hasPrefix("⚠️") {
-                Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
-            }
+        }
+        if !guideMessage.content.hasPrefix("⚠️") {
+            Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
         }
     }
 }

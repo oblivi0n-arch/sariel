@@ -23,7 +23,7 @@ extension PromptBuilder {
         }.joined(separator: "\n")
     }
 
-    static func buildTribunalMessages(history: [ChatMessage], commitments: [Commitment]) -> [OllamaMessage] {
+    static func buildTribunalMessages(history: [ChatMessage], commitments: [Commitment], summary: String = "") -> [OllamaMessage] {
         var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: tribunalSystemPrompt)]
 
         let context = buildTribunalContextText(commitments: commitments)
@@ -34,7 +34,13 @@ extension PromptBuilder {
             ))
         }
 
-        for message in history {
+        if !summary.isEmpty {
+            messages.append(OllamaMessage(role: "system", content: "Summary of the conversation so far: \(summary)"))
+        }
+
+        let windowSize = summary.isEmpty ? maxHistoryMessages : keepRawMessages
+        let trimmedHistory = history.suffix(windowSize)
+        for message in trimmedHistory {
             let role = message.messageRole == .user ? "user" : "assistant"
             messages.append(OllamaMessage(role: role, content: message.content))
         }
