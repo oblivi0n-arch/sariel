@@ -102,6 +102,13 @@ extension ChatService {
         let lines = trimmed.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: false)
 
         let firstLine = lines.first?.uppercased() ?? ""
+        // TODO: This falls back to `.broken` whenever "FULFILLED" isn't found in the first
+        // line — but that also silently catches malformed/unrecognized model output (e.g.
+        // truncated response, model didn't follow the format), not just a genuine BROKEN
+        // judgment. Should detect FULFILLED and BROKEN as two distinct keywords, treat
+        // "neither found" as a separate `unrecognized` case, and retry the Ollama request
+        // a bounded number of times (e.g. 2 attempts total) before falling back to
+        // failedCount/verdictErrors, same as the existing network-failure path below.
         let status: CommitmentStatus = firstLine.contains("FULFILLED") ? .fulfilled : .broken
         let reasoning = lines.count > 1 ? String(lines[1]).trimmingCharacters(in: .whitespacesAndNewlines) : ""
 
