@@ -7,6 +7,7 @@ struct ConversationListView: View {
     @State private var isSearchHovering = false
     @State private var isSearchExpanded = false
     @State private var searchText = ""
+    @State private var blockedDeletionConversation: Conversation?
     @FocusState private var isSearchFocused: Bool
     let conversations: [Conversation]
     @Binding var activeConversation: Conversation?
@@ -121,9 +122,20 @@ struct ConversationListView: View {
         .overlay(alignment: .trailing) {
             Rectangle().fill(Theme.border).frame(width: 0.5)
         }
+        .alert(item: $blockedDeletionConversation) { conversation in
+            Alert(
+                title: Text("Can't delete this conversation"),
+                message: Text("It contains a declaration the Tribunal has tracked or ruled on. Deleting it would erase part of your accountability record."),
+                dismissButton: .default(Text("OK"))
+            )
+        }
     }
 
     private func delete(_ conversation: Conversation) {
+        guard !conversation.containsCommitments else {
+            blockedDeletionConversation = conversation
+            return
+        }
         if activeConversation?.id == conversation.id {
             activeConversation = conversations.first { $0.id != conversation.id }
         }

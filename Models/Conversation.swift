@@ -20,6 +20,10 @@ final class Conversation {
     
     @Relationship(deleteRule: .nullify, inverse: \JournalEntry.sourceConversation)
     var journalEntry: JournalEntry?
+    
+    var containsCommitments: Bool {
+        messages.contains { $0.commitment != nil }
+    }
 
     init(title: String = "New conversation") {
         self.id = UUID()
