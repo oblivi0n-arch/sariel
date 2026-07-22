@@ -13,9 +13,18 @@ struct VentView: View {
     @State private var textBeingBurned: String = ""
     @State private var currentPrompt: String = VentTexts.prompts.randomElement()!
     @State private var currentAftermath: String = ""
+    @State private var isInfoShown = false
     @FocusState private var isTextFocused: Bool
     
     private let characterLimit = 1000
+    
+    private let ventSteps = [
+        "This is where the thoughts eating you alive from the inside go — not the tidy version, the real one.",
+        "Nothing you write here is saved. Not to this app, not anywhere. There's no draft to come back to.",
+        "There's exactly one way out: burn it. No undo, no edit mid-burn, no saving it for later.",
+        "The fire is just an animation. It doesn't do anything on its own — your belief in it does. Write like it matters, or don't bother.",
+        "Hold back while you write, and you'll walk away carrying exactly what you walked in with."
+    ]
 
     var body: some View {
         ZStack {
@@ -32,8 +41,14 @@ struct VentView: View {
                 aftermathView
             }
         }
+        .overlay {
+            if isInfoShown {
+                infoOverlay
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isInfoShown)
     }
-
+    
     private var invitationView: some View {
         VStack(spacing: 24) {
             Image(systemName: "flame")
@@ -58,6 +73,16 @@ struct VentView: View {
                     )
             }
             .buttonStyle(.plain)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .topTrailing) {
+            Button(action: { isInfoShown = true }) {
+                Image(systemName: "info.circle")
+                    .font(Typography.icon)
+                    .foregroundStyle(Theme.textMuted)
+            }
+            .buttonStyle(.plain)
+            .padding(20)
         }
     }
 
@@ -162,5 +187,77 @@ struct VentView: View {
         currentAftermath = ""
         textBeingBurned = ""
         phase = .invitation
+    }
+    
+    private var infoOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.5)
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture { isInfoShown = false }
+
+            VStack(alignment: .leading, spacing: 0) {
+                infoHeader
+
+                ScrollView {
+                    explanationSteps
+                        .padding(20)
+                }
+            }
+            .frame(maxWidth: 420, maxHeight: 480)
+            .background(Theme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
+            .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
+            .onTapGesture {}
+        }
+        .transition(.opacity.combined(with: .scale(scale: 0.96)))
+    }
+    
+    private var infoHeader: some View {
+        HStack {
+            Image(systemName: "flame")
+                .font(Typography.icon)
+                .foregroundStyle(Theme.textMuted)
+
+            Text("vent")
+                .font(Typography.title)
+                .foregroundStyle(Theme.textPrimary)
+
+            Spacer()
+
+            Button(action: { isInfoShown = false }) {
+                Image(systemName: "xmark")
+                    .font(Typography.iconButton)
+                    .foregroundStyle(Theme.textMuted)
+                    .frame(width: 24, height: 24)
+                    .background(Theme.fieldBackground)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Theme.border).frame(height: 0.5)
+        }
+    }
+
+    private var explanationSteps: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            ForEach(Array(ventSteps.enumerated()), id: \.offset) { index, step in
+                HStack(alignment: .top, spacing: 12) {
+                    Text("\(index + 1)")
+                        .font(Typography.subsectionTitle)
+                        .foregroundStyle(Theme.textFaint)
+                        .frame(width: 20, alignment: .leading)
+
+                    Text(step)
+                        .font(Theme.uiFont)
+                        .foregroundStyle(Theme.textSecondary)
+                        .lineSpacing(3)
+                }
+            }
+        }
     }
 }
