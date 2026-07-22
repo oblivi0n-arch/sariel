@@ -1,6 +1,8 @@
 import SwiftUI
 import SwiftData
 
+// Baseline before Stellaris map hub rework (v2.0.0)
+
 @main
 struct SarielApp: App {
     let container: ModelContainer
