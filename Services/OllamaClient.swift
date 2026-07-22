@@ -53,42 +53,49 @@ struct OllamaClient {
     
     func streamChat(messages: [OllamaMessage]) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
-            Task {
+            let task = Task {
                 do {
                     var request = URLRequest(url: url)
                     request.httpMethod = "POST"
                     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                    
+
                     let body: [String: Any] = [
                         "model": model,
                         "messages": messages.map { ["role": $0.role, "content": $0.content] },
                         "stream": true
                     ]
                     request.httpBody = try JSONSerialization.data(withJSONObject: body)
-                    
+
                     let (bytes, response) = try await URLSession.shared.bytes(for: request)
-                    
+
                     guard let httpResponse = response as? HTTPURLResponse else {
                         throw OllamaError.connectionFailed
                     }
                     guard httpResponse.statusCode == 200 else {
                         throw error(forStatusCode: httpResponse.statusCode)
                     }
-                    
+
                     for try await line in bytes.lines {
+                        try Task.checkCancellation()
                         guard let data = line.data(using: .utf8),
                               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                               let message = json["message"] as? [String: Any],
                               let content = message["content"] as? String else { continue }
-                        
+
                         continuation.yield(content)
                     }
                     continuation.finish()
                 } catch let error as OllamaError {
                     continuation.finish(throwing: error)
+                } catch is CancellationError {
+                    continuation.finish()
                 } catch {
                     continuation.finish(throwing: OllamaError.connectionFailed)
                 }
+            }
+
+            continuation.onTermination = { _ in
+                task.cancel()
             }
         }
     }
