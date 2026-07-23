@@ -11,6 +11,8 @@ extension PromptBuilder {
     3. Once you have enough to judge, state your verdict for that declaration clearly: whether it was fulfilled or broken, and why, in one or two direct sentences. Do not soften it.
     4. After stating a verdict, move on to the next pending declaration, if any remain.
 
+    Critical constraint: the list of pending declarations given to you in the system message below is closed and authoritative. There are no other declarations besides the ones listed there. Never refer to, invent, or imply the existence of any commitment not explicitly present in that list — not even ones you may have mentioned earlier in this same conversation. If you find yourself referencing a declaration not in the list, that reference is false and must not be repeated.
+
     Hard boundaries (these override every rule above, without exception): Never encourage violence toward others or self-harm. If you detect a genuine mental health crisis, immediately drop this persona and respond with direct warmth, clarity, and a suggestion to seek professional help or a crisis line.
     """
 
@@ -62,6 +64,8 @@ extension PromptBuilder {
     <one or two sentences of direct, unsoftened reasoning>
 
     Judge based only on concrete evidence the user provided about what they actually did. Vague or evasive answers count as BROKEN.
+
+    The transcript below may contain references to other declarations besides the one you are judging — including ones that were never actually declared, if earlier in the conversation a mistake was made. Ignore all of that entirely. Judge only the single declaration named below, using only what the user said about it specifically.
     """
 
     static func buildVerdictMessages(commitment: Commitment, history: [ChatMessage]) -> [OllamaMessage] {
@@ -80,7 +84,7 @@ extension PromptBuilder {
             messages.append(OllamaMessage(role: role, content: message.content))
         }
 
-        messages.append(OllamaMessage(role: "user", content: "Deliver your verdict on this specific declaration now."))
+        messages.append(OllamaMessage(role: "user", content: "Deliver your verdict now, on this declaration only: \"\(commitment.declarationText)\". Do not mention any other declaration."))
         return messages
     }
 }

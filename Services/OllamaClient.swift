@@ -100,7 +100,7 @@ struct OllamaClient {
         }
     }
     
-    func complete(messages: [OllamaMessage]) async throws -> String {
+    func complete(messages: [OllamaMessage], think: Bool = false) async throws -> String {
         do {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
@@ -109,10 +109,11 @@ struct OllamaClient {
             let body: [String: Any] = [
                 "model": model,
                 "messages": messages.map { ["role": $0.role, "content": $0.content] },
-                "stream": false
+                "stream": false,
+                "think": think
             ]
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
-
+            
             let (data, response) = try await URLSession.shared.data(for: request)
 
             guard let httpResponse = response as? HTTPURLResponse else {
