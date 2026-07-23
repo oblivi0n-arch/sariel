@@ -68,6 +68,13 @@ extension PromptBuilder {
         var messages: [OllamaMessage] = [OllamaMessage(role: "system", content: tribunalVerdictSystemPrompt)]
         messages.append(OllamaMessage(role: "system", content: "The declaration being judged: \"\(commitment.declarationText)\""))
 
+        if !commitment.failureMeaning.isEmpty {
+            messages.append(OllamaMessage(
+                role: "system",
+                content: "When declaring this, the user was asked what it would mean about them if they failed. They answered: \"\(commitment.failureMeaning)\". If you judge this BROKEN, hold them to their own words — reference what they said this would mean about them, in your reasoning, instead of a generic judgment."
+            ))
+        }
+
         for message in history {
             let role = message.messageRole == .user ? "user" : "assistant"
             messages.append(OllamaMessage(role: role, content: message.content))
