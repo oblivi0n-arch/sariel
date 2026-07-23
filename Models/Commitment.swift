@@ -7,6 +7,7 @@ final class Commitment {
     var declarationText: String
     var createdAt: Date
     var status: String = CommitmentStatus.pending.rawValue
+    var failureMeaning: String = ""
 
     var resolvedAt: Date?
     var verdictReasoning: String?
@@ -18,10 +19,11 @@ final class Commitment {
     @Relationship(deleteRule: .nullify)
     var resolvingConversation: Conversation?
 
-    init(declarationText: String, sourceMessage: ChatMessage? = nil) {
+    init(declarationText: String, failureMeaning: String, sourceMessage: ChatMessage? = nil) {
         self.id = UUID()
         self.declarationText = declarationText
         self.createdAt = Date()
+        self.failureMeaning = failureMeaning
         self.sourceMessage = sourceMessage
     }
 

@@ -8,34 +8,28 @@ struct ToastView: View {
 
     private var icon: String {
         switch toast.kind {
-        case .journalEntrySaved:
-            return "book.closed"
-        case .tribunalUnlocked:
-            return "seal"
-        case .declarationLimitBlocked:
-            return "hand.raised.fill"
+        case .journalEntrySaved: return "book.closed"
+        case .tribunalUnlocked: return "seal"
+        case .declarationLimitBlocked: return "hand.raised.fill"
+        case .declarationRequiresNewMessage: return "hand.raised.fill"
         }
     }
 
     private var title: String {
         switch toast.kind {
-        case .journalEntrySaved(let entry):
-            return entry.title
-        case .tribunalUnlocked:
-            return "The Tribunal awaits"
-        case .declarationLimitBlocked:
-            return "Declaration blocked"
+        case .journalEntrySaved(let entry): return entry.title
+        case .tribunalUnlocked: return "The Tribunal awaits"
+        case .declarationLimitBlocked: return "Declaration blocked"
+        case .declarationRequiresNewMessage: return "Declaration blocked"
         }
     }
 
     private var subtitle: String {
         switch toast.kind {
-        case .journalEntrySaved:
-            return "entry saved"
-        case .tribunalUnlocked:
-            return "a commitment is ready for judgment"
-        case .declarationLimitBlocked:
-            return "resolve one before adding another"
+        case .journalEntrySaved: return "entry saved"
+        case .tribunalUnlocked: return "a commitment is ready for judgment"
+        case .declarationLimitBlocked: return "resolve one before adding another"
+        case .declarationRequiresNewMessage: return "edit into a new message instead"
         }
     }
 

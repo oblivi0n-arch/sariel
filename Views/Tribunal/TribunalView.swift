@@ -71,6 +71,7 @@ struct TribunalView: View {
                     isConversationListOpen: .constant(false),
                     onJournalEntryCreated: { _ in },
                     onDeclarationLimitBlocked: {},
+                    onDeclarationEditBlocked: {},
                     onOpenJournalEntry: { _ in },
                     onBackToTribunal: { activeTribunalConversation = nil },
                     isActive: true

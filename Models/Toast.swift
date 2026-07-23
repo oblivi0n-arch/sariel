@@ -4,6 +4,7 @@ enum ToastKind {
     case journalEntrySaved(JournalEntry)
     case tribunalUnlocked
     case declarationLimitBlocked
+    case declarationRequiresNewMessage
 }
 
 struct Toast: Identifiable {

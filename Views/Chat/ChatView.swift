@@ -20,6 +20,7 @@ struct ChatView: View {
     @State var tribunalVerdicts: [TribunalVerdict] = []
     @State var isVerdictOverlayShown = false
     @State private var justDeclared = false
+    @State private var pendingDeclarationText: String? = nil
 
     @Namespace var sealNamespace
     @State var showSeal = false
@@ -57,6 +58,7 @@ struct ChatView: View {
     
     var onJournalEntryCreated: (JournalEntry) -> Void
     var onDeclarationLimitBlocked: () -> Void
+    var onDeclarationEditBlocked: () -> Void
     var onOpenJournalEntry: (JournalEntry) -> Void
     var onBackToTribunal: () -> Void
     
@@ -72,12 +74,13 @@ struct ChatView: View {
         !conversation.isTribunal && Commitment.isDeclaration(text) && isDeclarationLimitReached
     }
 
-    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onDeclarationLimitBlocked: @escaping () -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, onBackToTribunal: @escaping () -> Void, isActive: Bool) {
+    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onDeclarationLimitBlocked: @escaping () -> Void, onDeclarationEditBlocked: @escaping () -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, onBackToTribunal: @escaping () -> Void, isActive: Bool) {
         self.conversation = conversation
         self._isConversationListOpen = isConversationListOpen
         self.chatService = chatService
         self.onJournalEntryCreated = onJournalEntryCreated
         self.onDeclarationLimitBlocked = onDeclarationLimitBlocked
+        self.onDeclarationEditBlocked = onDeclarationEditBlocked
         self.onOpenJournalEntry = onOpenJournalEntry
         self.onBackToTribunal = onBackToTribunal
         self.isActive = isActive
@@ -99,6 +102,7 @@ struct ChatView: View {
                 triggerAutoRetryIfNeeded()
             }
             .overlay { moodPromptOverlayContent }
+            .overlay { failureMeaningPromptOverlayContent }
             .overlay { tribunalVerdictOverlayContent }
             .overlay { sealCenterOverlayContent }
             .animation(.easeInOut(duration: 0.2), value: isMoodPromptShown)
@@ -213,6 +217,16 @@ struct ChatView: View {
     }
     
     @ViewBuilder
+    private var failureMeaningPromptOverlayContent: some View {
+        if pendingDeclarationText != nil {
+            FailureMeaningPromptView(
+                onSubmit: submitPendingDeclaration,
+                onCancel: cancelPendingDeclaration
+            )
+        }
+    }
+    
+    @ViewBuilder
     private func messageRow(for message: ChatMessage, proxy: ScrollViewProxy) -> some View {
         let isLastUser = message.id == lastUserMessage?.id
         let isStreamingMessage = isGenerating && message.id == lastGuideMessage?.id
@@ -304,15 +318,35 @@ struct ChatView: View {
         let isDeclaringNow = !conversation.isTribunal && Commitment.isDeclaration(text)
         draft = ""
 
-        if isDeclaringNow { justDeclared = true }
+        if isDeclaringNow {
+            pendingDeclarationText = text
+            return
+        }
 
         Task {
             await chatService.send(text: text, in: conversation, modelContext: modelContext)
-            if isDeclaringNow {
-                try? await Task.sleep(nanoseconds: 900_000_000)
-                justDeclared = false
-            }
         }
+    }
+    
+    private func submitPendingDeclaration(failureMeaning: String) {
+        guard let text = pendingDeclarationText else { return }
+        guard !failureMeaning.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+
+        pendingDeclarationText = nil
+        justDeclared = true
+
+        Task {
+            await chatService.send(text: text, failureMeaning: failureMeaning, in: conversation, modelContext: modelContext)
+            try? await Task.sleep(nanoseconds: 900_000_000)
+            justDeclared = false
+        }
+    }
+
+    private func cancelPendingDeclaration() {
+        if let text = pendingDeclarationText {
+            draft = text
+        }
+        pendingDeclarationText = nil
     }
 
     private func endConversation(mood: Mood) {
@@ -353,6 +387,11 @@ struct ChatView: View {
         guard !wouldExceedDeclarationLimit(trimmed) else {
             editingMessageID = nil
             onDeclarationLimitBlocked()
+            return
+        }
+        guard !(!conversation.isTribunal && Commitment.isDeclaration(trimmed)) else {
+            editingMessageID = nil
+            onDeclarationEditBlocked()
             return
         }
         editingMessageID = nil

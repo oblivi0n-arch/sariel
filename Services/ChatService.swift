@@ -18,25 +18,26 @@ final class ChatService: ObservableObject {
         self.client = OllamaClient()
     }
 
-    func send(text: String, in conversation: Conversation, modelContext: ModelContext) async {
+    func send(text: String, failureMeaning: String? = nil, in conversation: Conversation, modelContext: ModelContext) async {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        
+
         if !conversation.isTribunal, Commitment.isDeclaration(text) {
             let pendingCount = fetchPendingCommitments(modelContext: modelContext).count
             guard pendingCount < Commitment.maxPendingDeclarations else { return }
         }
-        
+
         let hasSuccessfulExchange = conversation.messages.contains {
             $0.messageRole == .guide && $0.isValidExchange
         }
-        
+
         let userMessage = ChatMessage(role: .user, content: text)
         userMessage.conversation = conversation
         conversation.messages.append(userMessage)
         modelContext.insert(userMessage)
-        
-        if !conversation.isTribunal, Commitment.isDeclaration(text) {
-            let commitment = Commitment(declarationText: text, sourceMessage: userMessage)
+
+        if !conversation.isTribunal, Commitment.isDeclaration(text),
+           let failureMeaning, !failureMeaning.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let commitment = Commitment(declarationText: text, failureMeaning: failureMeaning, sourceMessage: userMessage)
             modelContext.insert(commitment)
         }
         

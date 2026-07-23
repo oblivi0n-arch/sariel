@@ -30,4 +30,8 @@ final class ToastManager: ObservableObject {
     func showDeclarationLimitBlocked() {
         show(kind: .declarationLimitBlocked)
     }
+    
+    func showDeclarationRequiresNewMessage() {
+        show(kind: .declarationRequiresNewMessage)
+    }
 }

@@ -72,6 +72,9 @@ struct ContentView: View {
                                             onDeclarationLimitBlocked: {
                                                 toastManager.showDeclarationLimitBlocked()
                                             },
+                                            onDeclarationEditBlocked: {
+                                                toastManager.showDeclarationRequiresNewMessage()
+                                            },
                                             onOpenJournalEntry: { entry in
                                                 activeEntry = entry
                                                 selectedSection = .journal
@@ -156,6 +159,8 @@ struct ContentView: View {
                                     selectedSection = .tribunal
                                 case .declarationLimitBlocked:
                                     selectedSection = .tribunal
+                                case .declarationRequiresNewMessage:
+                                    break
                                 }
                                 toastManager.dismiss(toast)
                             }
