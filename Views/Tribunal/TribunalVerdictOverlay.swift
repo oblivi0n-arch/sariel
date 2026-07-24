@@ -16,12 +16,12 @@ struct TribunalVerdictOverlay: View {
                         .font(.system(size: 16))
                         .foregroundStyle(Color.red.opacity(0.8))
 
-                    Text("The Tribunal's Verdicts")
+                    Text(L10n.TribunalVerdictOverlay.title)
                         .font(Typography.title)
                         .foregroundStyle(Theme.textPrimary)
                 }
 
-                Text("Review each verdict below. Override it if you disagree, then confirm to seal the record.")
+                Text(L10n.TribunalVerdictOverlay.subtitle)
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)
 
@@ -35,7 +35,7 @@ struct TribunalVerdictOverlay: View {
                 .frame(maxHeight: 320)
 
                 Button(action: { onConfirm(verdicts) }) {
-                    Text("Confirm and close the Tribunal")
+                    Text(L10n.TribunalVerdictOverlay.confirmButton)
                         .font(Typography.label)
                         .foregroundStyle(Theme.background)
                         .frame(maxWidth: .infinity)
@@ -74,30 +74,27 @@ struct TribunalVerdictOverlay: View {
             statusToggle(verdict)
         }
         .padding(10)
-        .background(Theme.background)          // było: Theme.fieldBackground
+        .background(Theme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
                 .stroke(isFulfilled ? Theme.borderStrong : Color.red.opacity(0.5), lineWidth: isFulfilled ? 0.5 : 1)
-                // było: Theme.border zamiast Theme.borderStrong
         )
     }
 
     private func statusToggle(_ verdict: Binding<TribunalVerdict>) -> some View {
         HStack(spacing: 8) {
-            statusOption("Fulfilled", isSelected: verdict.wrappedValue.proposedStatus == .fulfilled) {
+            statusOption(L10n.TribunalVerdictOverlay.fulfilled, isBroken: false, isSelected: verdict.wrappedValue.proposedStatus == .fulfilled) {
                 verdict.wrappedValue.proposedStatus = .fulfilled
             }
-            statusOption("Broken", isSelected: verdict.wrappedValue.proposedStatus == .broken) {
+            statusOption(L10n.TribunalVerdictOverlay.broken, isBroken: true, isSelected: verdict.wrappedValue.proposedStatus == .broken) {
                 verdict.wrappedValue.proposedStatus = .broken
             }
         }
     }
 
-    private func statusOption(_ label: String, isSelected: Bool, onTap: @escaping () -> Void) -> some View {
-        let isBroken = label == "Broken"
-
-        return Text(label)
+    private func statusOption(_ label: String, isBroken: Bool, isSelected: Bool, onTap: @escaping () -> Void) -> some View {
+        Text(label)
             .font(Typography.caption)
             .foregroundStyle(isSelected ? (isBroken ? Color.red.opacity(0.9) : Theme.textPrimary) : Theme.textFaint)
             .padding(.horizontal, 12)
@@ -109,5 +106,44 @@ struct TribunalVerdictOverlay: View {
             )
             .contentShape(Capsule())
             .onTapGesture(perform: onTap)
+    }
+}
+
+extension L10n {
+    enum TribunalVerdictOverlay {
+        static var title: String {
+            switch lang {
+            case .en: return "The Tribunal's Verdicts"
+            case .pl: return "Wyroki Trybunału"
+            }
+        }
+
+        static var subtitle: String {
+            switch lang {
+            case .en: return "Review each verdict below. Override it if you disagree, then confirm to seal the record."
+            case .pl: return "Przejrzyj poniższe wyroki. Zmień, jeśli się nie zgadzasz, a potem potwierdź, by zapieczętować rozliczenie."
+            }
+        }
+
+        static var confirmButton: String {
+            switch lang {
+            case .en: return "Confirm and close the Tribunal"
+            case .pl: return "Potwierdź i zamknij Trybunał"
+            }
+        }
+
+        static var fulfilled: String {
+            switch lang {
+            case .en: return "Fulfilled"
+            case .pl: return "Dotrzymano"
+            }
+        }
+
+        static var broken: String {
+            switch lang {
+            case .en: return "Broken"
+            case .pl: return "Złamano"
+            }
+        }
     }
 }

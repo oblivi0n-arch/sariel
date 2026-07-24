@@ -12,7 +12,7 @@ struct MoodPromptOverlay: View {
                 .onTapGesture(perform: onCancel)
 
             VStack(spacing: 16) {
-                Text("How are you feeling?")
+                Text(L10n.MoodPrompt.title)
                     .font(Typography.title)
                     .foregroundStyle(Theme.textPrimary)
 
@@ -30,5 +30,16 @@ struct MoodPromptOverlay: View {
             .onTapGesture {}
         }
         .transition(.opacity.combined(with: .scale(scale: 0.96)))
+    }
+}
+
+extension L10n {
+    enum MoodPrompt {
+        static var title: String {
+            switch lang {
+            case .en: return "How are you feeling?"
+            case .pl: return "Jak się czujesz?"
+            }
+        }
     }
 }

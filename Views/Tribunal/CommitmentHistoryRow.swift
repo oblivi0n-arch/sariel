@@ -60,8 +60,25 @@ struct CommitmentHistoryRow: View {
     }
 
     private var statusBadge: some View {
-        Text(isFulfilled ? "Fulfilled" : "Broken")
+        Text(isFulfilled ? L10n.CommitmentHistory.fulfilled : L10n.CommitmentHistory.broken)
             .font(Typography.caption)
             .foregroundStyle(isFulfilled ? Theme.textMuted : Color.red.opacity(0.8))
+    }
+}
+
+extension L10n {
+    enum CommitmentHistory {
+        static var fulfilled: String {
+            switch lang {
+            case .en: return "Fulfilled"
+            case .pl: return "Dotrzymano"
+            }
+        }
+        static var broken: String {
+            switch lang {
+            case .en: return "Broken"
+            case .pl: return "Złamano"
+            }
+        }
     }
 }

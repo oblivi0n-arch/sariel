@@ -11,7 +11,7 @@ struct TribunalGateView: View {
     @State private var isRestVisible = false
 
     private var titleText: String {
-        "The Tribunal awaits."
+        L10n.TribunalGate.title
     }
 
     var body: some View {
@@ -42,13 +42,13 @@ struct TribunalGateView: View {
                 .multilineTextAlignment(.center)
 
                 Group {
-                    Text("\(pendingCount) commitment\(pendingCount == 1 ? "" : "s") await\(pendingCount == 1 ? "s" : "") trial. It will not go away on its own.")
+                    Text(L10n.TribunalGate.pendingMessage(count: pendingCount))
                         .font(Typography.label)
                         .foregroundStyle(Theme.textSecondary)
                         .multilineTextAlignment(.center)
 
                     Button(action: onFaceTribunal) {
-                        Text("Face the Tribunal")
+                        Text(L10n.Tribunal.faceTheTribunal)
                             .font(Typography.label)
                             .foregroundStyle(Color.red.opacity(0.9))
                             .padding(.horizontal, 20)
@@ -60,7 +60,7 @@ struct TribunalGateView: View {
                     .buttonStyle(.plain)
                     .padding(.top, 8)
 
-                    Text("I'll avoid this a little longer")
+                    Text(L10n.TribunalGate.avoidLonger)
                         .font(Typography.label)
                         .foregroundStyle(isDismissHovering ? Theme.textPrimary : Theme.textMuted)
                         .onTapGesture(perform: onDismiss)
@@ -86,6 +86,44 @@ struct TribunalGateView: View {
     private func revealRest() {
         withAnimation(.easeIn(duration: 0.4)) {
             isRestVisible = true
+        }
+    }
+}
+
+extension L10n {
+    enum TribunalGate {
+        static var title: String {
+            switch lang {
+            case .en: return "The Tribunal awaits."
+            case .pl: return "Trybunał czeka."
+            }
+        }
+
+        static var avoidLonger: String {
+            switch lang {
+            case .en: return "I'll avoid this a little longer"
+            case .pl: return "Jeszcze trochę to odłożę"
+            }
+        }
+
+        static func pendingMessage(count: Int) -> String {
+            switch lang {
+            case .en:
+                return "\(count) commitment\(count == 1 ? "" : "s") await\(count == 1 ? "s" : "") trial. It will not go away on its own."
+            case .pl:
+                let lastDigit = count % 10
+                let lastTwoDigits = count % 100
+                let noun: String
+                let verb: String
+                if count == 1 {
+                    noun = "zobowiązanie"; verb = "czeka"
+                } else if (2...4).contains(lastDigit) && !(12...14).contains(lastTwoDigits) {
+                    noun = "zobowiązania"; verb = "czekają"
+                } else {
+                    noun = "zobowiązań"; verb = "czeka"
+                }
+                return "\(count) \(noun) \(verb) na proces. Samo nie zniknie."
+            }
         }
     }
 }

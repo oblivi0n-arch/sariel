@@ -11,7 +11,7 @@ struct TribunalView: View {
     @State private var now: Date = Date()
     @State private var tickTask: Task<Void, Never>?
     @State private var activeTribunalConversation: Conversation?
-    @State private var emptyStateText: String = TribunalView.emptyStateTexts.randomElement()!
+    @State private var emptyStateText: String = L10n.Tribunal.emptyStateTexts.randomElement()!
     
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
     private var pendingCommitments: [Commitment]
@@ -40,27 +40,6 @@ struct TribunalView: View {
         let minutes = totalMinutes % 60
         return (days, hours, minutes)
     }
-    
-    private let tribunalSteps = [
-        "In any conversation, type a message starting with \"I declare\" — it's saved as a commitment.",
-        "A declaration is permanent. It cannot be edited, deleted, or rewound once sent.",
-        "Seven days pass from the oldest unresolved commitment.",
-        "The Tribunal unlocks — it cannot be rushed or skipped.",
-        "You face it and account for what you promised. Nothing is self-approved outside the Tribunal."
-    ]
-    
-    private static let emptyStateTexts = [
-        "Nothing awaits judgment. For now, your word is clean.",
-        "No pending commitments. Keep it that way, or don't — but know which one you're choosing.",
-        "The Tribunal has nothing to try you for. Yet.",
-        "Silence here isn't peace. It's just an absence of promises.",
-        "You haven't declared anything you could break. That's not the same as keeping your word.",
-        "Empty, because you haven't tested yourself. That's worth noticing too.",
-        "No verdicts pending. No proof of anything, either.",
-        "Nothing to answer for right now. Don't mistake that for progress.",
-        "The docket is clear. It won't stay that way if you mean anything you say.",
-        "No one is waiting to judge you today. That was your choice, not an accident."
-    ]
     
     var body: some View {
         Group {
@@ -101,17 +80,17 @@ struct TribunalView: View {
 
             if let percentage = credibilityPercentage {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(Int(percentage.rounded()))% credibility")
+                    Text(L10n.Tribunal.credibilityPercentage(Int(percentage.rounded())))
                         .font(Theme.uiFont)
                         .foregroundStyle(Theme.textPrimary)
 
-                    Text(credibilityBand.rawValue.uppercased())
+                    Text(credibilityBand.displayName.uppercased())
                         .font(Typography.caption)
                         .foregroundStyle(Theme.textFaint)
                         .kerning(0.5)
                 }
             } else {
-                Text("Not enough resolved declarations yet to judge your credibility.")
+                Text(L10n.Tribunal.credibilityInsufficient)
                     .font(Theme.uiFont)
                     .foregroundStyle(Theme.textMuted)
             }
@@ -126,7 +105,7 @@ struct TribunalView: View {
     private var mainTribunalContent: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                Text("Tribunal")
+                Text(L10n.Tribunal.title)
                     .font(Typography.sectionTitle)
                     .foregroundStyle(Theme.textPrimary)
                 
@@ -196,7 +175,7 @@ struct TribunalView: View {
                 .font(Typography.icon)
                 .foregroundStyle(Theme.textMuted)
             
-            Text("tribunal")
+            Text(L10n.Tribunal.infoTitle)
                 .font(Typography.title)
                 .foregroundStyle(Theme.textPrimary)
             
@@ -221,7 +200,7 @@ struct TribunalView: View {
     
     private var explanationSteps: some View {
         VStack(alignment: .leading, spacing: 16) {
-            ForEach(Array(tribunalSteps.enumerated()), id: \.offset) { index, step in
+            ForEach(Array(L10n.Tribunal.steps.enumerated()), id: \.offset) { index, step in
                 HStack(alignment: .top, spacing: 12) {
                     Text("\(index + 1)")
                         .font(Typography.subsectionTitle)
@@ -273,7 +252,7 @@ struct TribunalView: View {
                 .font(.system(size: 20))
                 .foregroundStyle(Color.red.opacity(0.85))
 
-            Text("\(pendingCommitments.count) commitment\(pendingCommitments.count == 1 ? "" : "s") await\(pendingCommitments.count == 1 ? "s" : "") trial")
+            Text(L10n.Tribunal.commitmentsAwaitTrial(count: pendingCommitments.count))
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textPrimary)
         }
@@ -286,7 +265,7 @@ struct TribunalView: View {
     
     private var startButton: some View {
         Button(action: startTribunal) {
-            Text(isStarting ? "Opening..." : "Face the Tribunal")
+            Text(isStarting ? L10n.Tribunal.opening : L10n.Tribunal.faceTheTribunal)
                 .font(Typography.label)
                 .foregroundStyle(Color.red.opacity(0.9))
                 .frame(maxWidth: .infinity)
@@ -320,7 +299,7 @@ struct TribunalView: View {
         VStack(alignment: .leading, spacing: 10) {
             Button(action: toggleHistory) {
                 HStack(spacing: 6) {
-                    Text("HISTORY")
+                    Text(L10n.Tribunal.historyLabel)
                         .font(Typography.caption)
                         .foregroundStyle(Theme.textFaint)
                         .kerning(0.5)
@@ -362,7 +341,7 @@ struct TribunalView: View {
                 .monospacedDigit()
                 .foregroundStyle(Theme.textPrimary)
 
-            Text("days : hours : minutes")
+            Text(L10n.Tribunal.countdownLabel)
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
                 .kerning(0.5)
@@ -380,6 +359,138 @@ struct TribunalView: View {
             while !Task.isCancelled {
                 now = Date()
                 try? await Task.sleep(nanoseconds: 30_000_000_000) // 30s
+            }
+        }
+    }
+}
+
+extension L10n {
+    enum Tribunal {
+        static var title: String {
+            switch lang {
+            case .en: return "Tribunal"
+            case .pl: return "Trybunał"
+            }
+        }
+
+        static var infoTitle: String {
+            switch lang {
+            case .en: return "tribunal"
+            case .pl: return "trybunał"
+            }
+        }
+
+        static func credibilityPercentage(_ value: Int) -> String {
+            switch lang {
+            case .en: return "\(value)% credibility"
+            case .pl: return "\(value)% wiarygodności"
+            }
+        }
+
+        static var credibilityInsufficient: String {
+            switch lang {
+            case .en: return "Not enough resolved declarations yet to judge your credibility."
+            case .pl: return "Za mało rozstrzygniętych deklaracji, by ocenić Twoją wiarygodność."
+            }
+        }
+
+        static var opening: String {
+            switch lang {
+            case .en: return "Opening..."
+            case .pl: return "Otwieranie..."
+            }
+        }
+
+        static var faceTheTribunal: String {
+            switch lang {
+            case .en: return "Face the Tribunal"
+            case .pl: return "Stań przed Trybunałem"
+            }
+        }
+
+        static var historyLabel: String {
+            switch lang {
+            case .en: return "HISTORY"
+            case .pl: return "HISTORIA"
+            }
+        }
+
+        static var countdownLabel: String {
+            switch lang {
+            case .en: return "days : hours : minutes"
+            case .pl: return "dni : godziny : minuty"
+            }
+        }
+
+        static func commitmentsAwaitTrial(count: Int) -> String {
+            switch lang {
+            case .en:
+                return "\(count) commitment\(count == 1 ? "" : "s") await\(count == 1 ? "s" : "") trial"
+            case .pl:
+                let lastDigit = count % 10
+                let lastTwoDigits = count % 100
+                let noun: String
+                let verb: String
+                if count == 1 {
+                    noun = "zobowiązanie"; verb = "czeka"
+                } else if (2...4).contains(lastDigit) && !(12...14).contains(lastTwoDigits) {
+                    noun = "zobowiązania"; verb = "czekają"
+                } else {
+                    noun = "zobowiązań"; verb = "czeka"
+                }
+                return "\(count) \(noun) \(verb) na proces"
+            }
+        }
+
+        static var steps: [String] {
+            switch lang {
+            case .en:
+                return [
+                    "In any conversation, type a message starting with \"I declare\" — it's saved as a commitment.",
+                    "A declaration is permanent. It cannot be edited, deleted, or rewound once sent.",
+                    "Seven days pass from the oldest unresolved commitment.",
+                    "The Tribunal unlocks — it cannot be rushed or skipped.",
+                    "You face it and account for what you promised. Nothing is self-approved outside the Tribunal."
+                ]
+            case .pl:
+                return [
+                    "W dowolnej rozmowie napisz wiadomość zaczynającą się od \"ja deklaruję\" — zostanie zapisana jako zobowiązanie.",
+                    "Deklaracja jest trwała. Po wysłaniu nie można jej edytować, usunąć ani cofnąć.",
+                    "Mija siedem dni od najstarszego nierozstrzygniętego zobowiązania.",
+                    "Trybunał się odblokowuje — nie da się tego przyspieszyć ani pominąć.",
+                    "Stajesz przed nim i rozliczasz się z tego, co obiecałeś. Nic nie jest zatwierdzane samemu poza Trybunałem."
+                ]
+            }
+        }
+
+        static var emptyStateTexts: [String] {
+            switch lang {
+            case .en:
+                return [
+                    "Nothing awaits judgment. For now, your word is clean.",
+                    "No pending commitments. Keep it that way, or don't — but know which one you're choosing.",
+                    "The Tribunal has nothing to try you for. Yet.",
+                    "Silence here isn't peace. It's just an absence of promises.",
+                    "You haven't declared anything you could break. That's not the same as keeping your word.",
+                    "Empty, because you haven't tested yourself. That's worth noticing too.",
+                    "No verdicts pending. No proof of anything, either.",
+                    "Nothing to answer for right now. Don't mistake that for progress.",
+                    "The docket is clear. It won't stay that way if you mean anything you say.",
+                    "No one is waiting to judge you today. That was your choice, not an accident."
+                ]
+            case .pl:
+                return [
+                    "Nic nie czeka na osąd. Na razie masz czyste sumienie.",
+                    "Brak zobowiązań w toku. Niech tak zostanie, albo nie — ale wiedz, co właśnie wybierasz.",
+                    "Trybunał nie ma za co Cię sądzić. Na razie.",
+                    "Cisza tutaj to nie spokój. To po prostu brak obietnic.",
+                    "Niczego nie zadeklarowałeś, więc nie masz czego złamać. To nie to samo, co dotrzymywanie słowa.",
+                    "Pusto, bo się nie sprawdziłeś. To też warto zauważyć.",
+                    "Brak wyroków w toku. Ale też brak jakiegokolwiek dowodu na cokolwiek.",
+                    "Nie masz się teraz z czego rozliczyć. Nie myl tego z postępem.",
+                    "Rejestr jest czysty. Nie zostanie taki, jeśli naprawdę myślisz to, co mówisz.",
+                    "Nikt dziś na Ciebie nie czeka z wyrokiem. To był Twój wybór, nie przypadek."
+                ]
             }
         }
     }

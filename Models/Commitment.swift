@@ -36,9 +36,8 @@ final class Commitment {
     static let maxPendingDeclarations = 3
 
     static func isDeclaration(_ text: String) -> Bool {
-        text.trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-            .hasPrefix("i declare")
+        let normalized = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return L10n.Declaration.allPrefixVariants.contains { normalized.hasPrefix($0) }
     }
     
     static let credibilitySampleMinimum = 3
@@ -84,6 +83,57 @@ enum CredibilityBand: String {
         case .poor:   return "poor — mostly breaks declared commitments"
         case .mixed:  return "mixed — sometimes keeps declared commitments, sometimes breaks them"
         case .solid:  return "solid — mostly keeps declared commitments"
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .insufficientData: return L10n.Credibility.insufficientData
+        case .poor: return L10n.Credibility.poor
+        case .mixed: return L10n.Credibility.mixed
+        case .solid: return L10n.Credibility.solid
+        }
+    }
+}
+
+extension L10n {
+    enum Declaration {
+        static func prefix(for language: AppLanguage) -> String {
+            switch language {
+            case .en: return "i declare"
+            case .pl: return "ja deklaruję"
+            }
+        }
+
+        static var allPrefixVariants: [String] {
+            AppLanguage.allCases.map { prefix(for: $0) }
+        }
+    }
+
+    enum Credibility {
+        static var insufficientData: String {
+            switch lang {
+            case .en: return "insufficient data"
+            case .pl: return "za mało danych"
+            }
+        }
+        static var poor: String {
+            switch lang {
+            case .en: return "poor"
+            case .pl: return "słaba"
+            }
+        }
+        static var mixed: String {
+            switch lang {
+            case .en: return "mixed"
+            case .pl: return "mieszana"
+            }
+        }
+        static var solid: String {
+            switch lang {
+            case .en: return "solid"
+            case .pl: return "solidna"
+            }
         }
     }
 }

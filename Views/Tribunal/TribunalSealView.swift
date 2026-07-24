@@ -6,7 +6,7 @@ struct TribunalSealBanner: View {
     @State private var isIconVisible = false
     @State private var isTextStarted = false
 
-    private let message = "everything here is sealed the moment it leaves your draft. no edits, no rewinds."
+    private var message: String { L10n.TribunalSeal.message }
 
     var body: some View {
         VStack(spacing: isDocked ? 6 : 12) {
@@ -49,6 +49,17 @@ struct TribunalSealBanner: View {
             Task {
                 try? await Task.sleep(nanoseconds: 300_000_000)
                 isTextStarted = true
+            }
+        }
+    }
+}
+
+extension L10n {
+    enum TribunalSeal {
+        static var message: String {
+            switch lang {
+            case .en: return "everything here is sealed the moment it leaves your draft. no edits, no rewinds."
+            case .pl: return "wszystko tutaj zostaje zapieczętowane w momencie wysłania. bez edycji, bez cofania."
             }
         }
     }
