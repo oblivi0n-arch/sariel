@@ -113,13 +113,6 @@ struct MessageBubble: View {
                             bubbleShape.fill(Color.red.opacity(stampFlashOpacity))
                         }
                     }
-                    .overlay(alignment: .leading) {
-                        if isGuide {
-                            Rectangle()
-                                .fill(isTribunalMessage ? Color.red.opacity(0.6) : Theme.borderStrong)
-                                .frame(width: 2)
-                        }
-                    }
             }
         }
         .frame(maxWidth: 420, alignment: isGuide ? .leading : .trailing)
@@ -302,7 +295,7 @@ struct MessageBubble: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(isTribunalMessage ? Color.red.opacity(0.4) : Theme.borderStrong, lineWidth: isTribunalMessage ? 1 : 1)
+                .stroke(isTribunalMessage ? Color.red.opacity(0.4) : Theme.borderStrong, lineWidth: isTribunalMessage ? 1.2 : 1)
         )
     }
 
