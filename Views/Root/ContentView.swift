@@ -121,7 +121,7 @@ struct ContentView: View {
                             TribunalView(chatService: chatService)
                         }
                     }
-                    Color.black
+                    Theme.background
                         .ignoresSafeArea()
                         .opacity(isDimmed ? 1 : 0)
                         .allowsHitTesting(isDimmed)
