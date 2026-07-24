@@ -94,6 +94,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     appearanceSection
                     languageSection
+                    keyboardShortcutsSection
                     ollamaSection
                     contextSection
                     credibilitySection
@@ -453,6 +454,39 @@ struct SettingsView: View {
         .buttonStyle(.plain)
     }
     
+    private var keyboardShortcutsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(icon: "keyboard", title: L10n.Settings.shortcutsSectionTitle) {
+                EmptyView()
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                shortcutRow(keys: "⌘1", label: L10n.Sections.chat)
+                shortcutRow(keys: "⌘2", label: L10n.Sections.journal)
+                shortcutRow(keys: "⌘3", label: L10n.Sections.tribunal)
+            }
+        }
+    }
+
+    private func shortcutRow(keys: String, label: String) -> some View {
+        HStack {
+            Text(label)
+                .font(Theme.uiFont)
+                .foregroundStyle(Theme.textSecondary)
+
+            Spacer()
+
+            Text(keys)
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Theme.fieldBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 5))
+                .overlay(RoundedRectangle(cornerRadius: 5).stroke(Theme.border, lineWidth: 0.5))
+        }
+    }
+    
     // MARK: DEBUG ONLY
     private var debugOnboardingSection: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -747,6 +781,13 @@ extension L10n {
             switch lang {
             case .en: return "When enabled, Sariel starts the Ollama server in the background on launch if it isn't already running, and stops it when Sariel quits. Requires Ollama installed via Homebrew or the official installer."
             case .pl: return "Po włączeniu tej opcji, Sariel uruchamia serwer Ollamy w tle przy starcie, jeśli jeszcze nie działa, i zatrzymuje go przy zamknięciu Sariela. Wymaga Ollamy zainstalowanej przez Homebrew lub oficjalny instalator."
+            }
+        }
+        
+        static var shortcutsSectionTitle: String {
+            switch lang {
+            case .en: return "KEYBOARD SHORTCUTS"
+            case .pl: return "SKRÓTY KLAWISZOWE"
             }
         }
     }

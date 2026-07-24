@@ -143,6 +143,17 @@ struct ContentView: View {
                             .transition(.opacity.combined(with: .scale(scale: 0.96)))
                     }
                 }
+                .background {
+                    Button("") { switchSection(to: .chat) }
+                        .keyboardShortcut("1", modifiers: .command)
+                        .hidden()
+                    Button("") { switchSection(to: .journal) }
+                        .keyboardShortcut("2", modifiers: .command)
+                        .hidden()
+                    Button("") { switchSection(to: .tribunal) }
+                        .keyboardShortcut("3", modifiers: .command)
+                        .hidden()
+                }
                 .overlay(alignment: .topTrailing) {
                     VStack(alignment: .trailing, spacing: 8) {
                         ForEach(toastManager.toasts) { toast in
@@ -306,6 +317,29 @@ struct ContentView: View {
             selectedSection = section
             withAnimation(.easeInOut(duration: 0.22)) {
                 isDimmed = false
+            }
+        }
+    }
+}
+
+extension L10n {
+    enum Sections {
+        static var chat: String {
+            switch lang {
+            case .en: return "Chat"
+            case .pl: return "Czat"
+            }
+        }
+        static var journal: String {
+            switch lang {
+            case .en: return "Journal"
+            case .pl: return "Dziennik"
+            }
+        }
+        static var tribunal: String {
+            switch lang {
+            case .en: return "Tribunal"
+            case .pl: return "Trybunał"
             }
         }
     }
