@@ -1,11 +1,43 @@
 import SwiftUI
-
+import SwiftData
 struct DashboardView: View {
     @AppStorage("username") private var username: String = ""
     @AppStorage("dashboardGreetingIndex") private var greetingIndex: Int = 0
     @AppStorage("dashboardGreetingDate") private var greetingDateString: String = ""
+    @Query(sort: \JournalEntry.createdAt, order: .reverse)
+    private var journalEntries: [JournalEntry]
 
     @State private var greetingText: String = ""
+    
+    private var currentStreak: Int {
+        let calendar = Calendar.current
+        let uniqueDays = Set(journalEntries.map { calendar.startOfDay(for: $0.createdAt) })
+        guard !uniqueDays.isEmpty else { return 0 }
+
+        let today = calendar.startOfDay(for: Date())
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+
+        var dayToCheck = uniqueDays.contains(today) ? today : yesterday
+        guard uniqueDays.contains(dayToCheck) else { return 0 }
+
+        var streak = 0
+        while uniqueDays.contains(dayToCheck) {
+            streak += 1
+            guard let previousDay = calendar.date(byAdding: .day, value: -1, to: dayToCheck) else { break }
+            dayToCheck = previousDay
+        }
+        return streak
+    }
+    
+    private var lastActivityText: String {
+        guard let mostRecent = journalEntries.first?.createdAt else {
+            return L10n.Dashboard.noActivityYet
+        }
+        let formatter = RelativeDateTimeFormatter()
+        formatter.locale = Locale(identifier: L10n.lang == .pl ? "pl_PL" : "en_US")
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: mostRecent, relativeTo: Date())
+    }
 
     var body: some View {
         ZStack {
@@ -24,9 +56,9 @@ struct DashboardView: View {
                     GridItem(.flexible()),
                     GridItem(.flexible())
                 ], spacing: 12) {
-                    DashboardStatCard(label: L10n.Dashboard.lastActivityLabel, value: "3 godz. temu")
-                    DashboardStatCard(label: L10n.Dashboard.streakLabel, value: "7 dni")
-                    DashboardStatCard(label: L10n.Dashboard.journalEntriesLabel, value: "24")
+                    DashboardStatCard(label: L10n.Dashboard.lastActivityLabel, value: lastActivityText)
+                    DashboardStatCard(label: L10n.Dashboard.streakLabel, value: L10n.Dashboard.streakValue(currentStreak))
+                    DashboardStatCard(label: L10n.Dashboard.journalEntriesLabel, value: "\(journalEntries.count)")
                 }
                 Spacer()
             }
@@ -107,6 +139,20 @@ extension L10n {
             switch lang {
             case .pl: return "WPISY W DZIENNIKU"
             case .en: return "JOURNAL ENTRIES"
+            }
+        }
+        
+        static func streakValue(_ days: Int) -> String {
+            switch lang {
+            case .en: return days == 1 ? "1 day" : "\(days) days"
+            case .pl: return days == 1 ? "1 dzień" : "\(days) dni"
+            }
+        }
+
+        static var noActivityYet: String {
+            switch lang {
+            case .en: return "No activity yet"
+            case .pl: return "Brak aktywności"
             }
         }
     }
