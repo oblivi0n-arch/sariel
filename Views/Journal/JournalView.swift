@@ -56,7 +56,7 @@ struct JournalView: View {
                     .buttonStyle(.plain)
                 }
 
-                Text("Journal")
+                Text(L10n.Journal.title)
                     .font(Typography.sectionTitle)
                     .foregroundStyle(Theme.textPrimary)
                 
@@ -66,7 +66,7 @@ struct JournalView: View {
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(Theme.textFaint)
 
-                        TextField("Search entries", text: $searchText)
+                        TextField(L10n.Journal.searchPlaceholder, text: $searchText)
                             .textFieldStyle(.plain)
                             .font(Typography.label)
                             .foregroundStyle(Theme.textSecondary)
@@ -170,11 +170,11 @@ struct JournalView: View {
     
     private var emptyState: some View {
         VStack(spacing: 6) {
-            Text("No entries yet")
+            Text(L10n.Journal.emptyStateTitle)
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textMuted)
 
-            Text("Tap + to write your first one")
+            Text(L10n.Journal.emptyStateSubtitle)
                 .font(Typography.label)
                 .foregroundStyle(Theme.textFaint)
         }
@@ -184,7 +184,7 @@ struct JournalView: View {
     private func goBack() {
         if let entry = activeEntry {
             let trimmedTitle = entry.title.trimmingCharacters(in: .whitespacesAndNewlines)
-            let isEffectivelyEmpty = (trimmedTitle.isEmpty || trimmedTitle == "New entry") && entry.content.isEmpty
+            let isEffectivelyEmpty = (trimmedTitle.isEmpty || L10n.Journal.allNewEntryTitleVariants.contains(trimmedTitle)) && entry.content.isEmpty
             if isEffectivelyEmpty {
                 let tags = entry.tags
                 modelContext.delete(entry)
@@ -203,6 +203,51 @@ struct JournalView: View {
             selectedTagIDs.remove(tag.id)
         } else {
             selectedTagIDs.insert(tag.id)
+        }
+    }
+}
+
+extension L10n {
+    enum Journal {
+        static var title: String {
+            switch lang {
+            case .en: return "Journal"
+            case .pl: return "Dziennik"
+            }
+        }
+
+        static var searchPlaceholder: String {
+            switch lang {
+            case .en: return "Search entries"
+            case .pl: return "Szukaj wpisów"
+            }
+        }
+
+        static var emptyStateTitle: String {
+            switch lang {
+            case .en: return "No entries yet"
+            case .pl: return "Brak wpisów"
+            }
+        }
+
+        static var emptyStateSubtitle: String {
+            switch lang {
+            case .en: return "Tap + to write your first one"
+            case .pl: return "Dotknij +, aby napisać pierwszy wpis"
+            }
+        }
+
+        static func newEntryTitle(for language: AppLanguage) -> String {
+            switch language {
+            case .en: return "New entry"
+            case .pl: return "Nowy wpis"
+            }
+        }
+
+        static var newEntryTitle: String { newEntryTitle(for: lang) }
+
+        static var allNewEntryTitleVariants: [String] {
+            AppLanguage.allCases.map { newEntryTitle(for: $0) }
         }
     }
 }

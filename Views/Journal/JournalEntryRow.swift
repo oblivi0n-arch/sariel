@@ -9,7 +9,9 @@ struct JournalEntryRow: View {
     @State private var isHovering = false
     
     private var isProvocationEntry: Bool {
-        entry.tags.contains { $0.name.caseInsensitiveCompare("provocation") == .orderedSame }
+        entry.tags.contains { tag in
+            L10n.Provocation.allTagNameVariants.contains { tag.name.caseInsensitiveCompare($0) == .orderedSame }
+        }
     }
 
     var body: some View {
@@ -74,11 +76,34 @@ struct JournalEntryRow: View {
         .onHover { isHovering = $0 }
         .contextMenu {
             Button(action: onTogglePin) {
-                Label(entry.isPinned ? "Unpin" : "Pin", systemImage: entry.isPinned ? "pin.slash" : "pin")
+                Label(entry.isPinned ? L10n.JournalRow.unpin : L10n.JournalRow.pin, systemImage: entry.isPinned ? "pin.slash" : "pin")
             }
 
             Button(role: .destructive, action: onDelete) {
-                Label("Delete", systemImage: "trash")
+                Label(L10n.JournalRow.delete, systemImage: "trash")
+            }
+        }
+    }
+}
+
+extension L10n {
+    enum JournalRow {
+        static var unpin: String {
+            switch lang {
+            case .en: return "Unpin"
+            case .pl: return "Odepnij"
+            }
+        }
+        static var pin: String {
+            switch lang {
+            case .en: return "Pin"
+            case .pl: return "Przypnij"
+            }
+        }
+        static var delete: String {
+            switch lang {
+            case .en: return "Delete"
+            case .pl: return "Usuń"
             }
         }
     }

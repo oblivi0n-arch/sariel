@@ -51,7 +51,7 @@ struct JournalEntryReader: View {
                 HStack(spacing: 6) {
                     Image(systemName: entry.entryMood.symbolName)
                         .font(Typography.iconSmall)
-                    Text(entry.entryMood.rawValue)
+                    Text(entry.entryMood.displayName)
                         .font(Typography.caption)
                 }
                 .foregroundStyle(Theme.textFaint)
@@ -107,7 +107,7 @@ struct JournalEntryReader: View {
                 Button(action: { onOpenConversation(conversation) }) {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.up.right")
-                        Text("View conversation")
+                        Text(L10n.JournalDetail.viewConversation)
                     }
                     .font(.system(size: 12))
                     .foregroundStyle(Theme.textMuted)
@@ -120,5 +120,16 @@ struct JournalEntryReader: View {
     private func togglePin() {
         entry.isPinned.toggle()
         try? modelContext.save()
+    }
+}
+
+extension L10n {
+    enum JournalDetail {
+        static var viewConversation: String {
+            switch lang {
+            case .en: return "View conversation"
+            case .pl: return "Zobacz rozmowę"
+            }
+        }
     }
 }

@@ -12,7 +12,7 @@ struct MoodOption: View {
             Image(systemName: mood.symbolName)
                 .font(Typography.icon)
 
-            Text(mood.rawValue)
+            Text(mood.displayName)
                 .font(.system(size: 9))
         }
         .foregroundStyle(foregroundColor)

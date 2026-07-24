@@ -12,7 +12,7 @@ final class JournalEntry {
     var sourceConversation: Conversation?
     @Relationship(inverse: \JournalEntryTag.entries) var tags: [JournalEntryTag] = []
 
-    init(title: String = "New entry", content: String = "", mood: Mood = .neutral) {
+    init(title: String = L10n.Journal.newEntryTitle, content: String = "", mood: Mood = .neutral) {
         self.id = UUID()
         self.title = title
         self.content = content
@@ -46,6 +46,53 @@ enum Mood: String, CaseIterable {
         case .neutral: 0.5
         case .bad:     0.3
         case .awful:   0.15
+        }
+    }
+}
+
+extension Mood {
+    var displayName: String {
+        switch self {
+        case .great: return L10n.Mood.great
+        case .good: return L10n.Mood.good
+        case .neutral: return L10n.Mood.neutral
+        case .bad: return L10n.Mood.bad
+        case .awful: return L10n.Mood.awful
+        }
+    }
+}
+
+extension L10n {
+    enum Mood {
+        static var great: String {
+            switch lang {
+            case .en: return "great"
+            case .pl: return "świetnie"
+            }
+        }
+        static var good: String {
+            switch lang {
+            case .en: return "good"
+            case .pl: return "dobrze"
+            }
+        }
+        static var neutral: String {
+            switch lang {
+            case .en: return "neutral"
+            case .pl: return "neutralnie"
+            }
+        }
+        static var bad: String {
+            switch lang {
+            case .en: return "bad"
+            case .pl: return "źle"
+            }
+        }
+        static var awful: String {
+            switch lang {
+            case .en: return "awful"
+            case .pl: return "okropnie"
+            }
         }
     }
 }

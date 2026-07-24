@@ -58,11 +58,28 @@ extension ChatService {
     func provocationTag(modelContext: ModelContext) -> JournalEntryTag {
         let descriptor = FetchDescriptor<JournalEntryTag>()
         if let allTags = try? modelContext.fetch(descriptor),
-           let existing = allTags.first(where: { $0.name.caseInsensitiveCompare("provocation") == .orderedSame }) {
+           let existing = allTags.first(where: { $0.name.caseInsensitiveCompare(L10n.Provocation.tagName) == .orderedSame }) {
             return existing
         }
-        let tag = JournalEntryTag(name: "provocation")
+        let tag = JournalEntryTag(name: L10n.Provocation.tagName)
         modelContext.insert(tag)
         return tag
+    }
+}
+
+extension L10n {
+    enum Provocation {
+        static func tagName(for language: AppLanguage) -> String {
+            switch language {
+            case .en: return "provocation"
+            case .pl: return "prowokacja"
+            }
+        }
+
+        static var tagName: String { tagName(for: lang) }
+
+        static var allTagNameVariants: [String] {
+            AppLanguage.allCases.map { tagName(for: $0) }
+        }
     }
 }

@@ -18,9 +18,9 @@ struct JournalEntryEditor: View {
         VStack(alignment: .leading, spacing: 20) {
             editingBadge
 
-            section(label: "entry") {
+            section(label: L10n.JournalEditor.entrySectionLabel) {
                 VStack(alignment: .leading, spacing: 0) {
-                    TextField("Title", text: $entry.title)
+                    TextField(L10n.JournalEditor.titlePlaceholder, text: $entry.title)
                         .textFieldStyle(.plain)
                         .font(Typography.title)
                         .foregroundStyle(Theme.textPrimary)
@@ -35,7 +35,7 @@ struct JournalEntryEditor: View {
 
                     ZStack(alignment: .topLeading) {
                         if entry.content.isEmpty {
-                            Text("Write freely...")
+                            Text(L10n.JournalEditor.contentPlaceholder)
                                 .font(Theme.uiFont)
                                 .foregroundStyle(Theme.textFaint)
                                 .padding(.horizontal, 14)
@@ -63,14 +63,14 @@ struct JournalEntryEditor: View {
                 }
             }
 
-            section(label: "mood") {
+            section(label: L10n.JournalEditor.moodSectionLabel) {
                 MoodPicker(selection: Binding(
                     get: { entry.entryMood },
                     set: { entry.entryMood = $0 }
                 ))
             }
 
-            section(label: "tags") {
+            section(label: L10n.JournalEditor.tagsSectionLabel) {
                 VStack(alignment: .leading, spacing: 8) {
                     if !entry.tags.isEmpty {
                         HStack {
@@ -92,7 +92,7 @@ struct JournalEntryEditor: View {
                         }
                     }
 
-                    TextField("Add tag", text: $newTagText)
+                    TextField(L10n.JournalEditor.addTagPlaceholder, text: $newTagText)
                         .textFieldStyle(.plain)
                         .font(Typography.label)
                         .foregroundStyle(Theme.textSecondary)
@@ -110,7 +110,7 @@ struct JournalEntryEditor: View {
         HStack(spacing: 6) {
             Image(systemName: "pencil")
                 .font(.system(size: 10, weight: .medium))
-            Text("editing")
+            Text(L10n.JournalEditor.editingBadge)
                 .font(Typography.caption)
         }
         .foregroundStyle(Theme.textFaint)
@@ -186,3 +186,55 @@ struct MoodPicker: View {
     }
 }
 
+extension L10n {
+    enum JournalEditor {
+        static var entrySectionLabel: String {
+            switch lang {
+            case .en: return "entry"
+            case .pl: return "wpis"
+            }
+        }
+
+        static var moodSectionLabel: String {
+            switch lang {
+            case .en: return "mood"
+            case .pl: return "nastrój"
+            }
+        }
+
+        static var tagsSectionLabel: String {
+            switch lang {
+            case .en: return "tags"
+            case .pl: return "tagi"
+            }
+        }
+
+        static var editingBadge: String {
+            switch lang {
+            case .en: return "editing"
+            case .pl: return "edycja"
+            }
+        }
+
+        static var titlePlaceholder: String {
+            switch lang {
+            case .en: return "Title"
+            case .pl: return "Tytuł"
+            }
+        }
+
+        static var contentPlaceholder: String {
+            switch lang {
+            case .en: return "Write freely..."
+            case .pl: return "Pisz swobodnie..."
+            }
+        }
+
+        static var addTagPlaceholder: String {
+            switch lang {
+            case .en: return "Add tag"
+            case .pl: return "Dodaj tag"
+            }
+        }
+    }
+}
