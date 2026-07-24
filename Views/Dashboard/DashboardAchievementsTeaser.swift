@@ -22,7 +22,7 @@ struct DashboardAchievementsTeaser: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity)
-            .background(Theme.fieldBackground)
+            .background(Theme.background)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.border, lineWidth: 0.5))
         }
