@@ -352,13 +352,59 @@ struct SettingsView: View {
                 EmptyView()
             }
 
-            Picker("", selection: $themeManager.current) {
-                ForEach(AppTheme.allCases, id: \.self) { theme in
-                    Text(theme.rawValue.capitalized).tag(theme)
-                }
+            Toggle(isOn: $themeManager.followSystem) {
+                Text("Match system appearance")
+                    .font(Theme.uiFont)
+                    .foregroundStyle(Theme.textPrimary)
             }
-            .pickerStyle(.segmented)
+            .toggleStyle(.switch)
+            .tint(Theme.textPrimary)
+
+            themeSwatchPicker
+                .opacity(themeManager.followSystem ? 0.4 : 1)
+                .disabled(themeManager.followSystem)
+
+            Text("When enabled, Sariel follows macOS's light/dark setting automatically and the choice above is ignored.")
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
         }
+    }
+    
+    private var themeSwatchPicker: some View {
+        HStack(spacing: 14) {
+            themeSwatch(for: .dark, label: "Dark", fill: .black)
+            themeSwatch(for: .light, label: "Light", fill: .white)
+        }
+    }
+
+    private func themeSwatch(for theme: AppTheme, label: String, fill: Color) -> some View {
+        let isSelected = themeManager.current == theme
+
+        return Button(action: { themeManager.current = theme }) {
+            VStack(spacing: 6) {
+                Circle()
+                    .fill(fill)
+                    .frame(width: 32, height: 32)
+                    .overlay(
+                        Circle().stroke(
+                            isSelected ? Color.red.opacity(0.8) : Theme.border,
+                            lineWidth: isSelected ? 2 : 0.5
+                        )
+                    )
+                    .overlay {
+                        if isSelected {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(theme == .dark ? .white : .black)
+                        }
+                    }
+
+                Text(label)
+                    .font(Typography.caption)
+                    .foregroundStyle(Theme.textMuted)
+            }
+        }
+        .buttonStyle(.plain)
     }
     
     // MARK: DEBUG ONLY

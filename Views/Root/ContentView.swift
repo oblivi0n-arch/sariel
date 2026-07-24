@@ -3,6 +3,7 @@ import SwiftData
 
 struct ContentView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
+    @Environment(\.colorScheme) private var systemColorScheme
     
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") private var isPostReset: Bool = false
@@ -175,6 +176,12 @@ struct ContentView: View {
             }
             .frame(minWidth: 760, minHeight: 660)
             .background(Theme.background.ignoresSafeArea())
+            .onAppear {
+                themeManager.updateSystemColorScheme(systemColorScheme)
+            }
+            .onChange(of: systemColorScheme) { _, newValue in
+                themeManager.updateSystemColorScheme(newValue)
+            }
             .onAppear {
                 setupConversation()
                 startTribunalUnlockChecking()

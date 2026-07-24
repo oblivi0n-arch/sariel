@@ -15,14 +15,33 @@ final class ThemeManager: ObservableObject {
         }
     }
 
+    @Published var followSystem: Bool {
+        didSet {
+            UserDefaults.standard.set(followSystem, forKey: "appThemeFollowsSystem")
+        }
+    }
+
+    @Published private(set) var systemColorScheme: ColorScheme = .dark
+
+    var resolved: AppTheme {
+        guard followSystem else { return current }
+        return systemColorScheme == .dark ? .dark : .light
+    }
+
     private init() {
         let saved = UserDefaults.standard.string(forKey: "appTheme") ?? AppTheme.dark.rawValue
         self.current = AppTheme(rawValue: saved) ?? .dark
+        self.followSystem = UserDefaults.standard.bool(forKey: "appThemeFollowsSystem")
+    }
+
+    func updateSystemColorScheme(_ scheme: ColorScheme) {
+        guard systemColorScheme != scheme else { return }
+        systemColorScheme = scheme
     }
 }
 
 struct Theme {
-    private static var mode: AppTheme { ThemeManager.shared.current }
+    private static var mode: AppTheme { ThemeManager.shared.resolved }
 
     static var background: Color {
         switch mode {
