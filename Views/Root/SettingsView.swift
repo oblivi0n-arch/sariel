@@ -6,6 +6,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var connectionMonitor: ConnectionMonitor
     @Binding var isPresented: Bool
+    @ObservedObject private var themeManager = ThemeManager.shared
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") private var isPostReset: Bool = false
@@ -58,6 +59,7 @@ struct SettingsView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
+                    appearanceSection
                     ollamaSection
                     contextSection
                     credibilitySection
@@ -342,6 +344,21 @@ struct SettingsView: View {
         }
 
         isLoadingModels = false
+    }
+    
+    private var appearanceSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(icon: "circle.lefthalf.filled", title: "APPEARANCE") {
+                EmptyView()
+            }
+
+            Picker("", selection: $themeManager.current) {
+                ForEach(AppTheme.allCases, id: \.self) { theme in
+                    Text(theme.rawValue.capitalized).tag(theme)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
     }
     
     // MARK: DEBUG ONLY
