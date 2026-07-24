@@ -57,6 +57,10 @@ extension SettingsView {
         autoStartOllama = false
         ollamaExecutablePath = ""
         
+        UserDefaults.standard.removeObject(forKey: "username")
+        UserDefaults.standard.removeObject(forKey: "dashboardGreetingIndex")
+        UserDefaults.standard.removeObject(forKey: "dashboardGreetingDate")
+        
         relaunchApp()
     }
     
