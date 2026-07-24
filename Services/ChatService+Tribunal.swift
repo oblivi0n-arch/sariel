@@ -81,7 +81,6 @@ extension ChatService {
         for commitment in pending {
             guard let response = try? await client.complete(
                 messages: PromptBuilder.buildVerdictMessages(commitment: commitment, history: history),
-                think: true
             ) else {
                 failedCount += 1
                 continue
