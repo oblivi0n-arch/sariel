@@ -22,19 +22,19 @@ struct SettingsView: View {
     
     private var credibilitySection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionHeader(icon: "scalemass", title: "CREDIBILITY CONTEXT") {
+            sectionHeader(icon: "scalemass", title: L10n.Settings.credibilitySectionTitle) {
                 EmptyView()
             }
 
             Toggle(isOn: $useCredibilityContext) {
-                Text("Let Sariel factor in your track record on declarations")
+                Text(L10n.Settings.credibilityToggleLabel)
                     .font(Theme.uiFont)
                     .foregroundStyle(Theme.textPrimary)
             }
             .toggleStyle(.switch)
             .tint(Theme.textPrimary)
 
-            Text("When enabled, Sariel sees which of your declared commitments were fulfilled or broken from past Tribunal sessions, and adjusts its tone toward you accordingly. Requires at least \(Commitment.credibilitySampleMinimum) resolved declarations.")
+            Text(L10n.Settings.credibilityDescription(minimum: Commitment.credibilitySampleMinimum))
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
         }
@@ -81,7 +81,7 @@ struct SettingsView: View {
                 .font(Typography.icon)
                 .foregroundStyle(Theme.textMuted)
 
-            Text("settings")
+            Text(L10n.Settings.title)
                 .font(Typography.title)
                 .foregroundStyle(Theme.textPrimary)
 
@@ -106,15 +106,15 @@ struct SettingsView: View {
 
     private var ollamaSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader(icon: "network", title: "OLLAMA CLIENT") {
+            sectionHeader(icon: "network", title: L10n.Settings.ollamaSectionTitle) {
                 connectionBadge
             }
 
             labeledField(
-                title: "Host",
+                title: L10n.Settings.hostFieldLabel,
                 text: $host,
                 isValid: host.isEmpty || isHostValid,
-                errorMessage: "Enter a valid URL, e.g. http://localhost:11434"
+                errorMessage: L10n.Settings.hostFieldError
             )
             modelPicker
         }
@@ -125,7 +125,7 @@ struct SettingsView: View {
             Circle()
                 .fill(connectionMonitor.isConnected ? Theme.textPrimary : Theme.textFaint)
                 .frame(width: 6, height: 6)
-            Text(connectionMonitor.isConnected ? "connected" : "offline")
+            Text(connectionMonitor.isConnected ? L10n.Settings.connectedStatus : L10n.Settings.offlineStatus)
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
         }
@@ -133,19 +133,19 @@ struct SettingsView: View {
 
     private var contextSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionHeader(icon: "book.closed", title: "JOURNAL CONTEXT") {
+            sectionHeader(icon: "book.closed", title: L10n.Settings.journalSectionTitle) {
                 EmptyView()
             }
 
             Toggle(isOn: $useJournalContext) {
-                Text("Let Sariel read your recent journal entries")
+                Text(L10n.Settings.journalContextToggleLabel)
                     .font(Theme.uiFont)
                     .foregroundStyle(Theme.textPrimary)
             }
             .toggleStyle(.switch)
             .tint(Theme.textPrimary)
 
-            Text("When enabled, your last \(PromptBuilder.journalContextEntryCount) journal entries are sent as context in every conversation, so Sariel can notice patterns over time. Entries never leave your device.")
+            Text(L10n.Settings.journalContextDescription(count: PromptBuilder.journalContextEntryCount))
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
         }
@@ -153,12 +153,12 @@ struct SettingsView: View {
 
     private var dangerZone: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionHeader(icon: "exclamationmark.triangle", title: "DANGER ZONE") {
+            sectionHeader(icon: "exclamationmark.triangle", title: L10n.Settings.dangerZoneTitle) {
                 EmptyView()
             }
 
             Button(action: { showResetConfirmation = true }) {
-                Text("RESET")
+                Text(L10n.Settings.resetButton)
                     .font(Typography.label)
                     .foregroundStyle(Color.red.opacity(0.9))
                     .frame(maxWidth: .infinity)
@@ -169,21 +169,21 @@ struct SettingsView: View {
             }
             .buttonStyle(.plain)
 
-            Text("This option resets everything, including all conversations, journal entries, and your Ollama settings. The app will restart. This cannot be undone.")
+            Text(L10n.Settings.resetDescription)
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
         }
         .confirmationDialog(
-            "Reset Sariel?",
+            L10n.Settings.resetConfirmTitle,
             isPresented: $showResetConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Reset everything", role: .destructive) {
+            Button(L10n.Settings.resetConfirmButton, role: .destructive) {
                 resetEverything()
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.Settings.cancelButton, role: .cancel) {}
         } message: {
-            Text("This permanently deletes all conversations, journal entries, and settings, then restarts the app. This cannot be undone.")
+            Text(L10n.Settings.resetConfirmMessage)
         }
     }
 
@@ -237,7 +237,7 @@ struct SettingsView: View {
     private var modelPicker: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text("Model")
+                Text(L10n.Settings.modelFieldLabel)
                     .font(Typography.label)
                     .foregroundStyle(Theme.textMuted)
                 
@@ -247,7 +247,7 @@ struct SettingsView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 10))
-                        Text(isLoadingModels ? "loading..." : "load models")
+                        Text(isLoadingModels ? L10n.Settings.loadModelsButtonLoading : L10n.Settings.loadModelsButtonIdle)
                     }
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textMuted)
@@ -257,7 +257,7 @@ struct SettingsView: View {
             }
             
             if isLoadingModels {
-                Text("Loading models...")
+                Text(L10n.Settings.loadingModelsText)
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)
             } else if let modelsLoadError {
@@ -265,7 +265,7 @@ struct SettingsView: View {
                     .font(Typography.caption)
                     .foregroundStyle(Color.red.opacity(0.8))
             } else if availableModels.isEmpty {
-                Text("No models found")
+                Text(L10n.Settings.noModelsFound)
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)
             } else {
@@ -278,7 +278,7 @@ struct SettingsView: View {
                 .tint(Theme.textPrimary)
             }
             
-            Text("Recommended: gemma4:e4b — natively supports system-role instructions, which this app relies on heavily (personality prompt, journal context, conversation summary). Smaller or older models may struggle with memory and long context.")
+            Text(L10n.Settings.modelRecommendationText)
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
                 .padding(.top, 2)
@@ -324,7 +324,7 @@ struct SettingsView: View {
 
     private func fetchAvailableModels() async {
         guard isHostValid, let url = URL(string: "\(host)/api/tags") else {
-            modelsLoadError = "Fix the host URL first"
+            modelsLoadError = L10n.Settings.modelsLoadErrorHostInvalid
             return
         }
 
@@ -339,7 +339,7 @@ struct SettingsView: View {
             let decoded = try JSONDecoder().decode(OllamaTagsResponse.self, from: data)
             availableModels = decoded.models.map { $0.name }
         } catch {
-            modelsLoadError = "Could not load models. Is Ollama running?"
+            modelsLoadError = L10n.Settings.modelsLoadErrorGeneric
             availableModels = []
         }
 
@@ -348,12 +348,12 @@ struct SettingsView: View {
     
     private var appearanceSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionHeader(icon: "circle.lefthalf.filled", title: "APPEARANCE") {
+            sectionHeader(icon: "circle.lefthalf.filled", title: L10n.Settings.appearanceSectionTitle) {
                 EmptyView()
             }
 
             Toggle(isOn: $themeManager.followSystem) {
-                Text("Match system appearance")
+                Text(L10n.Settings.matchSystemAppearance)
                     .font(Theme.uiFont)
                     .foregroundStyle(Theme.textPrimary)
             }
@@ -364,7 +364,7 @@ struct SettingsView: View {
                 .opacity(themeManager.followSystem ? 0.4 : 1)
                 .disabled(themeManager.followSystem)
 
-            Text("When enabled, Sariel follows macOS's light/dark setting automatically and the choice above is ignored.")
+            Text(L10n.Settings.followSystemDescription)
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
         }
@@ -372,8 +372,8 @@ struct SettingsView: View {
     
     private var themeSwatchPicker: some View {
         HStack(spacing: 14) {
-            themeSwatch(for: .dark, label: "Dark", fill: .black)
-            themeSwatch(for: .light, label: "Light", fill: .white)
+            themeSwatch(for: .dark, label: L10n.Settings.themeDark, fill: .black)
+            themeSwatch(for: .light, label: L10n.Settings.themeLight, fill: .white)
         }
     }
 
@@ -457,3 +457,230 @@ struct SettingsView: View {
     }
 }
 
+extension L10n {
+    enum Settings {
+        static var title: String {
+            switch lang {
+            case .en: return "settings"
+            case .pl: return "ustawienia"
+            }
+        }
+
+        static var appearanceSectionTitle: String {
+            switch lang {
+            case .en: return "APPEARANCE"
+            case .pl: return "WYGLĄD"
+            }
+        }
+
+        static var matchSystemAppearance: String {
+            switch lang {
+            case .en: return "Match system appearance"
+            case .pl: return "Dopasuj do systemu"
+            }
+        }
+
+        static var themeDark: String {
+            switch lang {
+            case .en: return "Dark"
+            case .pl: return "Ciemny"
+            }
+        }
+
+        static var themeLight: String {
+            switch lang {
+            case .en: return "Light"
+            case .pl: return "Jasny"
+            }
+        }
+
+        static var followSystemDescription: String {
+            switch lang {
+            case .en: return "When enabled, Sariel follows macOS's light/dark setting automatically and the choice above is ignored."
+            case .pl: return "Po włączeniu tej opcji, Sariel automatycznie dostosowuje się do trybu jasny/ciemny systemu macOS, a wybór powyżej jest ignorowany."
+            }
+        }
+
+        static var ollamaSectionTitle: String {
+            switch lang {
+            case .en: return "OLLAMA CLIENT"
+            case .pl: return "KLIENT OLLAMA"
+            }
+        }
+
+        static var connectedStatus: String {
+            switch lang {
+            case .en: return "connected"
+            case .pl: return "połączono"
+            }
+        }
+
+        static var offlineStatus: String {
+            switch lang {
+            case .en: return "offline"
+            case .pl: return "offline"
+            }
+        }
+
+        static var hostFieldLabel: String {
+            switch lang {
+            case .en: return "Host"
+            case .pl: return "Host"
+            }
+        }
+
+        static var hostFieldError: String {
+            switch lang {
+            case .en: return "Enter a valid URL, e.g. http://localhost:11434"
+            case .pl: return "Podaj prawidłowy adres URL, np. http://localhost:11434"
+            }
+        }
+
+        static var modelFieldLabel: String {
+            switch lang {
+            case .en: return "Model"
+            case .pl: return "Model"
+            }
+        }
+
+        static var loadModelsButtonLoading: String {
+            switch lang {
+            case .en: return "loading..."
+            case .pl: return "ładowanie..."
+            }
+        }
+
+        static var loadModelsButtonIdle: String {
+            switch lang {
+            case .en: return "load models"
+            case .pl: return "wczytaj modele"
+            }
+        }
+
+        static var loadingModelsText: String {
+            switch lang {
+            case .en: return "Loading models..."
+            case .pl: return "Wczytywanie modeli..."
+            }
+        }
+
+        static var modelsLoadErrorGeneric: String {
+            switch lang {
+            case .en: return "Could not load models. Is Ollama running?"
+            case .pl: return "Nie udało się wczytać modeli. Czy Ollama jest uruchomiona?"
+            }
+        }
+
+        static var modelsLoadErrorHostInvalid: String {
+            switch lang {
+            case .en: return "Fix the host URL first"
+            case .pl: return "Najpierw popraw adres hosta"
+            }
+        }
+
+        static var noModelsFound: String {
+            switch lang {
+            case .en: return "No models found"
+            case .pl: return "Nie znaleziono modeli"
+            }
+        }
+
+        static var modelRecommendationText: String {
+            switch lang {
+            case .en: return "Recommended: gemma4:e4b — natively supports system-role instructions, which this app relies on heavily (personality prompt, journal context, conversation summary). Smaller or older models may struggle with memory and long context."
+            case .pl: return "Zalecany: gemma4:e4b — natywnie wspiera instrukcje typu system-role, na których ta aplikacja mocno się opiera (prompt osobowości, kontekst dziennika, podsumowanie rozmowy). Mniejsze lub starsze modele mogą mieć problemy z pamięcią i długim kontekstem."
+            }
+        }
+
+        static var journalSectionTitle: String {
+            switch lang {
+            case .en: return "JOURNAL CONTEXT"
+            case .pl: return "KONTEKST DZIENNIKA"
+            }
+        }
+
+        static var journalContextToggleLabel: String {
+            switch lang {
+            case .en: return "Let Sariel read your recent journal entries"
+            case .pl: return "Pozwól Sarielowi czytać Twoje ostatnie wpisy w dzienniku"
+            }
+        }
+
+        static func journalContextDescription(count: Int) -> String {
+            switch lang {
+            case .en: return "When enabled, your last \(count) journal entries are sent as context in every conversation, so Sariel can notice patterns over time. Entries never leave your device."
+            case .pl: return "Po włączeniu tej opcji, Twoje ostatnie \(count) wpisy w dzienniku są wysyłane jako kontekst w każdej rozmowie, dzięki czemu Sariel może zauważać powtarzające się wzorce. Wpisy nigdy nie opuszczają Twojego urządzenia."
+            }
+        }
+
+        static var credibilitySectionTitle: String {
+            switch lang {
+            case .en: return "CREDIBILITY CONTEXT"
+            case .pl: return "KONTEKST WIARYGODNOŚCI"
+            }
+        }
+
+        static var credibilityToggleLabel: String {
+            switch lang {
+            case .en: return "Let Sariel factor in your track record on declarations"
+            case .pl: return "Pozwól Sarielowi uwzględniać Twoją historię dotrzymywania deklaracji"
+            }
+        }
+
+        static func credibilityDescription(minimum: Int) -> String {
+            switch lang {
+            case .en: return "When enabled, Sariel sees which of your declared commitments were fulfilled or broken from past Tribunal sessions, and adjusts its tone toward you accordingly. Requires at least \(minimum) resolved declarations."
+            case .pl: return "Po włączeniu tej opcji, Sariel widzi które z Twoich zadeklarowanych zobowiązań zostały spełnione lub złamane podczas poprzednich sesji Trybunału, i dostosowuje do tego swój ton. Wymaga co najmniej \(minimum) rozstrzygniętych deklaracji."
+            }
+        }
+
+        static var dangerZoneTitle: String {
+            switch lang {
+            case .en: return "DANGER ZONE"
+            case .pl: return "STREFA NIEBEZPIECZEŃSTWA"
+            }
+        }
+
+        static var resetButton: String {
+            switch lang {
+            case .en: return "RESET"
+            case .pl: return "RESETUJ"
+            }
+        }
+
+        static var resetDescription: String {
+            switch lang {
+            case .en: return "This option resets everything, including all conversations, journal entries, and your Ollama settings. The app will restart. This cannot be undone."
+            case .pl: return "Ta opcja resetuje wszystko, w tym wszystkie rozmowy, wpisy w dzienniku i ustawienia Ollama. Aplikacja zostanie zrestartowana. Tej operacji nie da się cofnąć."
+            }
+        }
+
+        static var resetConfirmTitle: String {
+            switch lang {
+            case .en: return "Reset Sariel?"
+            case .pl: return "Zresetować Sariel?"
+            }
+        }
+
+        static var resetConfirmButton: String {
+            switch lang {
+            case .en: return "Reset everything"
+            case .pl: return "Resetuj wszystko"
+            }
+        }
+
+        static var cancelButton: String {
+            switch lang {
+            case .en: return "Cancel"
+            case .pl: return "Anuluj"
+            }
+        }
+
+        static var resetConfirmMessage: String {
+            switch lang {
+            case .en: return "This permanently deletes all conversations, journal entries, and settings, then restarts the app. This cannot be undone."
+            case .pl: return "Ta operacja trwale usuwa wszystkie rozmowy, wpisy w dzienniku i ustawienia, a następnie restartuje aplikację. Nie da się jej cofnąć."
+            }
+        }
+    }
+}
