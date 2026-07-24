@@ -18,6 +18,16 @@ struct DashboardView: View {
                     color: Theme.textPrimary
                 )
                 .id(greetingText)
+                
+                LazyVGrid(columns: [
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible())
+                ], spacing: 12) {
+                    DashboardStatCard(label: L10n.Dashboard.lastActivityLabel, value: "3 godz. temu")
+                    DashboardStatCard(label: L10n.Dashboard.streakLabel, value: "7 dni")
+                    DashboardStatCard(label: L10n.Dashboard.journalEntriesLabel, value: "24")
+                }
                 Spacer()
             }
             .padding(28)
@@ -76,6 +86,27 @@ extension L10n {
             switch lang {
             case .pl: return "nieznajomy"
             case .en: return "stranger"
+            }
+        }
+        
+        static var lastActivityLabel: String {
+            switch lang {
+            case .pl: return "OSTATNIA AKTYWNOŚĆ"
+            case .en: return "LAST ACTIVITY"
+            }
+        }
+
+        static var streakLabel: String {
+            switch lang {
+            case .pl: return "PASSA"
+            case .en: return "STREAK"
+            }
+        }
+
+        static var journalEntriesLabel: String {
+            switch lang {
+            case .pl: return "WPISY W DZIENNIKU"
+            case .en: return "JOURNAL ENTRIES"
             }
         }
     }
