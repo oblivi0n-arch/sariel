@@ -28,7 +28,7 @@ struct ConversationListView: View {
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(Theme.textFaint)
 
-                        TextField("Search conversations", text: $searchText)
+                        TextField(L10n.ConversationList.searchPlaceholder, text: $searchText)
                             .textFieldStyle(.plain)
                             .font(Typography.label)
                             .foregroundStyle(Theme.textSecondary)
@@ -47,7 +47,7 @@ struct ConversationListView: View {
                     .clipShape(Capsule())
                     .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
                 } else {
-                    Text("conversations")
+                    Text(L10n.ConversationList.title)
                         .font(Typography.subsectionTitle)
                         .foregroundStyle(Theme.textPrimary)
 
@@ -124,9 +124,9 @@ struct ConversationListView: View {
         }
         .alert(item: $blockedDeletionConversation) { conversation in
             Alert(
-                title: Text("Can't delete this conversation"),
-                message: Text("It contains a declaration the Tribunal has tracked or ruled on. Deleting it would erase part of your accountability record."),
-                dismissButton: .default(Text("OK"))
+                title: Text(L10n.ConversationList.deleteBlockedTitle),
+                message: Text(L10n.ConversationList.deleteBlockedMessage),
+                dismissButton: .default(Text(L10n.ConversationList.ok))
             )
         }
     }
@@ -160,5 +160,44 @@ struct ConversationListView: View {
         searchText = ""
         isSearchExpanded = false
         isSearchFocused = false
+    }
+}
+
+extension L10n {
+    enum ConversationList {
+        static var searchPlaceholder: String {
+            switch lang {
+            case .en: return "Search conversations"
+            case .pl: return "Szukaj rozmów"
+            }
+        }
+
+        static var title: String {
+            switch lang {
+            case .en: return "conversations"
+            case .pl: return "rozmowy"
+            }
+        }
+
+        static var deleteBlockedTitle: String {
+            switch lang {
+            case .en: return "Can't delete this conversation"
+            case .pl: return "Nie można usunąć tej rozmowy"
+            }
+        }
+
+        static var deleteBlockedMessage: String {
+            switch lang {
+            case .en: return "It contains a declaration the Tribunal has tracked or ruled on. Deleting it would erase part of your accountability record."
+            case .pl: return "Zawiera deklarację, którą Trybunał śledził lub co do której wydał wyrok. Usunięcie jej wymazałoby część Twojej historii odpowiedzialności."
+            }
+        }
+
+        static var ok: String {
+            switch lang {
+            case .en: return "OK"
+            case .pl: return "OK"
+            }
+        }
     }
 }

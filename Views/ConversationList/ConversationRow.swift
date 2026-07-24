@@ -18,7 +18,7 @@ struct ConversationRow: View {
     var body: some View {
         Group {
             if isEditing {
-                TextField("conversation title", text: $editedTitle)
+                TextField(L10n.ConversationRow.titlePlaceholder, text: $editedTitle)
                     .textFieldStyle(.plain)
                     .font(Theme.uiFont)
                     .foregroundStyle(Theme.textPrimary)
@@ -77,11 +77,11 @@ struct ConversationRow: View {
             Button {
                 startEditing()
             } label: {
-                Label("Rename", systemImage: "pencil")
+                Label(L10n.ConversationRow.rename, systemImage: "pencil")
             }
 
             Button(role: .destructive, action: onDelete) {
-                Label("Delete", systemImage: "trash")
+                Label(L10n.ConversationRow.delete, systemImage: "trash")
             }
             .disabled(isGenerating)
         }
@@ -111,5 +111,30 @@ struct ConversationRow: View {
             onRename(trimmed)
         }
         isEditing = false
+    }
+}
+
+extension L10n {
+    enum ConversationRow {
+        static var titlePlaceholder: String {
+            switch lang {
+            case .en: return "conversation title"
+            case .pl: return "tytuł rozmowy"
+            }
+        }
+
+        static var rename: String {
+            switch lang {
+            case .en: return "Rename"
+            case .pl: return "Zmień nazwę"
+            }
+        }
+
+        static var delete: String {
+            switch lang {
+            case .en: return "Delete"
+            case .pl: return "Usuń"
+            }
+        }
     }
 }
