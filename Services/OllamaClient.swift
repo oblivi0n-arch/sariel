@@ -7,7 +7,7 @@ struct OllamaMessage: Codable {
 
 enum OllamaDefaults {
     static let host = "http://localhost:11434"
-    static let model = "gemma3:12b"
+    static let model = "gemma4:e4b"
 }
 
 enum OllamaError: LocalizedError {
