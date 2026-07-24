@@ -12,7 +12,7 @@ final class ChatService: ObservableObject {
     @Published var verdictErrors: [UUID: String] = [:]
 
     let client: OllamaClient
-    
+
     @MainActor
     init() {
         self.client = OllamaClient()
@@ -40,25 +40,25 @@ final class ChatService: ObservableObject {
             let commitment = Commitment(declarationText: text, failureMeaning: failureMeaning, sourceMessage: userMessage)
             modelContext.insert(commitment)
         }
-        
+
         let guideMessage = ChatMessage(role: .guide, content: "")
         guideMessage.conversation = conversation
         conversation.messages.append(guideMessage)
         modelContext.insert(guideMessage)
-        
+
         try? modelContext.save()
-        
+
         generatingConversationIDs.insert(conversation.id)
         lastErrors[conversation.id] = nil
-        
+
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
             .filter { $0.isValidExchange }
-        
+
         await streamGuideResponse(into: guideMessage, history: Array(history), conversation: conversation, modelContext: modelContext)
-        
+
         generatingConversationIDs.remove(conversation.id)
-        
+
         if !conversation.isTribunal {
             if !hasSuccessfulExchange && !guideMessage.content.hasPrefix("⚠️") {
                 await generateTitle(for: conversation, userText: text, guideText: guideMessage.content, modelContext: modelContext)
@@ -69,152 +69,36 @@ final class ChatService: ObservableObject {
         }
     }
 
-    private func refreshSummaryIfNeeded(for conversation: Conversation, modelContext: ModelContext) async {
-        let sortedMessages = conversation.messages
-            .sorted { $0.timestamp < $1.timestamp }
-            .filter { $0.isValidExchange }
+    func retryLastResponse(for conversation: Conversation, modelContext: ModelContext) async {
+        let sorted = conversation.messages.sorted { $0.timestamp < $1.timestamp }
+        guard let guideMessage = sorted.last(where: { $0.messageRole == .guide }) else { return }
 
-        let unsummarizedCount = sortedMessages.count - conversation.summarizedMessageCount
-        guard unsummarizedCount > PromptBuilder.summaryRefreshThreshold else { return }
-
-        let newSummarizedCount = sortedMessages.count - PromptBuilder.keepRawMessages
-        guard newSummarizedCount > conversation.summarizedMessageCount else { return }
-
-        let messagesToIncorporate = Array(sortedMessages[conversation.summarizedMessageCount..<newSummarizedCount])
-        guard !messagesToIncorporate.isEmpty else { return }
-
-        do {
-            let updatedSummary = try await client.complete(
-                messages: PromptBuilder.buildSummaryMessages(existingSummary: conversation.summary, newMessages: messagesToIncorporate)
-            )
-            conversation.summary = updatedSummary.trimmingCharacters(in: .whitespacesAndNewlines)
-            conversation.summarizedMessageCount = newSummarizedCount
-            try? modelContext.save()
-        } catch {
-
+        let hasSuccessfulExchange = sorted.contains {
+            $0.messageRole == .guide && $0.id != guideMessage.id && $0.isValidExchange
         }
-    }
+        let precedingUserText = sorted.last(where: { $0.messageRole == .user && $0.timestamp < guideMessage.timestamp })?.content
 
-    private func generateTitle(for conversation: Conversation, userText: String, guideText: String, modelContext: ModelContext) async {
-        let titleMessages = PromptBuilder.buildTitleMessages(userText: userText, guideText: guideText)
-        do {
-            let title = try await client.complete(messages: titleMessages)
-            let cleaned = title.trimmingCharacters(in: .whitespacesAndNewlines)
-            if !cleaned.isEmpty {
-                conversation.title = cleaned
-                try? modelContext.save()
-            }
-        } catch {
-            
-        }
-    }
-    
-    func endConversation(for conversation: Conversation, mood: Mood, modelContext: ModelContext) async -> JournalEntry? {
-        endingConversationIDs.insert(conversation.id)
-        endConversationErrors[conversation.id] = nil
-        defer { endingConversationIDs.remove(conversation.id) }
+        guideMessage.content = ""
+
+        generatingConversationIDs.insert(conversation.id)
+        lastErrors[conversation.id] = nil
 
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
             .filter { $0.isValidExchange }
-        
-        do {
-            let content = try await client.complete(messages: PromptBuilder.buildJournalMessages(history: history))
 
-            let title: String
-            if conversation.isProvocation, let provocationTitle = conversation.provocationTitle {
-                title = provocationTitle
-            } else {
-                let generated = try await client.complete(messages: PromptBuilder.buildJournalTitleMessages(entryContent: content))
-                title = generated.trimmingCharacters(in: .whitespacesAndNewlines)
+        await streamGuideResponse(into: guideMessage, history: Array(history), conversation: conversation, modelContext: modelContext)
+
+        generatingConversationIDs.remove(conversation.id)
+
+        if !conversation.isTribunal {
+            if !hasSuccessfulExchange, !guideMessage.content.hasPrefix("⚠️"), let userText = precedingUserText {
+                await generateTitle(for: conversation, userText: userText, guideText: guideMessage.content, modelContext: modelContext)
             }
-
-            let entry = JournalEntry(
-                title: title,
-                content: content.trimmingCharacters(in: .whitespacesAndNewlines),
-                mood: mood
-            )
-            entry.sourceConversation = conversation
-            conversation.journalEntry = entry
-            modelContext.insert(entry)
-
-            entry.tags.append(generatedTag(modelContext: modelContext))
-            if conversation.isProvocation {
-                entry.tags.append(provocationTag(modelContext: modelContext))
-            }
-
-            try? modelContext.save()
-            
-            return entry
-        } catch {
-            endConversationErrors[conversation.id] = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
-            return nil
         }
-    }
-    
-    private func generatedTag(modelContext: ModelContext) -> JournalEntryTag {
-        let descriptor = FetchDescriptor<JournalEntryTag>()
-        if let allTags = try? modelContext.fetch(descriptor),
-           let existing = allTags.first(where: { $0.name.caseInsensitiveCompare("Sariel") == .orderedSame }) {
-            return existing
+        if !guideMessage.content.hasPrefix("⚠️") {
+            Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
         }
-        let tag = JournalEntryTag(name: "Sariel")
-        modelContext.insert(tag)
-        return tag
-    }
-
-    private func reconcileSummary(for conversation: Conversation) {
-        let remainingCount = conversation.messages.filter { $0.isValidExchange }.count
-        if remainingCount < conversation.summarizedMessageCount {
-            conversation.summarizedMessageCount = remainingCount
-            conversation.summary = ""
-        }
-    }
-    
-    func deleteMessages(from message: ChatMessage, in conversation: Conversation, modelContext: ModelContext) {
-        let cutoff = message.timestamp
-        let toRemove = conversation.messages.filter { $0.timestamp >= cutoff }
-
-        for msg in toRemove {
-            conversation.messages.removeAll { $0.id == msg.id }
-            modelContext.delete(msg)
-        }
-        reconcileSummary(for: conversation)
-        try? modelContext.save()
-    }
-    
-    func deleteMessages(after message: ChatMessage, in conversation: Conversation, modelContext: ModelContext) {
-        let cutoff = message.timestamp
-        let toRemove = conversation.messages.filter { $0.timestamp > cutoff }
-
-        for msg in toRemove {
-            conversation.messages.removeAll { $0.id == msg.id }
-            modelContext.delete(msg)
-        }
-        reconcileSummary(for: conversation)
-        try? modelContext.save()
-    }
-    
-    private func fetchJournalContextIfEnabled(modelContext: ModelContext) -> String {
-        guard UserDefaults.standard.bool(forKey: "useJournalContext") else { return "" }
-
-        var descriptor = FetchDescriptor<JournalEntry>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-        descriptor.fetchLimit = PromptBuilder.journalContextEntryCount
-
-        guard let entries = try? modelContext.fetch(descriptor) else { return "" }
-        return PromptBuilder.buildJournalContextText(entries: entries)
-    }
-    
-    private func fetchCredibilityContextIfEnabled(modelContext: ModelContext) -> String {
-        guard UserDefaults.standard.bool(forKey: "useCredibilityContext") else { return "" }
-
-        let descriptor = FetchDescriptor<Commitment>(
-            predicate: #Predicate<Commitment> { $0.status != "pending" },
-            sortBy: [SortDescriptor(\.resolvedAt)]
-        )
-
-        guard let resolved = try? modelContext.fetch(descriptor) else { return "" }
-        return PromptBuilder.buildCredibilityContextText(resolvedCommitments: resolved)
     }
 
     func streamGuideResponse(into guideMessage: ChatMessage, history: [ChatMessage], conversation: Conversation, modelContext: ModelContext) async {
@@ -266,36 +150,160 @@ final class ChatService: ObservableObject {
         }
         try? modelContext.save()
     }
-    
-    func retryLastResponse(for conversation: Conversation, modelContext: ModelContext) async {
-        let sorted = conversation.messages.sorted { $0.timestamp < $1.timestamp }
-        guard let guideMessage = sorted.last(where: { $0.messageRole == .guide }) else { return }
 
-        let hasSuccessfulExchange = sorted.contains {
-            $0.messageRole == .guide && $0.id != guideMessage.id && $0.isValidExchange
-        }
-        let precedingUserText = sorted.last(where: { $0.messageRole == .user && $0.timestamp < guideMessage.timestamp })?.content
-
-        guideMessage.content = ""
-
-        generatingConversationIDs.insert(conversation.id)
-        lastErrors[conversation.id] = nil
+    func endConversation(for conversation: Conversation, mood: Mood, modelContext: ModelContext) async -> JournalEntry? {
+        endingConversationIDs.insert(conversation.id)
+        endConversationErrors[conversation.id] = nil
+        defer { endingConversationIDs.remove(conversation.id) }
 
         let history = conversation.messages
             .sorted { $0.timestamp < $1.timestamp }
             .filter { $0.isValidExchange }
 
-        await streamGuideResponse(into: guideMessage, history: Array(history), conversation: conversation, modelContext: modelContext)
+        do {
+            let content = try await client.complete(messages: PromptBuilder.buildJournalMessages(history: history))
 
-        generatingConversationIDs.remove(conversation.id)
-
-        if !conversation.isTribunal {
-            if !hasSuccessfulExchange, !guideMessage.content.hasPrefix("⚠️"), let userText = precedingUserText {
-                await generateTitle(for: conversation, userText: userText, guideText: guideMessage.content, modelContext: modelContext)
+            let title: String
+            if conversation.isProvocation, let provocationTitle = conversation.provocationTitle {
+                title = provocationTitle
+            } else {
+                let generated = try await client.complete(messages: PromptBuilder.buildJournalTitleMessages(entryContent: content))
+                title = generated.trimmingCharacters(in: .whitespacesAndNewlines)
             }
+
+            let entry = JournalEntry(
+                title: title,
+                content: content.trimmingCharacters(in: .whitespacesAndNewlines),
+                mood: mood
+            )
+            entry.sourceConversation = conversation
+            conversation.journalEntry = entry
+            modelContext.insert(entry)
+
+            entry.tags.append(generatedTag(modelContext: modelContext))
+            if conversation.isProvocation {
+                entry.tags.append(provocationTag(modelContext: modelContext))
+            }
+
+            try? modelContext.save()
+
+            return entry
+        } catch {
+            endConversationErrors[conversation.id] = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
+            return nil
         }
-        if !guideMessage.content.hasPrefix("⚠️") {
-            Task { await refreshSummaryIfNeeded(for: conversation, modelContext: modelContext) }
+    }
+
+    private func generatedTag(modelContext: ModelContext) -> JournalEntryTag {
+        let descriptor = FetchDescriptor<JournalEntryTag>()
+        if let allTags = try? modelContext.fetch(descriptor),
+           let existing = allTags.first(where: { $0.name.caseInsensitiveCompare("Sariel") == .orderedSame }) {
+            return existing
+        }
+        let tag = JournalEntryTag(name: "Sariel")
+        modelContext.insert(tag)
+        return tag
+    }
+
+    func deleteMessages(from message: ChatMessage, in conversation: Conversation, modelContext: ModelContext) {
+        let cutoff = message.timestamp
+        let toRemove = conversation.messages.filter { $0.timestamp >= cutoff }
+
+        for msg in toRemove {
+            conversation.messages.removeAll { $0.id == msg.id }
+            modelContext.delete(msg)
+        }
+        reconcileSummary(for: conversation)
+        try? modelContext.save()
+    }
+
+    func deleteMessages(after message: ChatMessage, in conversation: Conversation, modelContext: ModelContext) {
+        let cutoff = message.timestamp
+        let toRemove = conversation.messages.filter { $0.timestamp > cutoff }
+
+        for msg in toRemove {
+            conversation.messages.removeAll { $0.id == msg.id }
+            modelContext.delete(msg)
+        }
+        reconcileSummary(for: conversation)
+        try? modelContext.save()
+    }
+
+    private func reconcileSummary(for conversation: Conversation) {
+        let remainingCount = conversation.messages.filter { $0.isValidExchange }.count
+        if remainingCount < conversation.summarizedMessageCount {
+            conversation.summarizedMessageCount = remainingCount
+            conversation.summary = ""
+        }
+    }
+
+    private func fetchJournalContextIfEnabled(modelContext: ModelContext) -> String {
+        guard UserDefaults.standard.bool(forKey: "useJournalContext") else { return "" }
+
+        var descriptor = FetchDescriptor<JournalEntry>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        descriptor.fetchLimit = PromptBuilder.journalContextEntryCount
+
+        guard let entries = try? modelContext.fetch(descriptor) else { return "" }
+        return PromptBuilder.buildJournalContextText(entries: entries)
+    }
+
+    private func fetchCredibilityContextIfEnabled(modelContext: ModelContext) -> String {
+        guard UserDefaults.standard.bool(forKey: "useCredibilityContext") else { return "" }
+
+        let descriptor = FetchDescriptor<Commitment>(
+            predicate: #Predicate<Commitment> { $0.status != "pending" },
+            sortBy: [SortDescriptor(\.resolvedAt)]
+        )
+
+        guard let resolved = try? modelContext.fetch(descriptor) else { return "" }
+        return PromptBuilder.buildCredibilityContextText(resolvedCommitments: resolved)
+    }
+
+    func fetchPendingCommitments(modelContext: ModelContext) -> [Commitment] {
+        let descriptor = FetchDescriptor<Commitment>(
+            predicate: #Predicate<Commitment> { $0.status == "pending" },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        return (try? modelContext.fetch(descriptor)) ?? []
+    }
+
+    private func generateTitle(for conversation: Conversation, userText: String, guideText: String, modelContext: ModelContext) async {
+        let titleMessages = PromptBuilder.buildTitleMessages(userText: userText, guideText: guideText)
+        do {
+            let title = try await client.complete(messages: titleMessages)
+            let cleaned = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !cleaned.isEmpty {
+                conversation.title = cleaned
+                try? modelContext.save()
+            }
+        } catch {
+
+        }
+    }
+
+    private func refreshSummaryIfNeeded(for conversation: Conversation, modelContext: ModelContext) async {
+        let sortedMessages = conversation.messages
+            .sorted { $0.timestamp < $1.timestamp }
+            .filter { $0.isValidExchange }
+
+        let unsummarizedCount = sortedMessages.count - conversation.summarizedMessageCount
+        guard unsummarizedCount > PromptBuilder.summaryRefreshThreshold else { return }
+
+        let newSummarizedCount = sortedMessages.count - PromptBuilder.keepRawMessages
+        guard newSummarizedCount > conversation.summarizedMessageCount else { return }
+
+        let messagesToIncorporate = Array(sortedMessages[conversation.summarizedMessageCount..<newSummarizedCount])
+        guard !messagesToIncorporate.isEmpty else { return }
+
+        do {
+            let updatedSummary = try await client.complete(
+                messages: PromptBuilder.buildSummaryMessages(existingSummary: conversation.summary, newMessages: messagesToIncorporate)
+            )
+            conversation.summary = updatedSummary.trimmingCharacters(in: .whitespacesAndNewlines)
+            conversation.summarizedMessageCount = newSummarizedCount
+            try? modelContext.save()
+        } catch {
+
         }
     }
 }

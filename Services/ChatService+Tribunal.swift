@@ -61,7 +61,7 @@ extension ChatService {
         generatingConversationIDs.remove(conversation.id)
         try? modelContext.save()
     }
-    
+
     func generateVerdicts(for conversation: Conversation, modelContext: ModelContext) async -> [TribunalVerdict] {
         guard conversation.isTribunal else { return [] }
         let pending = fetchPendingCommitments(modelContext: modelContext)
@@ -126,14 +126,6 @@ extension ChatService {
         try? modelContext.save()
     }
 
-    func fetchPendingCommitments(modelContext: ModelContext) -> [Commitment] {
-        let descriptor = FetchDescriptor<Commitment>(
-            predicate: #Predicate<Commitment> { $0.status == "pending" },
-            sortBy: [SortDescriptor(\.createdAt)]
-        )
-        return (try? modelContext.fetch(descriptor)) ?? []
-    }
-    
     func fetchInProgressTribunal(modelContext: ModelContext) -> Conversation? {
         let descriptor = FetchDescriptor<Conversation>(
             predicate: #Predicate<Conversation> { $0.isTribunal && $0.tribunalResolvedAt == nil },
@@ -141,7 +133,7 @@ extension ChatService {
         )
         return (try? modelContext.fetch(descriptor))?.first
     }
-    
+
     func fetchTribunalSessionCount(modelContext: ModelContext) -> Int {
         let descriptor = FetchDescriptor<Conversation>(
             predicate: #Predicate<Conversation> { $0.isTribunal }
