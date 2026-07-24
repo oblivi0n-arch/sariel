@@ -105,6 +105,8 @@ struct SettingsView: View {
                 }
                 .padding(20)
             }
+            
+            versionFooter
         }
         .background(Theme.background)
         .task {
@@ -528,6 +530,18 @@ struct SettingsView: View {
         }
     }
     
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+    }
+
+    private var versionFooter: some View {
+        Text(L10n.Settings.versionFooter(version: appVersion, handle: "@oblivi0n-arch"))
+            .font(Typography.caption)
+            .foregroundStyle(Theme.textFaint)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.vertical, 10)
+    }
+    
     // MARK: DEBUG ONLY
     private var debugOnboardingSection: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -857,6 +871,13 @@ extension L10n {
             switch lang {
             case .en: return "Leave empty to auto-detect common install locations. Find yours by running \"which ollama\" in Terminal."
             case .pl: return "Zostaw puste, by automatycznie wykryć typowe lokalizacje instalacji. Znajdziesz swoją, wpisując \"which ollama\" w Terminalu."
+            }
+        }
+        
+        static func versionFooter(version: String, handle: String) -> String {
+            switch lang {
+            case .en: return "v\(version) · built by \(handle)"
+            case .pl: return "v\(version) · stworzone przez \(handle)"
             }
         }
     }
