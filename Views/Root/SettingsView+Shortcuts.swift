@@ -8,9 +8,10 @@ extension SettingsView {
             }
             
             VStack(alignment: .leading, spacing: 8) {
-                shortcutRow(keys: "⌘1", label: L10n.Sections.chat)
-                shortcutRow(keys: "⌘2", label: L10n.Sections.journal)
-                shortcutRow(keys: "⌘3", label: L10n.Sections.tribunal)
+                shortcutRow(keys: "⌘1", label: L10n.Sections.dashboard)
+                shortcutRow(keys: "⌘2", label: L10n.Sections.chat)
+                shortcutRow(keys: "⌘3", label: L10n.Sections.journal)
+                shortcutRow(keys: "⌘4", label: L10n.Sections.tribunal)
             }
         }
     }

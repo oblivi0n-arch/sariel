@@ -148,14 +148,17 @@ struct ContentView: View {
                     }
                 }
                 .background {
-                    Button("") { switchSection(to: .chat) }
+                    Button("") { switchSection(to: .dashboard) }
                         .keyboardShortcut("1", modifiers: .command)
                         .hidden()
-                    Button("") { switchSection(to: .journal) }
+                    Button("") { switchSection(to: .chat) }
                         .keyboardShortcut("2", modifiers: .command)
                         .hidden()
-                    Button("") { switchSection(to: .tribunal) }
+                    Button("") { switchSection(to: .journal) }
                         .keyboardShortcut("3", modifiers: .command)
+                        .hidden()
+                    Button("") { switchSection(to: .tribunal) }
+                        .keyboardShortcut("4", modifiers: .command)
                         .hidden()
                 }
                 .overlay(alignment: .topTrailing) {
@@ -332,6 +335,13 @@ struct ContentView: View {
 
 extension L10n {
     enum Sections {
+        static var dashboard: String {
+            switch lang {
+            case .en: return "Dashboard"
+            case .pl: return "Panel"
+            }
+        }
+        
         static var chat: String {
             switch lang {
             case .en: return "Chat"
