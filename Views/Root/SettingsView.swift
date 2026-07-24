@@ -7,6 +7,7 @@ struct SettingsView: View {
     @EnvironmentObject private var connectionMonitor: ConnectionMonitor
     @Binding var isPresented: Bool
     @ObservedObject private var themeManager = ThemeManager.shared
+    @ObservedObject private var languageManager = LanguageManager.shared
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") private var isPostReset: Bool = false
@@ -39,6 +40,37 @@ struct SettingsView: View {
                 .foregroundStyle(Theme.textFaint)
         }
     }
+    
+    private var languageSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(icon: "globe", title: L10n.Settings.languageSectionTitle) {
+                EmptyView()
+            }
+
+            HStack(spacing: 10) {
+                languageOption(.pl, label: "PL")
+                languageOption(.en, label: "EN")
+            }
+        }
+    }
+
+    private func languageOption(_ language: AppLanguage, label: String) -> some View {
+        let isSelected = languageManager.current == language
+
+        return Button(action: { languageManager.current = language }) {
+            Text(label)
+                .font(Typography.label)
+                .foregroundStyle(isSelected ? Theme.background : Theme.textPrimary)
+                .frame(width: 52, height: 32)
+                .background(isSelected ? Color.red.opacity(0.8) : Theme.fieldBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isSelected ? Color.clear : Theme.border, lineWidth: 0.5)
+                )
+        }
+        .buttonStyle(.plain)
+    }
 
     private var isHostValid: Bool {
         guard let url = URL(string: host), let scheme = url.scheme else { return false }
@@ -60,6 +92,7 @@ struct SettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     appearanceSection
+                    languageSection
                     ollamaSection
                     contextSection
                     credibilitySection
@@ -463,6 +496,13 @@ extension L10n {
             switch lang {
             case .en: return "settings"
             case .pl: return "ustawienia"
+            }
+        }
+        
+        static var languageSectionTitle: String {
+            switch lang {
+            case .en: return "LANGUAGE"
+            case .pl: return "JĘZYK"
             }
         }
 
