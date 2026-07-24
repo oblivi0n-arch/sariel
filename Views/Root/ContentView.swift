@@ -236,6 +236,7 @@ struct ContentView: View {
                 )
             }
         }
+        .environment(\.colorScheme, themeManager.resolved == .dark ? .dark : .light)
     }
 
     private func setupConversation() {
