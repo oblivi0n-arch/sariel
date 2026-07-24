@@ -92,6 +92,23 @@ extension SettingsView {
         }
         .buttonStyle(.plain)
     }
+    
+    var identitySection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(icon: "person", title: L10n.Settings.identitySectionTitle) {
+                EmptyView()
+            }
+            
+            TextField(L10n.Settings.usernamePlaceholder, text: $username)
+                .textFieldStyle(.plain)
+                .font(Theme.uiFont)
+                .foregroundStyle(Theme.textPrimary)
+                .padding(10)
+                .background(Theme.fieldBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
+        }
+    }
 }
 
 extension L10n.Settings {
@@ -134,6 +151,20 @@ extension L10n.Settings {
         switch L10n.lang {
         case .en: return "When enabled, Sariel follows macOS's light/dark setting automatically and the choice above is ignored."
         case .pl: return "Po włączeniu tej opcji, Sariel automatycznie dostosowuje się do trybu jasny/ciemny systemu macOS, a wybór powyżej jest ignorowany."
+        }
+    }
+    
+    static var identitySectionTitle: String {
+        switch L10n.lang {
+        case .en: return "IDENTITY"
+        case .pl: return "TOŻSAMOŚĆ"
+        }
+    }
+
+    static var usernamePlaceholder: String {
+        switch L10n.lang {
+        case .en: return "What should I call you?"
+        case .pl: return "Jak mam się do Ciebie zwracać?"
         }
     }
 }

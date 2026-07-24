@@ -16,6 +16,7 @@ struct SettingsView: View {
     @AppStorage("useCredibilityContext") var useCredibilityContext: Bool = false
     @AppStorage("autoStartOllama") var autoStartOllama: Bool = false
     @AppStorage("ollamaExecutablePath") var ollamaExecutablePath: String = ""
+    @AppStorage("username") var username: String = ""
 
     @State var isManualPathShown = false
     @State var availableModels: [String] = []
@@ -29,6 +30,7 @@ struct SettingsView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
+                    identitySection
                     appearanceSection
                     languageSection
 
