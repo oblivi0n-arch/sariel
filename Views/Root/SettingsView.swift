@@ -96,10 +96,19 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     appearanceSection
                     languageSection
-                    keyboardShortcutsSection
+
+                    Divider().overlay(Theme.border)
+
                     ollamaSection
                     contextSection
                     credibilitySection
+
+                    Divider().overlay(Theme.border)
+
+                    keyboardShortcutsSection
+
+                    Divider().overlay(Theme.border)
+
                     dangerZone
                     debugOnboardingSection //DEBUG ONLY
                 }
