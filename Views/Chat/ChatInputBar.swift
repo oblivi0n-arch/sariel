@@ -69,7 +69,7 @@ struct ChatInputBar: View {
             }
         }
         HStack(alignment: .bottom, spacing: 10) {
-            TextField("Write a message...", text: $draft, axis: .vertical)
+            TextField(L10n.ChatInput.messagePlaceholder, text: $draft, axis: .vertical)
                 .textFieldStyle(.plain)
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textPrimary)
