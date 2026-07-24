@@ -7,17 +7,31 @@ struct SidebarIconButton: View {
     var showAlertBadge: Bool = false
     var isSolidRed: Bool = false
     let onTap: () -> Void
-
+    
     @State private var isHovering = false
-
+    
     private var effectivelyLocked: Bool {
         isLocked && !isActive
     }
-
+    
     private var isPulseActive: Bool {
         showAlertBadge && !effectivelyLocked && !isSolidRed
     }
-
+    
+    private var baseForegroundColor: Color {
+        if effectivelyLocked { return Theme.textFaint }
+        if isActive { return Theme.textPrimary }
+        if isHovering { return Theme.textMuted }
+        return Theme.textFaint
+    }
+    
+    private var baseBorderColor: Color {
+        if effectivelyLocked { return .clear }
+        if isActive { return Theme.borderStrong }
+        if isHovering { return Theme.border }
+        return .clear
+    }
+    
     var body: some View {
         Group {
             if isSolidRed && !effectivelyLocked {
@@ -45,16 +59,16 @@ struct SidebarIconButton: View {
     private func baseIcon() -> some View {
         iconShape(foreground: baseForegroundColor, border: baseBorderColor)
     }
-
+    
     private func redIcon() -> some View {
         iconShape(foreground: Color.red.opacity(0.9), border: Color.red.opacity(0.5))
     }
-
+    
     private func pulsingIcon(intensity: Double) -> some View {
         baseIcon()
             .overlay(redIcon().opacity(intensity))
     }
-
+    
     private func iconShape(foreground: Color, border: Color) -> some View {
         Image(systemName: iconName)
             .font(.system(size: 18))
@@ -78,25 +92,11 @@ struct SidebarIconButton: View {
             }
             .opacity(effectivelyLocked ? 0.35 : 1)
     }
-
+    
     private func pulseIntensity(at date: Date) -> Double {
         let period = 1.8
         let t = date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: period) / period
         return t < 0.5 ? t * 2 : (1 - t) * 2
-    }
-
-    private var baseForegroundColor: Color {
-        if effectivelyLocked { return Theme.textFaint }
-        if isActive { return Theme.textPrimary }
-        if isHovering { return Theme.textMuted }
-        return Theme.textFaint
-    }
-
-    private var baseBorderColor: Color {
-        if effectivelyLocked { return .clear }
-        if isActive { return Theme.borderStrong }
-        if isHovering { return Theme.border }
-        return .clear
     }
 }
 
