@@ -18,9 +18,17 @@ final class OllamaLauncher {
     func startIfNeeded() async {
         guard UserDefaults.standard.bool(forKey: "autoStartOllama") else { return }
         guard await !isServerReachable() else { return }
-        guard let path = Self.candidatePaths.first(where: { FileManager.default.isExecutableFile(atPath: $0) }) else {
-            return
+
+        let manualPath = UserDefaults.standard.string(forKey: "ollamaExecutablePath") ?? ""
+        let resolvedPath: String?
+
+        if !manualPath.isEmpty, FileManager.default.isExecutableFile(atPath: manualPath) {
+            resolvedPath = manualPath
+        } else {
+            resolvedPath = Self.candidatePaths.first(where: { FileManager.default.isExecutableFile(atPath: $0) })
         }
+
+        guard let path = resolvedPath else { return }
         launch(at: path)
     }
 

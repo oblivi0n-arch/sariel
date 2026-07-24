@@ -16,7 +16,9 @@ struct SettingsView: View {
     @AppStorage("useJournalContext") private var useJournalContext: Bool = false
     @AppStorage("useCredibilityContext") private var useCredibilityContext: Bool = false
     @AppStorage("autoStartOllama") private var autoStartOllama: Bool = false
-
+    @AppStorage("ollamaExecutablePath") private var ollamaExecutablePath: String = ""
+    
+    @State private var isManualPathShown = false
     @State private var availableModels: [String] = []
     @State private var isLoadingModels = false
     @State private var modelsLoadError: String?
@@ -156,6 +158,8 @@ struct SettingsView: View {
             Text(L10n.Settings.autoStartOllamaDescription)
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
+            
+            manualOllamaPathDisclosure
 
             labeledField(
                 title: L10n.Settings.hostFieldLabel,
@@ -329,6 +333,43 @@ struct SettingsView: View {
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
                 .padding(.top, 2)
+        }
+    }
+    
+    private var isManualPathValid: Bool {
+        ollamaExecutablePath.isEmpty || FileManager.default.isExecutableFile(atPath: ollamaExecutablePath)
+    }
+
+    private var manualOllamaPathDisclosure: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isManualPathShown.toggle()
+                }
+            }) {
+                HStack(spacing: 4) {
+                    Text(L10n.Settings.cantFindOllama)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 9, weight: .medium))
+                        .rotationEffect(.degrees(isManualPathShown ? 90 : 0))
+                }
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textMuted)
+            }
+            .buttonStyle(.plain)
+
+            if isManualPathShown {
+                labeledField(
+                    title: L10n.Settings.manualPathLabel,
+                    text: $ollamaExecutablePath,
+                    isValid: isManualPathValid,
+                    errorMessage: L10n.Settings.manualPathError
+                )
+
+                Text(L10n.Settings.manualPathHint)
+                    .font(Typography.caption)
+                    .foregroundStyle(Theme.textFaint)
+            }
         }
     }
 
@@ -788,6 +829,34 @@ extension L10n {
             switch lang {
             case .en: return "KEYBOARD SHORTCUTS"
             case .pl: return "SKRÓTY KLAWISZOWE"
+            }
+        }
+        
+        static var cantFindOllama: String {
+            switch lang {
+            case .en: return "Can't find Ollama?"
+            case .pl: return "Nie możemy znaleźć Ollamy?"
+            }
+        }
+
+        static var manualPathLabel: String {
+            switch lang {
+            case .en: return "Ollama executable path"
+            case .pl: return "Ścieżka do pliku wykonywalnego Ollamy"
+            }
+        }
+
+        static var manualPathError: String {
+            switch lang {
+            case .en: return "This path doesn't point to a valid executable file."
+            case .pl: return "Ta ścieżka nie wskazuje na prawidłowy plik wykonywalny."
+            }
+        }
+
+        static var manualPathHint: String {
+            switch lang {
+            case .en: return "Leave empty to auto-detect common install locations. Find yours by running \"which ollama\" in Terminal."
+            case .pl: return "Zostaw puste, by automatycznie wykryć typowe lokalizacje instalacji. Znajdziesz swoją, wpisując \"which ollama\" w Terminalu."
             }
         }
     }
