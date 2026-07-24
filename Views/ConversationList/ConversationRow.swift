@@ -7,14 +7,14 @@ struct ConversationRow: View {
     let onSelect: () -> Void
     let onDelete: () -> Void
     let onRename: (String) -> Void
-
+    
     @State private var isHovering = false
     @State private var isEditing = false
     @State private var editedTitle = ""
     @FocusState private var isFocused: Bool
     
     private var isEnded: Bool { conversation.journalEntry != nil }
-
+    
     var body: some View {
         Group {
             if isEditing {
@@ -39,20 +39,21 @@ struct ConversationRow: View {
                     Text(conversation.title)
                         .font(Theme.uiFont)
                         .foregroundStyle(isActive ? Theme.textPrimary : Theme.textSecondary)
-
+                    
                     Spacer(minLength: 0)
-
+                    
                     if conversation.containsCommitments {
                         Image(systemName: "seal.fill")
                             .font(.system(size: 11))
                             .foregroundStyle(Theme.textFaint)
                     }
-
+                    
                     if isEnded {
                         Image(systemName: "book.closed")
                             .font(.system(size: 11))
                             .foregroundStyle(Theme.textFaint)
-                    }                }
+                    }
+                }
             }
         }
         .padding(.horizontal, 16)
@@ -79,14 +80,14 @@ struct ConversationRow: View {
             } label: {
                 Label(L10n.ConversationRow.rename, systemImage: "pencil")
             }
-
+            
             Button(role: .destructive, action: onDelete) {
                 Label(L10n.ConversationRow.delete, systemImage: "trash")
             }
             .disabled(isGenerating)
         }
     }
-
+    
     private var borderColor: Color {
         if isEditing {
             return Theme.borderStrong
@@ -98,13 +99,13 @@ struct ConversationRow: View {
             return .clear
         }
     }
-
+    
     private func startEditing() {
         editedTitle = conversation.title
         isEditing = true
         isFocused = true
     }
-
+    
     private func commitRename() {
         let trimmed = editedTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty {
@@ -122,14 +123,14 @@ extension L10n {
             case .pl: return "tytuł rozmowy"
             }
         }
-
+        
         static var rename: String {
             switch lang {
             case .en: return "Rename"
             case .pl: return "Zmień nazwę"
             }
         }
-
+        
         static var delete: String {
             switch lang {
             case .en: return "Delete"

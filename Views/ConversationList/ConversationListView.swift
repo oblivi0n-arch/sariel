@@ -3,17 +3,19 @@ import SwiftData
 
 struct ConversationListView: View {
     @Environment(\.modelContext) private var modelContext
+
+    let conversations: [Conversation]
+    @Binding var activeConversation: Conversation?
+    @Binding var isConversationListOpen: Bool
+    @ObservedObject var chatService: ChatService
+
     @State private var isPlusHovering = false
     @State private var isSearchHovering = false
     @State private var isSearchExpanded = false
     @State private var searchText = ""
     @State private var blockedDeletionConversation: Conversation?
     @FocusState private var isSearchFocused: Bool
-    let conversations: [Conversation]
-    @Binding var activeConversation: Conversation?
-    @Binding var isConversationListOpen: Bool
-    @ObservedObject var chatService: ChatService
-    
+
     private var filteredConversations: [Conversation] {
         guard !searchText.isEmpty else { return conversations }
         return conversations.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
