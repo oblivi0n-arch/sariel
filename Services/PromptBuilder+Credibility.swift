@@ -2,7 +2,7 @@ import Foundation
 
 extension PromptBuilder {
     static func buildCredibilityContextText(resolvedCommitments: [Commitment]) -> String {
-        let band = Commitment.credibilityBand(from: resolvedCommitments)
+        let band = CredibilityBand.evaluate(from: resolvedCommitments)
         guard band != .insufficientData else { return "" }
 
         let declarationsList = resolvedCommitments.map { commitment -> String in

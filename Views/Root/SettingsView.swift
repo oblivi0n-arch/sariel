@@ -38,7 +38,7 @@ struct SettingsView: View {
             .toggleStyle(.switch)
             .tint(Theme.textPrimary)
 
-            Text(L10n.Settings.credibilityDescription(minimum: Commitment.credibilitySampleMinimum))
+            Text(L10n.Settings.credibilityDescription(minimum: CredibilityBand.sampleMinimum))
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
         }

@@ -65,11 +65,11 @@ struct TribunalView: View {
     }
     
     private var credibilityPercentage: Double? {
-        Commitment.credibilityPercentage(from: resolvedCommitments)
+        CredibilityBand.percentage(from: resolvedCommitments)
     }
 
     private var credibilityBand: CredibilityBand {
-        Commitment.credibilityBand(from: resolvedCommitments)
+        CredibilityBand.evaluate(from: resolvedCommitments)
     }
 
     private var credibilitySection: some View {
