@@ -2,17 +2,28 @@ import SwiftUI
 import SwiftData
 
 struct JournalView: View {
-    @State private var isPlusHovering = false
     @Environment(\.modelContext) private var modelContext
+
     @Binding var activeEntry: JournalEntry?
-    @State private var isEditingEntry = false
+    let onOpenConversation: (Conversation) -> Void
+
     @Query(sort: \JournalEntry.createdAt, order: .reverse) private var entries: [JournalEntry]
     @Query(sort: \JournalEntryTag.name) private var allTags: [JournalEntryTag]
 
+    @State private var isPlusHovering = false
+    @State private var isEditingEntry = false
     @State private var selectedTagIDs: Set<UUID> = []
-    
     @State private var searchText: String = ""
-    
+
+    private var sortedEntries: [JournalEntry] {
+        entries.sorted { lhs, rhs in
+            if lhs.isPinned != rhs.isPinned {
+                return lhs.isPinned && !rhs.isPinned
+            }
+            return lhs.createdAt > rhs.createdAt
+        }
+    }
+
     private var filteredEntries: [JournalEntry] {
         var result = sortedEntries
 
@@ -32,17 +43,6 @@ struct JournalView: View {
 
         return result
     }
-    
-    private var sortedEntries: [JournalEntry] {
-        entries.sorted { lhs, rhs in
-            if lhs.isPinned != rhs.isPinned {
-                return lhs.isPinned && !rhs.isPinned
-            }
-            return lhs.createdAt > rhs.createdAt
-        }
-    }
-    
-    let onOpenConversation: (Conversation) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
