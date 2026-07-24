@@ -1,16 +1,84 @@
 import SwiftUI
+import Combine
+
+enum AppTheme: String, CaseIterable {
+    case dark
+    case light
+}
+
+final class ThemeManager: ObservableObject {
+    static let shared = ThemeManager()
+
+    @Published var current: AppTheme {
+        didSet {
+            UserDefaults.standard.set(current.rawValue, forKey: "appTheme")
+        }
+    }
+
+    private init() {
+        let saved = UserDefaults.standard.string(forKey: "appTheme") ?? AppTheme.dark.rawValue
+        self.current = AppTheme(rawValue: saved) ?? .dark
+    }
+}
 
 struct Theme {
-    static let background = Color.black
-    static let fieldBackground = Color(hex: "141416")
+    private static var mode: AppTheme { ThemeManager.shared.current }
 
-    static let border = Color.white.opacity(0.15)
-    static let borderStrong = Color.white.opacity(0.35)
+    static var background: Color {
+        switch mode {
+        case .dark: return Color.black
+        case .light: return Color.white
+        }
+    }
 
-    static let textPrimary = Color.white
-    static let textSecondary = Color.white.opacity(0.75)
-    static let textMuted = Color.white.opacity(0.45)
-    static let textFaint = Color.white.opacity(0.28)
+    static var fieldBackground: Color {
+        switch mode {
+        case .dark: return Color(hex: "141416")
+        case .light: return Color(hex: "F0F0F0")
+        }
+    }
+
+    static var border: Color {
+        switch mode {
+        case .dark: return Color.white.opacity(0.15)
+        case .light: return Color.black.opacity(0.15)
+        }
+    }
+
+    static var borderStrong: Color {
+        switch mode {
+        case .dark: return Color.white.opacity(0.35)
+        case .light: return Color.black.opacity(0.35)
+        }
+    }
+
+    static var textPrimary: Color {
+        switch mode {
+        case .dark: return Color.white
+        case .light: return Color.black
+        }
+    }
+
+    static var textSecondary: Color {
+        switch mode {
+        case .dark: return Color.white.opacity(0.75)
+        case .light: return Color.black.opacity(0.75)
+        }
+    }
+
+    static var textMuted: Color {
+        switch mode {
+        case .dark: return Color.white.opacity(0.45)
+        case .light: return Color.black.opacity(0.45)
+        }
+    }
+
+    static var textFaint: Color {
+        switch mode {
+        case .dark: return Color.white.opacity(0.28)
+        case .light: return Color.black.opacity(0.28)
+        }
+    }
 
     static let voiceFont = Font.system(.body, design: .serif)
     static let uiFont = Font.system(.body, design: .default)
