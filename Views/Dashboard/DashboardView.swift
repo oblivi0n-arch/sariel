@@ -8,9 +8,7 @@ struct DashboardView: View {
     @AppStorage("dashboardGreetingDate") private var greetingDateString: String = ""
     @Query(sort: \JournalEntry.createdAt, order: .reverse)
     private var journalEntries: [JournalEntry]
-
     @State private var greetingText: String = ""
-    
     let toastManager: ToastManager
     
     private var currentStreak: Int {
@@ -119,7 +117,7 @@ struct DashboardView: View {
     }
 
     private func updateGreetingIfNeeded() {
-        let todayString = Self.dayFormatter.string(from: Date())
+        let todayString = Date().dayKey
 
         if greetingDateString != todayString {
             greetingIndex = L10n.Dashboard.greetings.indices.randomElement() ?? 0
@@ -130,12 +128,6 @@ struct DashboardView: View {
         greetingText = L10n.Dashboard.greetings[greetingIndex]
             .replacingOccurrences(of: "{name}", with: name)
     }
-
-    private static let dayFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }()
     
     private func weekdayLabel(for date: Date) -> String {
         let formatter = DateFormatter()

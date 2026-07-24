@@ -10,6 +10,7 @@ struct ContentView: View {
     @AppStorage("isPostReset") private var isPostReset: Bool = false
     @AppStorage("lastActiveConversationID") private var lastActiveConversationIDString: String = ""
     @AppStorage("lastNotifiedCommitmentID") private var lastNotifiedCommitmentIDString: String = ""
+    @AppStorage("lastDashboardShownDate") private var lastDashboardShownDateString: String = ""
     
     @Query(
         filter: #Predicate<Conversation> { !$0.isTribunal },
@@ -199,6 +200,7 @@ struct ContentView: View {
                 setupConversation()
                 startTribunalUnlockChecking()
                 evaluateTribunalGateIfNeeded()
+                showDashboardOnNewDay()
                 if isTribunalInProgress {
                     selectedSection = .tribunal
                 }
@@ -330,6 +332,13 @@ struct ContentView: View {
                 isDimmed = false
             }
         }
+    }
+    
+    private func showDashboardOnNewDay() {
+        let todayKey = Date().dayKey
+        guard lastDashboardShownDateString != todayKey else { return }
+        lastDashboardShownDateString = todayKey
+        selectedSection = .dashboard
     }
 }
 
