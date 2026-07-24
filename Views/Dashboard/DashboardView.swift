@@ -1,5 +1,7 @@
 import SwiftUI
 import SwiftData
+import Charts
+
 struct DashboardView: View {
     @AppStorage("username") private var username: String = ""
     @AppStorage("dashboardGreetingIndex") private var greetingIndex: Int = 0
@@ -38,6 +40,20 @@ struct DashboardView: View {
         formatter.unitsStyle = .full
         return formatter.localizedString(for: mostRecent, relativeTo: Date())
     }
+    
+    private var entriesLast7Days: [DailyEntryCount] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        let countsByDay = Dictionary(grouping: journalEntries) { entry in
+            calendar.startOfDay(for: entry.createdAt)
+        }.mapValues(\.count)
+
+        return (0..<7).reversed().map { offset in
+            let day = calendar.date(byAdding: .day, value: -offset, to: today)!
+            return DailyEntryCount(day: day, count: countsByDay[day] ?? 0)
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -59,6 +75,32 @@ struct DashboardView: View {
                     DashboardStatCard(label: L10n.Dashboard.lastActivityLabel, value: lastActivityText)
                     DashboardStatCard(label: L10n.Dashboard.streakLabel, value: L10n.Dashboard.streakValue(currentStreak))
                     DashboardStatCard(label: L10n.Dashboard.journalEntriesLabel, value: "\(journalEntries.count)")
+                }
+                
+                DashboardSectionCard(title: L10n.Dashboard.entriesOverTimeLabel) {
+                    Chart(entriesLast7Days) { item in
+                        BarMark(
+                            x: .value("Day", item.day, unit: .day),
+                            y: .value("Entries", item.count)
+                        )
+                        .foregroundStyle(
+                            Calendar.current.isDateInToday(item.day) ? Theme.textPrimary : Theme.textFaint
+                        )
+                        .cornerRadius(3)
+                    }
+                    .frame(height: 70)
+                    .chartYAxis(.hidden)
+                    .chartXAxis {
+                        AxisMarks(values: .stride(by: .day)) { value in
+                            if let date = value.as(Date.self) {
+                                AxisValueLabel {
+                                    Text(weekdayLabel(for: date))
+                                        .font(Typography.caption)
+                                        .foregroundStyle(Theme.textFaint)
+                                }
+                            }
+                        }
+                    }
                 }
                 Spacer()
             }
@@ -87,6 +129,19 @@ struct DashboardView: View {
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter
     }()
+    
+    private func weekdayLabel(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: L10n.lang == .pl ? "pl_PL" : "en_US")
+        formatter.setLocalizedDateFormatFromTemplate("EEE")
+        return formatter.string(from: date)
+    }
+}
+
+private struct DailyEntryCount: Identifiable {
+    let day: Date
+    let count: Int
+    var id: Date { day }
 }
 
 extension L10n {
@@ -153,6 +208,13 @@ extension L10n {
             switch lang {
             case .en: return "No activity yet"
             case .pl: return "Brak aktywności"
+            }
+        }
+        
+        static var entriesOverTimeLabel: String {
+            switch lang {
+            case .pl: return "WPISY W CZASIE"
+            case .en: return "ENTRIES OVER TIME"
             }
         }
     }
