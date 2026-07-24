@@ -62,6 +62,9 @@ struct ContentView: View {
                 ZStack {
                     Group {
                         switch selectedSection {
+                        case .dashboard:
+                            DashboardView()
+                            
                         case .chat:
                             ZStack(alignment: .leading) {
                                 Group {

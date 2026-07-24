@@ -1,6 +1,7 @@
 import Foundation
 
 enum AppSection: String, CaseIterable, Identifiable {
+    case dashboard
     case chat
     case journal
     case tribunal
@@ -9,6 +10,8 @@ enum AppSection: String, CaseIterable, Identifiable {
     
     var iconName: String {
         switch self {
+        case .dashboard:
+            return "moon.stars.fill"
         case .chat:
             return "text.bubble.fill"
         case .journal:
