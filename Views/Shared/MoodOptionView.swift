@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct MoodOption: View {
+struct MoodOptionView: View {
     let mood: Mood
     let isSelected: Bool
     let onTap: () -> Void

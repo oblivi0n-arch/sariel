@@ -18,7 +18,7 @@ struct MoodPromptOverlay: View {
 
                 HStack(spacing: 10) {
                     ForEach(Mood.allCases, id: \.self) { mood in
-                        MoodOption(mood: mood, isSelected: false, onTap: { onSelect(mood) })
+                        MoodOptionView(mood: mood, isSelected: false, onTap: { onSelect(mood) })
                     }
                 }
             }

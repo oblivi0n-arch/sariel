@@ -176,7 +176,7 @@ struct MoodPicker: View {
     var body: some View {
         HStack(spacing: 8) {
             ForEach(Mood.allCases, id: \.self) { mood in
-                MoodOption(
+                MoodOptionView(
                     mood: mood,
                     isSelected: selection == mood,
                     onTap: { selection = mood }
