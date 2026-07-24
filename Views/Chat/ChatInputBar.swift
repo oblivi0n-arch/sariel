@@ -9,9 +9,10 @@ struct ChatInputBar: View {
     let isDeclarationLimitReached: Bool
     let onSend: () -> Void
 
-    private var canSend: Bool {
-        !draft.trimmingCharacters(in: .whitespaces).isEmpty && !isSendBlocked && !isBlockedByLimit
-    }
+    @State private var isStamping = false
+    @State private var ringScale: CGFloat = 1
+    @State private var ringOpacity: Double = 0
+    @State private var barFlashOpacity: Double = 0
 
     private var isDeclaration: Bool {
         !isTribunal && Commitment.isDeclaration(draft)
@@ -20,38 +21,11 @@ struct ChatInputBar: View {
     private var isBlockedByLimit: Bool {
         isDeclaration && isDeclarationLimitReached
     }
-    
-    @State private var isStamping = false
-    @State private var ringScale: CGFloat = 1
-    @State private var ringOpacity: Double = 0
-    @State private var barFlashOpacity: Double = 0
 
-    private func handleSend() {
-        if isDeclaration {
-            withAnimation(.easeIn(duration: 0.05)) { isStamping = true }
-
-            ringScale = 1
-            ringOpacity = 0.6
-            withAnimation(.easeOut(duration: 0.5)) {
-                ringScale = 2.4
-                ringOpacity = 0
-            }
-
-            barFlashOpacity = 0.18
-            withAnimation(.easeOut(duration: 0.4)) {
-                barFlashOpacity = 0
-            }
-
-            Task {
-                try? await Task.sleep(nanoseconds: 90_000_000)
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.3)) {
-                    isStamping = false
-                }
-            }
-        }
-        onSend()
+    private var canSend: Bool {
+        !draft.trimmingCharacters(in: .whitespaces).isEmpty && !isSendBlocked && !isBlockedByLimit
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             if isBlockedByLimit {
@@ -108,6 +82,32 @@ struct ChatInputBar: View {
         }
         .padding(16)
         .animation(.easeInOut(duration: 0.15), value: isDeclaration)
+    }
+    
+    private func handleSend() {
+        if isDeclaration {
+            withAnimation(.easeIn(duration: 0.05)) { isStamping = true }
+
+            ringScale = 1
+            ringOpacity = 0.6
+            withAnimation(.easeOut(duration: 0.5)) {
+                ringScale = 2.4
+                ringOpacity = 0
+            }
+
+            barFlashOpacity = 0.18
+            withAnimation(.easeOut(duration: 0.4)) {
+                barFlashOpacity = 0
+            }
+
+            Task {
+                try? await Task.sleep(nanoseconds: 90_000_000)
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.3)) {
+                    isStamping = false
+                }
+            }
+        }
+        onSend()
     }
 }
 
