@@ -58,28 +58,28 @@ struct ChatHeaderView: View {
     private var trailingContent: some View {
         if isEnded && isTribunal {
             Button(action: onBackToTribunal) {
-                statusPill(icon: "arrow.uturn.backward", text: "Back to Tribunal")
+                statusPill(icon: "arrow.uturn.backward", text: L10n.ChatHeader.backToTribunal)
             }
             .buttonStyle(.plain)
         } else if isEnded {
             Button(action: onOpenSavedEntry) {
                 statusPill(
                     icon: "checkmark.circle",
-                    text: "Saved — tap to view",
+                    text: L10n.ChatHeader.savedTapToView,
                     color: isHoveringSavedPill ? Theme.textPrimary : Theme.textSecondary
                 )
             }
             .buttonStyle(.plain)
             .onHover { hovering in isHoveringSavedPill = hovering }
         } else if !isConnected {
-            statusPill(icon: "wifi.slash", text: "Offline", color: Theme.textMuted)
+            statusPill(icon: "wifi.slash", text: L10n.ChatHeader.offline, color: Theme.textMuted)
         } else if isTribunal {
             if let verdictError {
                 Button(action: {
                     guard !isInputLocked else { return }
                     onDeliverVerdicts()
                 }) {
-                    statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
+                    statusPill(icon: "exclamationmark.triangle.fill", text: L10n.ChatHeader.tapToRetry, color: Theme.textPrimary)
                 }
                 .buttonStyle(.plain)
                 .help(verdictError)
@@ -87,20 +87,20 @@ struct ChatHeaderView: View {
                 Button(action: onDeliverVerdicts) {
                     statusPill(
                         icon: "scalemass",
-                        text: isGeneratingVerdicts ? "judging..." : "deliver verdicts"
+                        text: isGeneratingVerdicts ? L10n.ChatHeader.judging : L10n.ChatHeader.deliverVerdicts
                     )
                 }
                 .buttonStyle(.plain)
                 .disabled(isGeneratingVerdicts || isInputLocked || !canDeliverVerdicts)
                 .opacity(canDeliverVerdicts ? 1 : 0.4)
-                .help(canDeliverVerdicts ? "" : "keep going – each declaration deserves its own accounting.")
+                .help(canDeliverVerdicts ? "" : L10n.ChatHeader.keepGoingDeclarations)
             }
         } else if let error = endConversationError {
             Button(action: {
                 guard !isInputLocked else { return }
                 onRequestEndConversation()
             }) {
-                statusPill(icon: "exclamationmark.triangle.fill", text: "Tap to retry", color: Theme.textPrimary)
+                statusPill(icon: "exclamationmark.triangle.fill", text: L10n.ChatHeader.tapToRetry, color: Theme.textPrimary)
             }
             .buttonStyle(.plain)
             .help(error)
@@ -113,11 +113,11 @@ struct ChatHeaderView: View {
                 guard !isInputLocked && canEndConversation else { return }
                 onRequestEndConversation()
             }) {
-                statusPill(icon: "book.closed", text: "End conversation")
+                statusPill(icon: "book.closed", text: L10n.ChatHeader.endConversation)
             }
             .buttonStyle(.plain)
             .opacity(!isInputLocked && canEndConversation ? 1 : 0.4)
-            .help(canEndConversation ? "" : "keep going – nothing to mirror yet.")
+            .help(canEndConversation ? "" : L10n.ChatHeader.keepGoingNothingToMirror)
         }
     }
 
@@ -134,5 +134,72 @@ struct ChatHeaderView: View {
         .background(Theme.fieldBackground)
         .clipShape(Capsule())
         .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
+    }
+}
+
+extension L10n {
+    enum ChatHeader {
+        static var backToTribunal: String {
+            switch lang {
+            case .en: return "Back to Tribunal"
+            case .pl: return "Powrót do Trybunału"
+            }
+        }
+
+        static var savedTapToView: String {
+            switch lang {
+            case .en: return "Saved — tap to view"
+            case .pl: return "Zapisano — dotknij, by zobaczyć"
+            }
+        }
+
+        static var offline: String {
+            switch lang {
+            case .en: return "Offline"
+            case .pl: return "Offline"
+            }
+        }
+
+        static var tapToRetry: String {
+            switch lang {
+            case .en: return "Tap to retry"
+            case .pl: return "Dotknij, by spróbować ponownie"
+            }
+        }
+
+        static var judging: String {
+            switch lang {
+            case .en: return "judging..."
+            case .pl: return "osądzanie..."
+            }
+        }
+
+        static var deliverVerdicts: String {
+            switch lang {
+            case .en: return "deliver verdicts"
+            case .pl: return "wydaj wyroki"
+            }
+        }
+
+        static var keepGoingDeclarations: String {
+            switch lang {
+            case .en: return "keep going – each declaration deserves its own accounting."
+            case .pl: return "mów dalej – każda deklaracja zasługuje na własne rozliczenie."
+            }
+        }
+
+        static var endConversation: String {
+            switch lang {
+            case .en: return "End conversation"
+            case .pl: return "Zakończ rozmowę"
+            }
+        }
+
+        static var keepGoingNothingToMirror: String {
+            switch lang {
+            case .en: return "keep going – nothing to mirror yet."
+            case .pl: return "mów dalej – jeszcze nie ma czego odzwierciedlić."
+            }
+        }
     }
 }

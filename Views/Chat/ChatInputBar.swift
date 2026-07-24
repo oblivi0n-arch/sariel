@@ -54,20 +54,20 @@ struct ChatInputBar: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-                    if isBlockedByLimit {
-                        Text("you're carrying \(Commitment.maxPendingDeclarations) unresolved declarations already. face the Tribunal before adding another.")
-                            .font(Typography.caption)
-                            .foregroundStyle(Color.red.opacity(0.75))
-                            .padding(.horizontal, 4)
-                            .transition(.opacity)
-                    } else if isDeclaration {
-                        Text("no take-backs. that's the whole point of declaring.")
-                            .font(Typography.caption)
-                            .foregroundStyle(Color.red.opacity(0.75))
-                            .padding(.horizontal, 4)
-                            .transition(.opacity)
-                    }
-                }
+            if isBlockedByLimit {
+                Text(L10n.ChatInput.declarationLimitReached(count: Commitment.maxPendingDeclarations))
+                    .font(Typography.caption)
+                    .foregroundStyle(Color.red.opacity(0.75))
+                    .padding(.horizontal, 4)
+                    .transition(.opacity)
+            } else if isDeclaration {
+                Text(L10n.ChatInput.noTakeBacks)
+                    .font(Typography.caption)
+                    .foregroundStyle(Color.red.opacity(0.75))
+                    .padding(.horizontal, 4)
+                    .transition(.opacity)
+            }
+        }
         HStack(alignment: .bottom, spacing: 10) {
             TextField("Write a message...", text: $draft, axis: .vertical)
                 .textFieldStyle(.plain)
@@ -108,5 +108,30 @@ struct ChatInputBar: View {
         }
         .padding(16)
         .animation(.easeInOut(duration: 0.15), value: isDeclaration)
+    }
+}
+
+extension L10n {
+    enum ChatInput {
+        static func declarationLimitReached(count: Int) -> String {
+            switch lang {
+            case .en: return "you're carrying \(count) unresolved declarations already. face the Tribunal before adding another."
+            case .pl: return "masz już na sobie \(count) nierozstrzygniętych deklaracji. stań przed Trybunałem, zanim dodasz kolejną."
+            }
+        }
+
+        static var noTakeBacks: String {
+            switch lang {
+            case .en: return "no take-backs. that's the whole point of declaring."
+            case .pl: return "bez wycofywania się. o to właśnie chodzi w deklarowaniu."
+            }
+        }
+
+        static var messagePlaceholder: String {
+            switch lang {
+            case .en: return "Write a message..."
+            case .pl: return "Napisz wiadomość..."
+            }
+        }
     }
 }

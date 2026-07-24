@@ -183,7 +183,7 @@ struct ChatView: View {
                 VStack(spacing: 0) {
                     if sortedMessages.isEmpty {
                         HStack(spacing: 8) {
-                            StarterChip(icon: "eye", label: "provocation", onTap: startProvocation)
+                            StarterChip(icon: "eye", label: L10n.Chat.provocationChip, onTap: startProvocation)
                             Spacer()
                         }
                         .padding(.horizontal, 16)
@@ -286,7 +286,7 @@ struct ChatView: View {
                 .font(.system(size: 26))
                 .foregroundStyle(Theme.textFaint)
 
-            Text("The mirror is empty.\nSay something true.")
+            Text(L10n.Chat.emptyState)
                 .font(Theme.voiceFont)
                 .foregroundStyle(Theme.textMuted)
                 .multilineTextAlignment(.center)
@@ -297,7 +297,7 @@ struct ChatView: View {
     private var endedClosing: some View {
         HStack {
             Spacer()
-            Text(conversation.isTribunal ? "— verdicts delivered —" : "— reflection recorded —")
+            Text(conversation.isTribunal ? L10n.Chat.verdictsDelivered : L10n.Chat.reflectionRecorded)
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
             Spacer()
@@ -417,5 +417,37 @@ struct ChatView: View {
     private func startProvocation() {
         guard !isInputLocked else { return }
         Task { await chatService.startProvocation(for: conversation, modelContext: modelContext) }
+    }
+}
+
+extension L10n {
+    enum Chat {
+        static var provocationChip: String {
+            switch lang {
+            case .en: return "provocation"
+            case .pl: return "prowokacja"
+            }
+        }
+
+        static var emptyState: String {
+            switch lang {
+            case .en: return "The mirror is empty.\nSay something true."
+            case .pl: return "Lustro jest puste.\nPowiedz coś prawdziwego."
+            }
+        }
+
+        static var verdictsDelivered: String {
+            switch lang {
+            case .en: return "— verdicts delivered —"
+            case .pl: return "— wyroki wydane —"
+            }
+        }
+
+        static var reflectionRecorded: String {
+            switch lang {
+            case .en: return "— reflection recorded —"
+            case .pl: return "— refleksja zapisana —"
+            }
+        }
     }
 }
