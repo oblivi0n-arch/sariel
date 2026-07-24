@@ -309,6 +309,7 @@ struct ContentView: View {
     
     private func switchSection(to section: AppSection) {
         guard section != selectedSection else { return }
+        guard !(isTribunalInProgress && section != .tribunal) else { return }
 
         withAnimation(.easeInOut(duration: 0.18)) {
             isDimmed = true
