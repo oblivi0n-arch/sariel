@@ -29,7 +29,7 @@ struct SplashView: View {
                             .font(.system(size: 28, weight: .semibold, design: .serif))
                             .foregroundStyle(Theme.textPrimary)
 
-                        Text("mirror to your own thoughts")
+                        Text(L10n.Splash.tagline)
                             .font(Typography.label)
                             .foregroundStyle(Theme.textMuted)
                     }
@@ -66,5 +66,16 @@ struct SplashView: View {
     private func targetScale(for size: CGSize) -> CGFloat {
         let diagonal = sqrt(size.width * size.width + size.height * size.height)
         return diagonal / baseRingSize
+    }
+}
+
+extension L10n {
+    enum Splash {
+        static var tagline: String {
+            switch lang {
+            case .en: return "mirror to your own thoughts"
+            case .pl: return "lustro dla Twoich myśli"
+            }
+        }
     }
 }

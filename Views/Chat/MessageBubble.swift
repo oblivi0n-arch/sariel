@@ -63,7 +63,7 @@ struct MessageBubble: View {
     var body: some View {
         VStack(alignment: isGuide ? .leading : .trailing, spacing: 4) {
             if !isError {
-                Text(isGuide ? "sariel" : "you")
+                Text(isGuide ? L10n.MessageBubble.sariel : L10n.MessageBubble.you)
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textMuted)
             }
@@ -267,10 +267,10 @@ struct MessageBubble: View {
                 .onSubmit { onSaveEdit?(editedText) }
 
             HStack(spacing: 12) {
-                Button("cancel") { onCancelEdit?() }
+                Button(L10n.MessageBubble.cancel) { onCancelEdit?() }
                     .buttonStyle(.plain)
                     .foregroundStyle(Theme.textMuted)
-                Button("save") { onSaveEdit?(editedText) }
+                Button(L10n.MessageBubble.save) { onSaveEdit?(editedText) }
                     .buttonStyle(.plain)
                     .foregroundStyle(Theme.textPrimary)
             }
@@ -320,5 +320,37 @@ struct MessageBubble: View {
             markdown: text,
             options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
         )) ?? AttributedString(text)
+    }
+}
+
+extension L10n {
+    enum MessageBubble {
+        static var sariel: String {
+            switch lang {
+            case .en: return "sariel"
+            case .pl: return "sariel"
+            }
+        }
+
+        static var you: String {
+            switch lang {
+            case .en: return "you"
+            case .pl: return "ty"
+            }
+        }
+
+        static var cancel: String {
+            switch lang {
+            case .en: return "cancel"
+            case .pl: return "anuluj"
+            }
+        }
+
+        static var save: String {
+            switch lang {
+            case .en: return "save"
+            case .pl: return "zapisz"
+            }
+        }
     }
 }

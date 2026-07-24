@@ -18,18 +18,18 @@ struct ToastView: View {
     private var title: String {
         switch toast.kind {
         case .journalEntrySaved(let entry): return entry.title
-        case .tribunalUnlocked: return "The Tribunal awaits"
-        case .declarationLimitBlocked: return "Declaration blocked"
-        case .declarationRequiresNewMessage: return "Declaration blocked"
+        case .tribunalUnlocked: return L10n.Toast.tribunalAwaitsTitle
+        case .declarationLimitBlocked: return L10n.Toast.declarationBlockedTitle
+        case .declarationRequiresNewMessage: return L10n.Toast.declarationBlockedTitle
         }
     }
 
     private var subtitle: String {
         switch toast.kind {
-        case .journalEntrySaved: return "entry saved"
-        case .tribunalUnlocked: return "a commitment is ready for judgment"
-        case .declarationLimitBlocked: return "resolve one before adding another"
-        case .declarationRequiresNewMessage: return "edit into a new message instead"
+        case .journalEntrySaved: return L10n.Toast.entrySaved
+        case .tribunalUnlocked: return L10n.Toast.tribunalAwaitsSubtitle
+        case .declarationLimitBlocked: return L10n.Toast.resolveOneFirst
+        case .declarationRequiresNewMessage: return L10n.Toast.editIntoNewMessage
         }
     }
 
@@ -72,6 +72,52 @@ struct ToastView: View {
         .onAppear {
             withAnimation(.linear(duration: toast.duration)) {
                 progress = 0
+            }
+        }
+    }
+}
+
+extension L10n {
+    enum Toast {
+        static var tribunalAwaitsTitle: String {
+            switch lang {
+            case .en: return "The Tribunal awaits"
+            case .pl: return "Trybunał czeka"
+            }
+        }
+
+        static var tribunalAwaitsSubtitle: String {
+            switch lang {
+            case .en: return "a commitment is ready for judgment"
+            case .pl: return "zobowiązanie jest gotowe na osąd"
+            }
+        }
+
+        static var declarationBlockedTitle: String {
+            switch lang {
+            case .en: return "Declaration blocked"
+            case .pl: return "Deklaracja zablokowana"
+            }
+        }
+
+        static var entrySaved: String {
+            switch lang {
+            case .en: return "entry saved"
+            case .pl: return "wpis zapisany"
+            }
+        }
+
+        static var resolveOneFirst: String {
+            switch lang {
+            case .en: return "resolve one before adding another"
+            case .pl: return "rozstrzygnij jedno, zanim dodasz kolejne"
+            }
+        }
+
+        static var editIntoNewMessage: String {
+            switch lang {
+            case .en: return "edit into a new message instead"
+            case .pl: return "zamiast tego edytuj jako nową wiadomość"
             }
         }
     }
