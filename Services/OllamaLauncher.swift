@@ -53,7 +53,7 @@ final class OllamaLauncher {
             process = task
             didStartProcess = true
         } catch {
-            // Cicha porażka: użytkownik zawsze może odpalić Ollamę ręcznie.
+            
         }
     }
 
