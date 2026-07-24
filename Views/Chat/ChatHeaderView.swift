@@ -3,19 +3,21 @@ import SwiftUI
 struct ChatHeaderView: View {
     let title: String
     @Binding var isConversationListOpen: Bool
+    let isConnected: Bool
+    let isInputLocked: Bool
+
     let isEnded: Bool
     let isEndingConversation: Bool
     let endConversationError: String?
     let canEndConversation: Bool
-    let isInputLocked: Bool
-    let isConnected: Bool
     let onOpenSavedEntry: () -> Void
     let onRequestEndConversation: () -> Void
+
     let isTribunal: Bool
     let isGeneratingVerdicts: Bool
     let canDeliverVerdicts: Bool
-    let onDeliverVerdicts: () -> Void
     let verdictError: String?
+    let onDeliverVerdicts: () -> Void
     let onBackToTribunal: () -> Void
 
     @State private var isHoveringSavedPill = false
