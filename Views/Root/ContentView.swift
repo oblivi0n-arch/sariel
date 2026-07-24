@@ -4,36 +4,28 @@ import SwiftData
 struct ContentView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
     @Environment(\.colorScheme) private var systemColorScheme
+    @Environment(\.modelContext) private var modelContext
     
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") private var isPostReset: Bool = false
     @AppStorage("lastActiveConversationID") private var lastActiveConversationIDString: String = ""
     @AppStorage("lastNotifiedCommitmentID") private var lastNotifiedCommitmentIDString: String = ""
-    @Environment(\.modelContext) private var modelContext
+    
     @Query(
         filter: #Predicate<Conversation> { !$0.isTribunal },
         sort: \Conversation.startedAt,
         order: .reverse
     ) private var conversations: [Conversation]
-
+    
     @Query(
-            filter: #Predicate<Conversation> { $0.isTribunal },
-            sort: \Conversation.startedAt,
-            order: .reverse
-        ) private var tribunalConversations: [Conversation]
-
-        @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
-        private var pendingCommitments: [Commitment]
-
-        private var isTribunalInProgress: Bool {
-            tribunalConversations.contains { $0.tribunalResolvedAt == nil }
-        }
-
-        private var isTribunalUnlocked: Bool {
-            guard let oldest = pendingCommitments.first else { return false }
-            return Date().timeIntervalSince(oldest.createdAt) >= Commitment.tribunalUnlockInterval
-        }
-
+        filter: #Predicate<Conversation> { $0.isTribunal },
+        sort: \Conversation.startedAt,
+        order: .reverse
+    ) private var tribunalConversations: [Conversation]
+    
+    @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
+    private var pendingCommitments: [Commitment]
+    
     @State private var activeConversation: Conversation?
     @State private var isConversationListOpen = false
     @State private var isSettingsOpen = false
@@ -46,7 +38,16 @@ struct ContentView: View {
     @State private var isDimmed = false
     @StateObject private var chatService = ChatService()
     @StateObject private var toastManager = ToastManager()
-
+    
+    private var isTribunalInProgress: Bool {
+        tribunalConversations.contains { $0.tribunalResolvedAt == nil }
+    }
+    
+    private var isTribunalUnlocked: Bool {
+        guard let oldest = pendingCommitments.first else { return false }
+        return Date().timeIntervalSince(oldest.createdAt) >= Commitment.tribunalUnlockInterval
+    }
+    
     var body: some View {
         ZStack {
             HStack(spacing: 0) {
@@ -238,17 +239,17 @@ struct ContentView: View {
         }
         .environment(\.colorScheme, themeManager.resolved == .dark ? .dark : .light)
     }
-
+    
     private func setupConversation() {
         guard activeConversation == nil else { return }
-
+        
         if !lastActiveConversationIDString.isEmpty,
            let uuid = UUID(uuidString: lastActiveConversationIDString),
            let restored = fetchConversation(id: uuid) {
             activeConversation = restored
             return
         }
-
+        
         if let latest = conversations.first {
             activeConversation = latest
         } else {
@@ -278,11 +279,11 @@ struct ContentView: View {
             sortBy: [SortDescriptor(\.createdAt)]
         )
         descriptor.fetchLimit = 1
-
+        
         guard let oldest = try? modelContext.fetch(descriptor).first else { return }
         guard Date().timeIntervalSince(oldest.createdAt) >= Commitment.tribunalUnlockInterval else { return }
         guard lastNotifiedCommitmentIDString != oldest.id.uuidString else { return }
-
+        
         // TODO: tribunal-unlocked toast is broken (fires incorrectly / needs rework) — re-enable once fixed
         // toastManager.showTribunalUnlocked()
         lastNotifiedCommitmentIDString = oldest.id.uuidString
@@ -301,7 +302,7 @@ struct ContentView: View {
     private func evaluateTribunalGateIfNeeded() {
         guard !hasEvaluatedGate else { return }
         hasEvaluatedGate = true
-
+        
         if isTribunalUnlocked && !isTribunalInProgress {
             isGateShown = true
         }
@@ -310,11 +311,11 @@ struct ContentView: View {
     private func switchSection(to section: AppSection) {
         guard section != selectedSection else { return }
         guard !(isTribunalInProgress && section != .tribunal) else { return }
-
+        
         withAnimation(.easeInOut(duration: 0.18)) {
             isDimmed = true
         }
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
             selectedSection = section
             withAnimation(.easeInOut(duration: 0.22)) {
