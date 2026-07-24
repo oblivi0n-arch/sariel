@@ -3,76 +3,35 @@ import SwiftData
 
 struct ChatView: View {
     @Environment(\.modelContext) var modelContext
+    @EnvironmentObject private var connectionMonitor: ConnectionMonitor
+
     @Bindable var conversation: Conversation
     @Binding var isConversationListOpen: Bool
     let isActive: Bool
-    
-    @Query(filter: #Predicate<Commitment> { $0.status == "pending" })
-    var pendingCommitments: [Commitment]
-
     @ObservedObject var chatService: ChatService
-    @State private var draft: String = ""
-    @EnvironmentObject private var connectionMonitor: ConnectionMonitor
-    @FocusState private var isInputFocused: Bool
-    @State private var editingMessageID: UUID?
-    @State private var isMoodPromptShown = false
-    @State private var isRevealFinishing = false
-    @State var tribunalVerdicts: [TribunalVerdict] = []
-    @State var isVerdictOverlayShown = false
-    @State private var justDeclared = false
-    @State private var pendingDeclarationText: String? = nil
 
-    @Namespace var sealNamespace
-    @State var showSeal = false
-    @State var sealDocked = false
-    @State var hasPlayedSealIntro = false
-
-    private var isEnded: Bool { conversation.journalEntry != nil || conversation.tribunalResolvedAt != nil }
-    var successfulExchangeCount: Int {
-        let sorted = sortedMessages
-        return sorted.indices.filter { index in
-            let message = sorted[index]
-            guard message.messageRole == .guide, message.isValidExchange else { return false }
-            guard index > 0 else { return false }
-            return sorted[index - 1].messageRole == .user
-        }.count
-    }
-    var isGenerating: Bool { chatService.generatingConversationIDs.contains(conversation.id) }
-    private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
-    var isInputLocked: Bool {
-        isGenerating || isEndingConversation || isRevealFinishing || chatService.isGeneratingVerdicts.contains(conversation.id)
-    }
-    private var hasUnresolvedError: Bool {
-        lastGuideMessage?.content.hasPrefix("⚠️") == true
-    }
-    var isSendBlocked: Bool {
-        isInputLocked || hasUnresolvedError
-    }
-    private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
-    private var lastUserMessage: ChatMessage? {
-        sortedMessages.last(where: { $0.messageRole == .user })
-    }
-    private var lastGuideMessage: ChatMessage? {
-        sortedMessages.last(where: { $0.messageRole == .guide })
-    }
-    
     var onJournalEntryCreated: (JournalEntry) -> Void
     var onDeclarationLimitBlocked: () -> Void
     var onDeclarationEditBlocked: () -> Void
     var onOpenJournalEntry: (JournalEntry) -> Void
     var onBackToTribunal: () -> Void
-    
-    private var isPendingProvocationStart: Bool {
-        !conversation.isTribunal && sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
-    }
-    
-    var isDeclarationLimitReached: Bool {
-            pendingCommitments.count >= Commitment.maxPendingDeclarations
-        }
-    
-    private func wouldExceedDeclarationLimit(_ text: String) -> Bool {
-        !conversation.isTribunal && Commitment.isDeclaration(text) && isDeclarationLimitReached
-    }
+
+    @Query(filter: #Predicate<Commitment> { $0.status == "pending" })
+    var pendingCommitments: [Commitment]
+
+    @State private var draft: String = ""
+    @FocusState private var isInputFocused: Bool
+    @State private var editingMessageID: UUID?
+    @State private var isMoodPromptShown = false
+    @State private var isRevealFinishing = false
+    @State private var justDeclared = false
+    @State private var pendingDeclarationText: String? = nil
+    @State var tribunalVerdicts: [TribunalVerdict] = []
+    @State var isVerdictOverlayShown = false
+    @Namespace var sealNamespace
+    @State var showSeal = false
+    @State var sealDocked = false
+    @State var hasPlayedSealIntro = false
 
     init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onDeclarationLimitBlocked: @escaping () -> Void, onDeclarationEditBlocked: @escaping () -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, onBackToTribunal: @escaping () -> Void, isActive: Bool) {
         self.conversation = conversation
@@ -88,6 +47,56 @@ struct ChatView: View {
 
     var sortedMessages: [ChatMessage] {
         conversation.messages.sorted { $0.timestamp < $1.timestamp }
+    }
+
+    private var lastUserMessage: ChatMessage? {
+        sortedMessages.last(where: { $0.messageRole == .user })
+    }
+
+    private var lastGuideMessage: ChatMessage? {
+        sortedMessages.last(where: { $0.messageRole == .guide })
+    }
+
+    var successfulExchangeCount: Int {
+        let sorted = sortedMessages
+        return sorted.indices.filter { index in
+            let message = sorted[index]
+            guard message.messageRole == .guide, message.isValidExchange else { return false }
+            guard index > 0 else { return false }
+            return sorted[index - 1].messageRole == .user
+        }.count
+    }
+
+    private var isPendingProvocationStart: Bool {
+        !conversation.isTribunal && sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
+    }
+
+    private var isEnded: Bool { conversation.journalEntry != nil || conversation.tribunalResolvedAt != nil }
+
+    var isGenerating: Bool { chatService.generatingConversationIDs.contains(conversation.id) }
+
+    private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
+
+    private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
+
+    var isInputLocked: Bool {
+        isGenerating || isEndingConversation || isRevealFinishing || chatService.isGeneratingVerdicts.contains(conversation.id)
+    }
+
+    private var hasUnresolvedError: Bool {
+        lastGuideMessage?.content.hasPrefix("⚠️") == true
+    }
+
+    var isSendBlocked: Bool {
+        isInputLocked || hasUnresolvedError
+    }
+
+    var isDeclarationLimitReached: Bool {
+        pendingCommitments.count >= Commitment.maxPendingDeclarations
+    }
+
+    private func wouldExceedDeclarationLimit(_ text: String) -> Bool {
+        !conversation.isTribunal && Commitment.isDeclaration(text) && isDeclarationLimitReached
     }
 
     var body: some View {
@@ -114,12 +123,12 @@ struct ChatView: View {
             ChatHeaderView(
                 title: conversation.title,
                 isConversationListOpen: $isConversationListOpen,
+                isConnected: connectionMonitor.isConnected,
+                isInputLocked: isInputLocked,
                 isEnded: isEnded,
                 isEndingConversation: isEndingConversation,
                 endConversationError: endConversationError,
                 canEndConversation: successfulExchangeCount >= 2,
-                isInputLocked: isInputLocked,
-                isConnected: connectionMonitor.isConnected,
                 onOpenSavedEntry: {
                     if let entry = conversation.journalEntry {
                         onOpenJournalEntry(entry)
@@ -129,8 +138,8 @@ struct ChatView: View {
                 isTribunal: conversation.isTribunal,
                 isGeneratingVerdicts: chatService.isGeneratingVerdicts.contains(conversation.id),
                 canDeliverVerdicts: canDeliverVerdicts,
-                onDeliverVerdicts: deliverVerdicts,
                 verdictError: chatService.verdictErrors[conversation.id],
+                onDeliverVerdicts: deliverVerdicts,
                 onBackToTribunal: onBackToTribunal
             )
 
