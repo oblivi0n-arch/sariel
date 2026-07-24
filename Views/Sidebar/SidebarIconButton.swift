@@ -39,7 +39,7 @@ struct SidebarIconButton: View {
             guard !effectivelyLocked else { return }
             isHovering = hovering
         }
-        .help(effectivelyLocked ? "End Tribunal session first" : "")
+        .help(effectivelyLocked ? L10n.Sidebar.lockedTooltip : "")
         .focusEffectDisabled()
     }
     private func baseIcon() -> some View {
@@ -97,5 +97,16 @@ struct SidebarIconButton: View {
         if isActive { return Theme.borderStrong }
         if isHovering { return Theme.border }
         return .clear
+    }
+}
+
+extension L10n {
+    enum Sidebar {
+        static var lockedTooltip: String {
+            switch lang {
+            case .en: return "End Tribunal session first"
+            case .pl: return "Najpierw zakończ sesję Trybunału"
+            }
+        }
     }
 }
