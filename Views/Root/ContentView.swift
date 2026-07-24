@@ -116,16 +116,9 @@ struct ContentView: View {
                             
                         case .journal:
                             JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation)
-                        
+                            
                         case .tribunal:
                             TribunalView(chatService: chatService)
-                            
-                        case .vent:
-                            VentView()
-                            
-                        case .map:
-                            Text(L10n.ContentView.mapComingSoon)
-                                .foregroundStyle(Theme.textMuted)
                         }
                     }
                     Color.black
@@ -313,17 +306,6 @@ struct ContentView: View {
             selectedSection = section
             withAnimation(.easeInOut(duration: 0.22)) {
                 isDimmed = false
-            }
-        }
-    }
-}
-
-extension L10n {
-    enum ContentView {
-        static var mapComingSoon: String {
-            switch lang {
-            case .en: return "Stellaris map — coming soon"
-            case .pl: return "Mapa Stellaris — wkrótce"
             }
         }
     }
