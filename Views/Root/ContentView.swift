@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") private var isPostReset: Bool = false
     @AppStorage("lastActiveConversationID") private var lastActiveConversationIDString: String = ""
