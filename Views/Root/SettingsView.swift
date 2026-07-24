@@ -15,6 +15,7 @@ struct SettingsView: View {
     @AppStorage("ollamaModel") private var model: String = OllamaDefaults.model
     @AppStorage("useJournalContext") private var useJournalContext: Bool = false
     @AppStorage("useCredibilityContext") private var useCredibilityContext: Bool = false
+    @AppStorage("autoStartOllama") private var autoStartOllama: Bool = false
 
     @State private var availableModels: [String] = []
     @State private var isLoadingModels = false
@@ -142,6 +143,18 @@ struct SettingsView: View {
             sectionHeader(icon: "network", title: L10n.Settings.ollamaSectionTitle) {
                 connectionBadge
             }
+            
+            Toggle(isOn: $autoStartOllama) {
+                Text(L10n.Settings.autoStartOllamaLabel)
+                    .font(Theme.uiFont)
+                    .foregroundStyle(Theme.textPrimary)
+            }
+            .toggleStyle(.switch)
+            .tint(Theme.textPrimary)
+
+            Text(L10n.Settings.autoStartOllamaDescription)
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
 
             labeledField(
                 title: L10n.Settings.hostFieldLabel,
@@ -720,6 +733,20 @@ extension L10n {
             switch lang {
             case .en: return "This permanently deletes all conversations, journal entries, and settings, then restarts the app. This cannot be undone."
             case .pl: return "Ta operacja trwale usuwa wszystkie rozmowy, wpisy w dzienniku i ustawienia, a następnie restartuje aplikację. Nie da się jej cofnąć."
+            }
+        }
+        
+        static var autoStartOllamaLabel: String {
+            switch lang {
+            case .en: return "Start Ollama automatically"
+            case .pl: return "Uruchamiaj Ollamę automatycznie"
+            }
+        }
+
+        static var autoStartOllamaDescription: String {
+            switch lang {
+            case .en: return "When enabled, Sariel starts the Ollama server in the background on launch if it isn't already running, and stops it when Sariel quits. Requires Ollama installed via Homebrew or the official installer."
+            case .pl: return "Po włączeniu tej opcji, Sariel uruchamia serwer Ollamy w tle przy starcie, jeśli jeszcze nie działa, i zatrzymuje go przy zamknięciu Sariela. Wymaga Ollamy zainstalowanej przez Homebrew lub oficjalny instalator."
             }
         }
     }

@@ -1,10 +1,24 @@
 import SwiftUI
 import SwiftData
+import AppKit
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        Task {
+            await OllamaLauncher.shared.startIfNeeded()
+        }
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        OllamaLauncher.shared.stopIfWeStartedIt()
+    }
+}
 
 @main
 struct SarielApp: App {
     let container: ModelContainer
     @StateObject private var connectionMonitor = ConnectionMonitor()
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     init() {
         do {
