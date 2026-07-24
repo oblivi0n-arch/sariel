@@ -63,7 +63,7 @@ struct ContentView: View {
                     Group {
                         switch selectedSection {
                         case .dashboard:
-                            DashboardView()
+                            DashboardView(toastManager: toastManager)
                             
                         case .chat:
                             ZStack(alignment: .leading) {
@@ -171,6 +171,8 @@ struct ContentView: View {
                                 case .declarationLimitBlocked:
                                     selectedSection = .tribunal
                                 case .declarationRequiresNewMessage:
+                                    break
+                                case .achievementsComingSoon:
                                     break
                                 }
                                 toastManager.dismiss(toast)

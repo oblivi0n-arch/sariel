@@ -11,6 +11,8 @@ struct DashboardView: View {
 
     @State private var greetingText: String = ""
     
+    let toastManager: ToastManager
+    
     private var currentStreak: Int {
         let calendar = Calendar.current
         let uniqueDays = Set(journalEntries.map { calendar.startOfDay(for: $0.createdAt) })
@@ -102,6 +104,11 @@ struct DashboardView: View {
                         }
                     }
                 }
+                
+                DashboardAchievementsTeaser {
+                    toastManager.showAchievementsComingSoon()
+                }
+                
                 Spacer()
             }
             .padding(28)
@@ -215,6 +222,13 @@ extension L10n {
             switch lang {
             case .pl: return "WPISY W CZASIE"
             case .en: return "ENTRIES OVER TIME"
+            }
+        }
+        
+        static var achievementsLabel: String {
+            switch lang {
+            case .pl: return "Osiągnięcia"
+            case .en: return "Achievements"
             }
         }
     }
