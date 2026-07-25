@@ -32,20 +32,6 @@ struct SetupWizardView: View {
     }
 }
 
-struct LanguageStepView: View {
-    let onNext: () -> Void
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Text("TODO: język")
-                .foregroundStyle(Theme.textPrimary)
-            Text("dalej")
-                .foregroundStyle(Theme.textMuted)
-                .onTapGesture(perform: onNext)
-        }
-    }
-}
-
 struct NicknameStepView: View {
     let onNext: () -> Void
     let onBack: () -> Void
