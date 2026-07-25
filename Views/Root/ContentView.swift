@@ -146,7 +146,7 @@ struct ContentView: View {
                                 }
                             }
                         
-                        SettingsView(isPresented: $isSettingsOpen)
+                        SettingsView(isPresented: $isSettingsOpen, toastManager: toastManager)
                             .frame(maxWidth: 560, maxHeight: 620)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
@@ -182,6 +182,8 @@ struct ContentView: View {
                                     selectedSection = .tribunal
                                 case .declarationRequiresNewMessage:
                                     break
+                                case .achievementUnlocked:
+                                    selectedSection = .dashboard
                                 }
                                 toastManager.dismiss(toast)
                             }
@@ -224,6 +226,12 @@ struct ContentView: View {
                 }
                 if activeConversation == nil {
                     setupConversation()
+                }
+            }
+            .onChange(of: achievementService.newlyUnlocked) { _, newValue in
+                if let newValue {
+                    toastManager.showAchievementUnlocked(newValue)
+                    achievementService.newlyUnlocked = nil
                 }
             }
             .animation(.easeInOut(duration: 0.25), value: isConversationListOpen)
@@ -381,3 +389,4 @@ extension L10n {
         }
     }
 }
+

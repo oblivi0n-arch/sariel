@@ -34,4 +34,8 @@ final class ToastManager: ObservableObject {
     func showDeclarationRequiresNewMessage() {
         show(kind: .declarationRequiresNewMessage)
     }
+    
+    func showAchievementUnlocked(_ kind: AchievementKind) {
+        show(kind: .achievementUnlocked(kind))
+    }
 }

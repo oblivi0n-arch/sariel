@@ -150,6 +150,13 @@ extension SettingsView {
             .font(Typography.caption)
             .buttonStyle(.plain)
             .foregroundStyle(Theme.textMuted)
+            
+            Button("Preview achievement toast") {
+                toastManager.showAchievementUnlocked(.nightOwl)
+            }
+            .font(Typography.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textMuted)
         }
     }
     

@@ -12,6 +12,7 @@ struct ToastView: View {
         case .tribunalUnlocked: return "seal"
         case .declarationLimitBlocked: return "hand.raised.fill"
         case .declarationRequiresNewMessage: return "hand.raised.fill"
+        case .achievementUnlocked(let kind): return kind.symbolName
         }
     }
 
@@ -21,6 +22,7 @@ struct ToastView: View {
         case .tribunalUnlocked: return L10n.Toast.tribunalAwaitsTitle
         case .declarationLimitBlocked: return L10n.Toast.declarationBlockedTitle
         case .declarationRequiresNewMessage: return L10n.Toast.declarationBlockedTitle
+        case .achievementUnlocked(let kind): return kind.title
         }
     }
 
@@ -30,6 +32,7 @@ struct ToastView: View {
         case .tribunalUnlocked: return L10n.Toast.tribunalAwaitsSubtitle
         case .declarationLimitBlocked: return L10n.Toast.resolveOneFirst
         case .declarationRequiresNewMessage: return L10n.Toast.editIntoNewMessage
+        case .achievementUnlocked(let kind): return kind.unlockedDescription
         }
     }
 
