@@ -3,7 +3,7 @@ import Foundation
 struct OnboardingScreen: Identifiable {
     let id: Int
     let text: String
-    let footnote: String?
+    let footnote: String?   // TODO: currently unsused - kept for potential future use
     let buttonLabel: String
     let revealsText: Bool
 
@@ -31,9 +31,12 @@ extension OnboardingScreen {
             ),
             OnboardingScreen(
                 id: 2,
-                text: L10n.Onboarding.privacyText,
-                footnote: L10n.Onboarding.privacyFootnote,
-                buttonLabel: L10n.Onboarding.faceYourself
+                text: L10n.Onboarding.privacyText
+            ),
+            OnboardingScreen(
+                id: 3,
+                text: L10n.Onboarding.disclaimer,
+                revealsText: false
             )
         ]
     }
@@ -45,13 +48,6 @@ extension L10n {
             switch lang {
             case .en: return "next"
             case .pl: return "dalej"
-            }
-        }
-
-        static var faceYourself: String {
-            switch lang {
-            case .en: return "Face yourself"
-            case .pl: return "Spójrz prawdzie w oczy"
             }
         }
 
@@ -83,7 +79,7 @@ extension L10n {
             }
         }
 
-        static var privacyFootnote: String {
+        static var disclaimer: String {
             switch lang {
             case .en: return "Sariel is not therapy, counseling, or a crisis service, and was never built as a substitute for one. If you are struggling or in crisis, please reach out to a mental health professional or a real human you trust. Your life is valuable 🤍"
             case .pl: return "Sariel nie jest terapią, poradnictwem ani serwisem kryzysowym i nigdy nie powstał jako ich zamiennik. Jeśli zmagasz się z trudnościami lub przeżywasz kryzys, zwróć się do specjalisty od zdrowia psychicznego lub prawdziwej, zaufanej osoby. Twoje życie ma wartość 🤍"
