@@ -60,3 +60,9 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# SwiftData / Core Data local stores (never commit user data)
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.store
