@@ -37,6 +37,7 @@ struct ContentView: View {
     @State private var isGateShown = false
     @State private var hasEvaluatedGate = false
     @State private var isDimmed = false
+    @State private var hasFinishedNarrativeOnboarding = false
     @StateObject private var chatService = ChatService()
     @StateObject private var toastManager = ToastManager()
     
@@ -230,9 +231,15 @@ struct ContentView: View {
                     showSplash = false
                 }
             } else if !hasCompletedOnboarding {
-                OnboardingView(isPostReset: isPostReset) {
-                    hasCompletedOnboarding = true
-                    isPostReset = false
+                if !hasFinishedNarrativeOnboarding {
+                    OnboardingView(isPostReset: isPostReset) {
+                        hasFinishedNarrativeOnboarding = true
+                    }
+                } else {
+                    SetupWizardView {
+                        hasCompletedOnboarding = true
+                        isPostReset = false
+                    }
                 }
             } else if isGateShown {
                 TribunalGateView(
