@@ -56,6 +56,11 @@ extension SettingsView {
         useCredibilityContext = false
         autoStartOllama = false
         ollamaExecutablePath = ""
+
+        dashboardShortcut = ShortcutAction.dashboard.defaultShortcut
+        chatShortcut = ShortcutAction.chat.defaultShortcut
+        journalShortcut = ShortcutAction.journal.defaultShortcut
+        tribunalShortcut = ShortcutAction.tribunal.defaultShortcut
         
         UserDefaults.standard.removeObject(forKey: "username")
         UserDefaults.standard.removeObject(forKey: "dashboardGreetingIndex")
