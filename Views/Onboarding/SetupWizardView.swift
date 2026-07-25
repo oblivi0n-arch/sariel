@@ -32,21 +32,6 @@ struct SetupWizardView: View {
     }
 }
 
-struct NicknameStepView: View {
-    let onNext: () -> Void
-    let onBack: () -> Void
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Text("TODO: nick")
-                .foregroundStyle(Theme.textPrimary)
-            Text("dalej")
-                .foregroundStyle(Theme.textMuted)
-                .onTapGesture(perform: onNext)
-        }
-    }
-}
-
 struct OllamaStepView: View {
     let onFinish: () -> Void
     let onBack: () -> Void
