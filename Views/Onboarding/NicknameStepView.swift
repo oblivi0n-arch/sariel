@@ -33,6 +33,15 @@ struct NicknameStepView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
                 .frame(maxWidth: 240)
+                .onChange(of: username) { _, newValue in
+                    if newValue.count > AppLimits.maxUsernameLength {
+                        username = String(newValue.prefix(AppLimits.maxUsernameLength))
+                    }
+                }
+
+            Text("\(username.count)/\(AppLimits.maxUsernameLength)")
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
 
             HStack(spacing: 24) {
                 Text(L10n.Wizard.back)
