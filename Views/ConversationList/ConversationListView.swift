@@ -14,11 +14,39 @@ struct ConversationListView: View {
     @State private var isSearchExpanded = false
     @State private var searchText = ""
     @State private var blockedDeletionConversation: Conversation?
+    @State private var isArchiveExpanded = false
     @FocusState private var isSearchFocused: Bool
 
     private var filteredConversations: [Conversation] {
-        guard !searchText.isEmpty else { return conversations }
-        return conversations.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+        guard !searchText.isEmpty else { return activeConversations }
+        return activeConversations.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+    }
+    
+    private var archiveToggle: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isArchiveExpanded.toggle()
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text(L10n.ConversationList.archiveToggle)
+                Image(systemName: isArchiveExpanded ? "chevron.up" : "chevron.down")
+                    .font(.system(size: 9, weight: .medium))
+            }
+            .font(Typography.label)
+            .foregroundStyle(Theme.textFaint)
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+    
+    private var activeConversations: [Conversation] {
+        conversations.filter { !$0.isArchived }
+    }
+
+    private var archivedConversations: [Conversation] {
+        conversations.filter { $0.isArchived }
     }
 
     var body: some View {
@@ -110,8 +138,36 @@ struct ConversationListView: View {
                             onRename: { newTitle in
                                 conversation.title = newTitle
                                 try? modelContext.save()
+                            },
+                            onArchive: {
+                                if conversation.isArchived {
+                                    unarchive(conversation)
+                                } else {
+                                    archive(conversation)
+                                }
                             }
                         )
+                    }
+                }
+                
+                if !archivedConversations.isEmpty {
+                    archiveToggle
+
+                    if isArchiveExpanded {
+                        ForEach(archivedConversations) { conversation in
+                            ConversationRow(
+                                conversation: conversation,
+                                isActive: conversation.id == activeConversation?.id,
+                                isGenerating: false,
+                                onSelect: {
+                                    activeConversation = conversation
+                                    isConversationListOpen = false
+                                },
+                                onDelete: { delete(conversation) },
+                                onRename: { _ in },
+                                onArchive: { unarchive(conversation) }
+                            )
+                        }
                     }
                 }
             }
@@ -142,6 +198,19 @@ struct ConversationListView: View {
             activeConversation = conversations.first { $0.id != conversation.id }
         }
         modelContext.delete(conversation)
+        try? modelContext.save()
+    }
+    
+    private func archive(_ conversation: Conversation) {
+        conversation.isArchived = true
+        if activeConversation?.id == conversation.id {
+            activeConversation = activeConversations.first
+        }
+        try? modelContext.save()
+    }
+
+    private func unarchive(_ conversation: Conversation) {
+        conversation.isArchived = false
         try? modelContext.save()
     }
 
@@ -199,6 +268,13 @@ extension L10n {
             switch lang {
             case .en: return "OK"
             case .pl: return "OK"
+            }
+        }
+        
+        static var archiveToggle: String {
+            switch lang {
+            case .en: return "archive"
+            case .pl: return "archiwum"
             }
         }
     }

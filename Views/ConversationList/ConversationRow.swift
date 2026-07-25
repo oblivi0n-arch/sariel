@@ -7,6 +7,7 @@ struct ConversationRow: View {
     let onSelect: () -> Void
     let onDelete: () -> Void
     let onRename: (String) -> Void
+    let onArchive: () -> Void
     
     @State private var isHovering = false
     @State private var isEditing = false
@@ -80,7 +81,13 @@ struct ConversationRow: View {
             } label: {
                 Label(L10n.ConversationRow.rename, systemImage: "pencil")
             }
-            
+            Button(action: onArchive) {
+                if conversation.isArchived {
+                    Label(L10n.ConversationRow.unarchive, systemImage: "tray.and.arrow.up")
+                } else {
+                    Label(L10n.ConversationRow.archive, systemImage: "archivebox")
+                }
+            }
             Button(role: .destructive, action: onDelete) {
                 Label(L10n.ConversationRow.delete, systemImage: "trash")
             }
@@ -128,6 +135,20 @@ extension L10n {
             switch lang {
             case .en: return "Rename"
             case .pl: return "Zmień nazwę"
+            }
+        }
+        
+        static var archive: String {
+            switch lang {
+            case .en: return "Archive"
+            case .pl: return "Archiwizuj"
+            }
+        }
+
+        static var unarchive: String {
+            switch lang {
+            case .en: return "Restore from archive"
+            case .pl: return "Przywróć z archiwum"
             }
         }
         

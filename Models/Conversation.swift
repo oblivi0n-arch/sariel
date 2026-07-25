@@ -13,7 +13,8 @@ final class Conversation {
     var provocationQuestion: String?
     var provocationTitle: String?
     var isTribunal: Bool = false
-    var tribunalResolvedAt: Date?  
+    var tribunalResolvedAt: Date?
+    var isArchived: Bool = false
 
     @Relationship(deleteRule: .cascade, inverse: \ChatMessage.conversation)
     var messages: [ChatMessage] = []
