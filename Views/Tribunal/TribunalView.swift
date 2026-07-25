@@ -448,7 +448,7 @@ extension L10n {
                 return [
                     "In any conversation, type a message starting with \"I declare\" — it's saved as a commitment.",
                     "A declaration is permanent. It cannot be edited, deleted, or rewound once sent.",
-                    "Seven days pass from the oldest unresolved commitment.",
+                    "Three days pass from the oldest unresolved commitment.",
                     "The Tribunal unlocks — it cannot be rushed or skipped.",
                     "You face it and account for what you promised. Nothing is self-approved outside the Tribunal."
                 ]
@@ -456,7 +456,7 @@ extension L10n {
                 return [
                     "W dowolnej rozmowie napisz wiadomość zaczynającą się od \"ja deklaruję\" — zostanie zapisana jako zobowiązanie.",
                     "Deklaracja jest trwała. Po wysłaniu nie można jej edytować, usunąć ani cofnąć.",
-                    "Mija siedem dni od najstarszego nierozstrzygniętego zobowiązania.",
+                    "Mijają trzy dni od najstarszego nierozstrzygniętego zobowiązania.",
                     "Trybunał się odblokowuje — nie da się tego przyspieszyć ani pominąć.",
                     "Stajesz przed nim i rozliczasz się z tego, co obiecałeś. Nic nie jest zatwierdzane samemu poza Trybunałem."
                 ]
