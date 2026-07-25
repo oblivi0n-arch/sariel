@@ -3,7 +3,7 @@ import Foundation
 struct OnboardingScreen: Identifiable {
     let id: Int
     let text: String
-    let footnote: String?   // TODO: currently unsused - kept for potential future use
+    let footnote: String?   // TODO: currently unused - kept for potential future use
     let buttonLabel: String
     let revealsText: Bool
 
@@ -27,14 +27,22 @@ extension OnboardingScreen {
             ),
             OnboardingScreen(
                 id: 1,
-                text: L10n.Onboarding.expectationText
+                text: L10n.Onboarding.beforeYouStart
             ),
             OnboardingScreen(
                 id: 2,
-                text: L10n.Onboarding.privacyText
+                text: L10n.Onboarding.sarielIntroduction
             ),
             OnboardingScreen(
                 id: 3,
+                text: L10n.Onboarding.expectationText
+            ),
+            OnboardingScreen(
+                id: 4,
+                text: L10n.Onboarding.privacyText
+            ),
+            OnboardingScreen(
+                id: 5,
                 text: L10n.Onboarding.disclaimer,
                 revealsText: false
             )
@@ -83,6 +91,20 @@ extension L10n {
             switch lang {
             case .en: return "Sariel is not therapy, counseling, or a crisis service, and was never built as a substitute for one. If you are struggling or in crisis, please reach out to a mental health professional or a real human you trust. Your life is valuable 🤍"
             case .pl: return "Sariel nie jest terapią, poradnictwem ani serwisem kryzysowym i nigdy nie powstał jako ich zamiennik. Jeśli zmagasz się z trudnościami lub przeżywasz kryzys, zwróć się do specjalisty od zdrowia psychicznego lub prawdziwej, zaufanej osoby. Twoje życie ma wartość 🤍"
+            }
+        }
+        
+        static var sarielIntroduction: String {
+            switch lang {
+            case .en: return "Sariel. One of the Watchers who gave humanity forbidden knowledge — of the stars, of the moon's course. Knowledge no one should have reached for. Once known, it can't be put back."
+            case .pl: return "Sariel. Jeden ze Stróżów, który przekazał ludziom zakazaną wiedzę — o biegu gwiazd i księżyca. Wiedzę, po którą nie powinno się sięgać. Bo raz poznanej, nie da się już odłożyć."
+            }
+        }
+        
+        static var beforeYouStart: String {
+            switch lang {
+            case .en: return "Before we go any further, I want you to meet someone."
+            case .pl: return "Przed rozpoczęciem, chciałbym Tobie kogoś przedstawić."
             }
         }
     }
