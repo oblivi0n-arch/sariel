@@ -61,9 +61,8 @@ struct OnboardingView: View {
             }
             .frame(maxWidth: 420)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .id(currentIndex)
             .onAppear { startPause() }
-            .onDisappear { pauseTask?.cancel() }
+            .onChange(of: currentIndex) { _, _ in startPause() }
             
             advanceButton
                 .padding(24)
