@@ -5,12 +5,14 @@ struct OnboardingScreen: Identifiable {
     let text: String
     let footnote: String?
     let buttonLabel: String
+    let revealsText: Bool
 
-    init(id: Int, text: String, footnote: String? = nil, buttonLabel: String = L10n.Onboarding.next) {
+    init(id: Int, text: String, footnote: String? = nil, buttonLabel: String = L10n.Onboarding.next, revealsText: Bool = true) {
         self.id = id
         self.text = text
         self.footnote = footnote
         self.buttonLabel = buttonLabel
+        self.revealsText = revealsText
     }
 }
 

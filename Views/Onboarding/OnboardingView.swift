@@ -33,15 +33,20 @@ struct OnboardingView: View {
             ZStack {
                 if isContentVisible {
                     VStack(spacing: 16) {
-                        RevealingText(
-                            fullText: currentScreen.text,
-                            font: Theme.voiceFont,
-                            color: Theme.textPrimary,
-                            onComplete: { isRevealComplete = true }
-                        )
-                        .id(currentScreen.id)
-                        .multilineTextAlignment(.center)
-                        
+                        if currentScreen.revealsText {
+                            RevealingText(
+                                fullText: currentScreen.text,
+                                font: Theme.voiceFont,
+                                color: Theme.textPrimary,
+                                onComplete: { isRevealComplete = true }
+                            )
+                            .id(currentScreen.id)
+                        } else {
+                            Text(currentScreen.text)
+                                .font(Theme.uiFont)
+                                .foregroundStyle(Theme.textPrimary)
+                        }
+
                         if let footnote = currentScreen.footnote {
                             Text(footnote)
                                 .font(Typography.caption)
@@ -50,6 +55,7 @@ struct OnboardingView: View {
                                 .multilineTextAlignment(.center)
                         }
                     }
+                    .multilineTextAlignment(.center)
                     .transition(.opacity)
                 }
             }
@@ -85,6 +91,9 @@ struct OnboardingView: View {
             guard !Task.isCancelled else { return }
             withAnimation(.easeIn(duration: 0.5)) {
                 isContentVisible = true
+                if !currentScreen.revealsText {
+                    isRevealComplete = true
+                }
             }
         }
     }
