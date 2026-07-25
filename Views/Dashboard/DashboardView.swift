@@ -15,6 +15,7 @@ struct DashboardView: View {
     let achievementService: AchievementService
     @Query private var achievementUnlocks: [AchievementUnlock]
     @State private var selectedUnlock: AchievementUnlock?
+    @State private var isAchievementsScreenShown = false
     
     private var currentStreak: Int {
         let calendar = Calendar.current
@@ -58,6 +59,10 @@ struct DashboardView: View {
             let day = calendar.date(byAdding: .day, value: -offset, to: today)!
             return DailyEntryCount(day: day, count: countsByDay[day] ?? 0)
         }
+    }
+    
+    private var sortedAchievementUnlocks: [AchievementUnlock] {
+        achievementUnlocks.sorted { ($0.achievementKind?.rawValue ?? "") < ($1.achievementKind?.rawValue ?? "") }
     }
 
     var body: some View {
@@ -109,9 +114,9 @@ struct DashboardView: View {
                 }
                 
                 DashboardAchievementsSection(
-                    unlocks: achievementUnlocks.sorted { ($0.achievementKind?.rawValue ?? "") < ($1.achievementKind?.rawValue ?? "") },
+                    unlocks: sortedAchievementUnlocks,
                     onTapIcon: { unlock in selectedUnlock = unlock },
-                    onTapHeader: { /* TODO: open full achievements screen */ }
+                    onTapHeader: { isAchievementsScreenShown = true }
                 )
                 
                 Spacer()
@@ -120,6 +125,13 @@ struct DashboardView: View {
             
             if let selectedUnlock {
                 AchievementDetailOverlay(unlock: selectedUnlock, onClose: { self.selectedUnlock = nil })
+            }
+            
+            if isAchievementsScreenShown {
+                AchievementsView(
+                    unlocks: sortedAchievementUnlocks,
+                    onBack: { isAchievementsScreenShown = false }
+                )
             }
         }
         .onAppear {
