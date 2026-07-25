@@ -25,7 +25,7 @@ final class Conversation {
         messages.contains { $0.commitment != nil }
     }
 
-    init(title: String = "New conversation") {
+    init(title: String = L10n.Conversation.defaultTitle) {
         self.id = UUID()
         self.startedAt = Date()
         self.title = title
@@ -61,4 +61,15 @@ final class ChatMessage {
 enum MessageRole: String {
     case user
     case guide
+}
+
+extension L10n {
+    enum Conversation {
+        static var defaultTitle: String {
+            switch L10n.lang {
+            case .en: return "New conversation"
+            case .pl: return "Nowa rozmowa"
+            }
+        }
+    }
 }
