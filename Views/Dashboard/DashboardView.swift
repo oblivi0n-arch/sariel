@@ -111,7 +111,7 @@ struct DashboardView: View {
                 DashboardAchievementsSection(
                     unlocks: achievementUnlocks.sorted { ($0.achievementKind?.rawValue ?? "") < ($1.achievementKind?.rawValue ?? "") },
                     onTapIcon: { unlock in selectedUnlock = unlock },
-                    onTapHeader: { toastManager.showAchievementsComingSoon() }
+                    onTapHeader: { /* TODO: open full achievements screen */ }
                 )
                 
                 Spacer()

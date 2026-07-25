@@ -12,7 +12,6 @@ struct ToastView: View {
         case .tribunalUnlocked: return "seal"
         case .declarationLimitBlocked: return "hand.raised.fill"
         case .declarationRequiresNewMessage: return "hand.raised.fill"
-        case .achievementsComingSoon: return "lock"
         }
     }
 
@@ -22,7 +21,6 @@ struct ToastView: View {
         case .tribunalUnlocked: return L10n.Toast.tribunalAwaitsTitle
         case .declarationLimitBlocked: return L10n.Toast.declarationBlockedTitle
         case .declarationRequiresNewMessage: return L10n.Toast.declarationBlockedTitle
-        case .achievementsComingSoon: return L10n.Toast.achievementsComingSoonTitle
         }
     }
 
@@ -32,7 +30,6 @@ struct ToastView: View {
         case .tribunalUnlocked: return L10n.Toast.tribunalAwaitsSubtitle
         case .declarationLimitBlocked: return L10n.Toast.resolveOneFirst
         case .declarationRequiresNewMessage: return L10n.Toast.editIntoNewMessage
-        case .achievementsComingSoon: return L10n.Toast.achievementsComingSoonSubtitle
         }
     }
 
@@ -121,20 +118,6 @@ extension L10n {
             switch lang {
             case .en: return "edit into a new message instead"
             case .pl: return "zamiast tego edytuj jako nową wiadomość"
-            }
-        }
-        
-        static var achievementsComingSoonTitle: String {
-            switch lang {
-            case .en: return "Not yet"
-            case .pl: return "Jeszcze nie teraz"
-            }
-        }
-
-        static var achievementsComingSoonSubtitle: String {
-            switch lang {
-            case .en: return "achievements are coming later"
-            case .pl: return "osiągnięcia pojawią się później"
             }
         }
     }

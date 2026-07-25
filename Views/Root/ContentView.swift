@@ -182,8 +182,6 @@ struct ContentView: View {
                                     selectedSection = .tribunal
                                 case .declarationRequiresNewMessage:
                                     break
-                                case .achievementsComingSoon:
-                                    break
                                 }
                                 toastManager.dismiss(toast)
                             }
