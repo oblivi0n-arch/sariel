@@ -12,16 +12,22 @@ struct NicknameStepView: View {
         username.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private var isValid: Bool {
-        !trimmedUsername.isEmpty
+    private var nextLabel: String {
+        trimmedUsername.isEmpty ? L10n.Wizard.skipForNow : L10n.Onboarding.next
     }
 
     var body: some View {
         VStack(spacing: 32) {
-            Text(L10n.Wizard.nicknamePrompt)
-                .font(Theme.voiceFont)
-                .foregroundStyle(Theme.textPrimary)
-                .multilineTextAlignment(.center)
+            VStack(spacing: 6) {
+                Text(L10n.Wizard.nicknamePrompt)
+                    .font(Theme.voiceFont)
+                    .foregroundStyle(Theme.textPrimary)
+                    .multilineTextAlignment(.center)
+
+                Text(L10n.Wizard.nicknameOptionalLabel)
+                    .font(Typography.caption)
+                    .foregroundStyle(Theme.textFaint)
+            }
 
             TextField(L10n.Settings.usernamePlaceholder, text: $username)
                 .textFieldStyle(.plain)
@@ -50,12 +56,11 @@ struct NicknameStepView: View {
                     .onTapGesture(perform: onBack)
                     .onHover { hovering in isBackHovering = hovering }
 
-                Text(L10n.Onboarding.next)
+                Text(nextLabel)
                     .font(Typography.label)
-                    .foregroundStyle(isValid ? (isNextHovering ? Theme.textPrimary : Theme.textMuted) : Theme.textFaint)
-                    .onTapGesture { if isValid { onNext() } }
+                    .foregroundStyle(isNextHovering ? Theme.textPrimary : Theme.textMuted)
+                    .onTapGesture(perform: onNext)
                     .onHover { hovering in isNextHovering = hovering }
-                    .allowsHitTesting(isValid)
             }
             .padding(.top, 24)
         }
@@ -68,6 +73,13 @@ extension L10n.Wizard {
         switch L10n.lang {
         case .en: return "What should I call you?"
         case .pl: return "Jak mam się do Ciebie zwracać?"
+        }
+    }
+
+    static var nicknameOptionalLabel: String {
+        switch L10n.lang {
+        case .en: return "(optional)"
+        case .pl: return "(opcjonalne)"
         }
     }
 
