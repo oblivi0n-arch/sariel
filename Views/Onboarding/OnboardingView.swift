@@ -26,21 +26,6 @@ struct OnboardingView: View {
         currentScreen.pauseDuration
     }
     
-    private var advanceButton: some View {
-        Group {
-            if currentScreen.autoAdvanceAfter == nil {
-                Text(currentScreen.buttonLabel)
-                    .font(Typography.label)
-                    .foregroundStyle(isButtonHovering ? Theme.textPrimary : Theme.textMuted)
-                    .onTapGesture(perform: advance)
-                    .onHover { hovering in isButtonHovering = hovering }
-                    .allowsHitTesting(isRevealComplete)
-                    .opacity(isRevealComplete ? 1 : 0)
-                    .animation(.easeInOut(duration: 0.4), value: isRevealComplete)
-            }
-        }
-    }
-    
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             Theme.background.ignoresSafeArea()
@@ -112,6 +97,21 @@ struct OnboardingView: View {
                 try? await Task.sleep(nanoseconds: UInt64(autoDelay * 1_000_000_000))
                 guard !Task.isCancelled else { return }
                 advance()
+            }
+        }
+    }
+    
+    private var advanceButton: some View {
+        Group {
+            if currentScreen.autoAdvanceAfter == nil {
+                Text(currentScreen.buttonLabel)
+                    .font(Typography.label)
+                    .foregroundStyle(isButtonHovering ? Theme.textPrimary : Theme.textMuted)
+                    .onTapGesture(perform: advance)
+                    .onHover { hovering in isButtonHovering = hovering }
+                    .allowsHitTesting(isRevealComplete)
+                    .opacity(isRevealComplete ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.4), value: isRevealComplete)
             }
         }
     }
