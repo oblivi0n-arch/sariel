@@ -80,7 +80,7 @@ struct ChatView: View {
     private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
 
     var isInputLocked: Bool {
-        isGenerating || isEndingConversation || isRevealFinishing || chatService.isGeneratingVerdicts.contains(conversation.id)
+        conversation.isArchived || isGenerating || isEndingConversation || isRevealFinishing || chatService.isGeneratingVerdicts.contains(conversation.id)
     }
 
     private var hasUnresolvedError: Bool {

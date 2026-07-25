@@ -15,11 +15,13 @@ struct ConversationListView: View {
     @State private var searchText = ""
     @State private var blockedDeletionConversation: Conversation?
     @State private var isArchiveExpanded = false
+    @State private var searchIncludesArchive = false
     @FocusState private var isSearchFocused: Bool
 
     private var filteredConversations: [Conversation] {
+        let source = searchIncludesArchive ? conversations : activeConversations
         guard !searchText.isEmpty else { return activeConversations }
-        return activeConversations.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+        return source.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
     }
     
     private var archiveToggle: some View {
@@ -63,6 +65,15 @@ struct ConversationListView: View {
                             .font(Typography.label)
                             .foregroundStyle(Theme.textSecondary)
                             .focused($isSearchFocused)
+                        
+                        Button {
+                            searchIncludesArchive.toggle()
+                        } label: {
+                            Image(systemName: "archivebox")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(searchIncludesArchive ? Theme.textPrimary : Theme.textFaint)
+                        }
+                        .buttonStyle(.plain)
 
                         Button(action: collapseSearch) {
                             Image(systemName: "xmark")
