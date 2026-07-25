@@ -22,7 +22,7 @@ struct SarielApp: App {
 
     init() {
         do {
-            container = try ModelContainer(for: Conversation.self, ChatMessage.self, JournalEntry.self, JournalEntryTag.self, Commitment.self)
+            container = try ModelContainer(for: Conversation.self, ChatMessage.self, JournalEntry.self, JournalEntryTag.self, Commitment.self, AchievementUnlock.self)
         } catch {
             fatalError("Cannot initialize container: \(error)")
         }
