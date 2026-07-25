@@ -70,7 +70,7 @@ struct ContentView: View {
                     Group {
                         switch selectedSection {
                         case .dashboard:
-                            DashboardView(toastManager: toastManager)
+                            DashboardView(toastManager: toastManager, achievementService: achievementService)
                             
                         case .chat:
                             ZStack(alignment: .leading) {

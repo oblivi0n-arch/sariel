@@ -3,6 +3,7 @@ import SwiftData
 import Charts
 
 struct DashboardView: View {
+    @Environment(\.modelContext) private var modelContext
     @AppStorage("username") private var username: String = ""
     @AppStorage("dashboardGreetingIndex") private var greetingIndex: Int = 0
     @AppStorage("dashboardGreetingDate") private var greetingDateString: String = ""
@@ -11,6 +12,9 @@ struct DashboardView: View {
     private var journalEntries: [JournalEntry]
     @State private var greetingText: String = ""
     let toastManager: ToastManager
+    let achievementService: AchievementService
+    @Query private var achievementUnlocks: [AchievementUnlock]
+    @State private var selectedUnlock: AchievementUnlock?
     
     private var currentStreak: Int {
         let calendar = Calendar.current
@@ -104,9 +108,11 @@ struct DashboardView: View {
                     }
                 }
                 
-                DashboardAchievementsTeaser {
-                    toastManager.showAchievementsComingSoon()
-                }
+                DashboardAchievementsSection(
+                    unlocks: achievementUnlocks.sorted { ($0.achievementKind?.rawValue ?? "") < ($1.achievementKind?.rawValue ?? "") },
+                    onTapIcon: { unlock in selectedUnlock = unlock },
+                    onTapHeader: { toastManager.showAchievementsComingSoon() }
+                )
                 
                 Spacer()
             }
@@ -114,6 +120,7 @@ struct DashboardView: View {
         }
         .onAppear {
             updateGreetingIfNeeded()
+            _ = achievementService.allUnlocks(modelContext: modelContext)
         }
         .onChange(of: languageManager.current) { _, _ in
             updateGreetingIfNeeded()
