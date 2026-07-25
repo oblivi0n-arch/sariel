@@ -117,6 +117,10 @@ struct DashboardView: View {
                 Spacer()
             }
             .padding(28)
+            
+            if let selectedUnlock {
+                AchievementDetailOverlay(unlock: selectedUnlock, onClose: { self.selectedUnlock = nil })
+            }
         }
         .onAppear {
             updateGreetingIfNeeded()
