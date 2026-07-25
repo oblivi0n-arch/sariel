@@ -31,18 +31,3 @@ struct SetupWizardView: View {
         }
     }
 }
-
-struct OllamaStepView: View {
-    let onFinish: () -> Void
-    let onBack: () -> Void
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Text("TODO: ollama")
-                .foregroundStyle(Theme.textPrimary)
-            Text("zakończ")
-                .foregroundStyle(Theme.textMuted)
-                .onTapGesture(perform: onFinish)
-        }
-    }
-}
