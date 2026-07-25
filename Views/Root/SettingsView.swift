@@ -23,6 +23,10 @@ struct SettingsView: View {
     @State var isLoadingModels = false
     @State var modelsLoadError: String?
     @State var showResetConfirmation = false
+    #if DEBUG
+    @State var devTapCount = 0
+    @State var isDevModeUnlocked = false
+    #endif
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -48,7 +52,9 @@ struct SettingsView: View {
 
                     dangerZone
                     #if DEBUG
-                    debugOnboardingSection
+                    if isDevModeUnlocked {
+                        debugOnboardingSection
+                    }
                     #endif
                 }
                 .padding(20)
@@ -101,6 +107,14 @@ struct SettingsView: View {
             .foregroundStyle(Theme.textFaint)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 10)
+            #if DEBUG
+            .onTapGesture {
+                devTapCount += 1
+                if devTapCount == 5 {
+                    isDevModeUnlocked = true
+                }
+            }
+            #endif
     }
 
     func sectionHeader<Accessory: View>(
