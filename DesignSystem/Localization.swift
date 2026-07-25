@@ -16,8 +16,12 @@ final class LanguageManager: ObservableObject {
     }
 
     private init() {
-        let saved = UserDefaults.standard.string(forKey: "appLanguage") ?? AppLanguage.en.rawValue
-        self.current = AppLanguage(rawValue: saved) ?? .en
+        if let saved = UserDefaults.standard.string(forKey: "appLanguage") {
+            self.current = AppLanguage(rawValue: saved) ?? .en
+        } else {
+            let systemLanguageCode = Locale.current.language.languageCode?.identifier
+            self.current = systemLanguageCode == "pl" ? .pl : .en
+        }
     }
 }
 
