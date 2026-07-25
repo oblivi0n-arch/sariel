@@ -42,9 +42,18 @@ struct OnboardingView: View {
                             )
                             .id(currentScreen.id)
                         } else {
-                            Text(currentScreen.text)
-                                .font(Theme.uiFont)
-                                .foregroundStyle(Theme.textPrimary)
+                            VStack(spacing: 8) {
+                                if let title = currentScreen.title {
+                                    Text(title)
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .tracking(2)
+                                        .foregroundStyle(Color.red.opacity(0.7))
+                                }
+
+                                Text(currentScreen.text)
+                                    .font(Theme.uiFont)
+                                    .foregroundStyle(Theme.textPrimary)
+                            }
                         }
 
                         if let footnote = currentScreen.footnote {

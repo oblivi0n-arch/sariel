@@ -3,14 +3,16 @@ import Foundation
 struct OnboardingScreen: Identifiable {
     let id: Int
     let text: String
+    let title: String?
     let footnote: String?   // TODO: currently unused - kept for potential future use
     let buttonLabel: String
     let revealsText: Bool
     let pauseDuration: Double
 
-    init(id: Int, text: String, footnote: String? = nil, buttonLabel: String = L10n.Onboarding.next, revealsText: Bool = true, pauseDuration: Double) {
+    init(id: Int, text: String, title: String? = nil, footnote: String? = nil, buttonLabel: String = L10n.Onboarding.next, revealsText: Bool = true, pauseDuration: Double) {
         self.id = id
         self.text = text
+        self.title = title
         self.footnote = footnote
         self.buttonLabel = buttonLabel
         self.revealsText = revealsText
@@ -24,6 +26,7 @@ extension OnboardingScreen {
             OnboardingScreen(
                 id: 0,
                 text: L10n.Onboarding.disclaimer,
+                title: L10n.Onboarding.disclaimerTitle,
                 buttonLabel: L10n.Onboarding.iAmAware,
                 revealsText: false,
                 pauseDuration: 1.0
@@ -96,11 +99,18 @@ extension L10n {
             case .pl: return "Wszystko, co napiszesz, zostaje na tym urządzeniu. Nic nigdy nigdzie nie jest wysyłane."
             }
         }
+        
+        static var disclaimerTitle: String {
+            switch lang {
+            case .en: return "DISCLAIMER:"
+            case .pl: return "DISCLAIMER:"
+            }
+        }
 
         static var disclaimer: String {
             switch lang {
-            case .en: return "Sariel is not therapy, counseling, or a crisis service, and was never built as a substitute for one. If you are struggling or in crisis, please reach out to a mental health professional or a real human you trust. Your life is valuable 🤍"
-            case .pl: return "Sariel nie jest terapią, poradnictwem ani serwisem kryzysowym i nigdy nie powstał jako ich zamiennik. Jeśli zmagasz się z trudnościami lub przeżywasz kryzys, zwróć się do specjalisty od zdrowia psychicznego lub prawdziwej, zaufanej osoby. Twoje życie ma wartość 🤍"
+            case .en: return "Sariel is not therapy or a crisis service — and was never meant to be. If you're in crisis or thinking about harming yourself, please reach out to a mental health professional or a crisis line. You are not alone. Your life is valuable 🤍"
+            case .pl: return "Sariel nie jest terapią ani serwisem kryzysowym — i nigdy nie miał nim być. Jeśli przechodzisz kryzys lub myślisz o skrzywdzeniu siebie, zwróć się do specjalisty zdrowia psychicznego lub zadzwoń na telefon zaufania. Nie jesteś sam. Twoje życie ma wartość 🤍"
             }
         }
         
