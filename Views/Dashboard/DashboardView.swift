@@ -6,6 +6,7 @@ struct DashboardView: View {
     @AppStorage("username") private var username: String = ""
     @AppStorage("dashboardGreetingIndex") private var greetingIndex: Int = 0
     @AppStorage("dashboardGreetingDate") private var greetingDateString: String = ""
+    @ObservedObject private var languageManager = LanguageManager.shared
     @Query(sort: \JournalEntry.createdAt, order: .reverse)
     private var journalEntries: [JournalEntry]
     @State private var greetingText: String = ""
@@ -112,6 +113,12 @@ struct DashboardView: View {
             .padding(28)
         }
         .onAppear {
+            updateGreetingIfNeeded()
+        }
+        .onChange(of: languageManager.current) { _, _ in
+            updateGreetingIfNeeded()
+        }
+        .onChange(of: username) { _, _ in
             updateGreetingIfNeeded()
         }
     }
