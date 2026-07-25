@@ -136,6 +136,20 @@ extension SettingsView {
             .font(Typography.caption)
             .buttonStyle(.plain)
             .foregroundStyle(Theme.textMuted)
+            
+            Button("Force unlock all achievements") {
+                forceUnlockAllAchievements()
+            }
+            .font(Typography.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textMuted)
+
+            Button("Reset achievements progress") {
+                resetAchievementsProgress()
+            }
+            .font(Typography.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textMuted)
         }
     }
     
@@ -146,6 +160,34 @@ extension SettingsView {
         guard let pending = try? modelContext.fetch(descriptor) else { return }
         for commitment in pending {
             commitment.createdAt = Date().addingTimeInterval(-8 * 24 * 60 * 60)
+        }
+        try? modelContext.save()
+    }
+    
+    private func forceUnlockAllAchievements() {
+        var existing = (try? modelContext.fetch(FetchDescriptor<AchievementUnlock>())) ?? []
+        let existingKinds = Set(existing.compactMap { $0.achievementKind })
+
+        for kind in AchievementKind.allCases where !existingKinds.contains(kind) {
+            let unlock = AchievementUnlock(kind: kind)
+            modelContext.insert(unlock)
+            existing.append(unlock)
+        }
+
+        for unlock in existing {
+            guard let kind = unlock.achievementKind else { continue }
+            unlock.progress = kind.targetCount ?? 1
+            unlock.unlockedAt = Date()
+        }
+
+        try? modelContext.save()
+    }
+
+    private func resetAchievementsProgress() {
+        let all = (try? modelContext.fetch(FetchDescriptor<AchievementUnlock>())) ?? []
+        for unlock in all {
+            unlock.progress = 0
+            unlock.unlockedAt = nil
         }
         try? modelContext.save()
     }
