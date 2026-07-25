@@ -5,10 +5,11 @@ struct JournalEntryDetailView: View {
     @Bindable var entry: JournalEntry
     @Binding var isEditing: Bool
     let onOpenConversation: (Conversation) -> Void
+    let achievementService: AchievementService
 
     var body: some View {
         if isEditing {
-            JournalEntryEditor(entry: entry)
+            JournalEntryEditor(entry: entry, achievementService: achievementService)
         } else {
             JournalEntryReader(entry: entry, onEdit: { isEditing = true }, onOpenConversation: onOpenConversation)
         }

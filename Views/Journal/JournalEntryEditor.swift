@@ -8,6 +8,7 @@ private enum Field {
 
 struct JournalEntryEditor: View {
     @Bindable var entry: JournalEntry
+    let achievementService: AchievementService
     @FocusState private var focusedField: Field?
     @Environment(\.modelContext) private var modelContext
     @Query private var allTags: [JournalEntryTag]
@@ -60,6 +61,7 @@ struct JournalEntryEditor: View {
                 .onDisappear {
                     saveTask?.cancel()
                     try? modelContext.save()
+                    achievementService.checkNightOwl(modelContext: modelContext)
                 }
             }
 

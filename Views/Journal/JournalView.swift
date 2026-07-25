@@ -6,6 +6,7 @@ struct JournalView: View {
 
     @Binding var activeEntry: JournalEntry?
     let onOpenConversation: (Conversation) -> Void
+    let achievementService: AchievementService
 
     @Query(sort: \JournalEntry.createdAt, order: .reverse) private var entries: [JournalEntry]
     @Query(sort: \JournalEntryTag.name) private var allTags: [JournalEntryTag]
@@ -120,7 +121,7 @@ struct JournalView: View {
             }
 
             if let entry = activeEntry {
-                JournalEntryDetailView(entry: entry, isEditing: $isEditingEntry, onOpenConversation: onOpenConversation)
+                JournalEntryDetailView(entry: entry, isEditing: $isEditingEntry, onOpenConversation: onOpenConversation, achievementService: achievementService)
             } else if entries.isEmpty {
                 emptyState
             } else {

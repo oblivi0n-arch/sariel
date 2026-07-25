@@ -44,6 +44,7 @@ struct ContentView: View {
     @State private var hasFinishedNarrativeOnboarding = false
     @StateObject private var chatService = ChatService()
     @StateObject private var toastManager = ToastManager()
+    @StateObject private var achievementService = AchievementService()
     
     private var isTribunalInProgress: Bool {
         tribunalConversations.contains { $0.tribunalResolvedAt == nil }
@@ -125,7 +126,7 @@ struct ContentView: View {
                             .clipped()
                             
                         case .journal:
-                            JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation)
+                            JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation, achievementService: achievementService)
                             
                         case .tribunal:
                             TribunalView(chatService: chatService)
