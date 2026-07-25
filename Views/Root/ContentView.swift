@@ -11,6 +11,10 @@ struct ContentView: View {
     @AppStorage("lastActiveConversationID") private var lastActiveConversationIDString: String = ""
     @AppStorage("lastNotifiedCommitmentID") private var lastNotifiedCommitmentIDString: String = ""
     @AppStorage("lastDashboardShownDate") private var lastDashboardShownDateString: String = ""
+    @AppStorage(ShortcutAction.dashboard.storageKey) private var dashboardShortcut = ShortcutAction.dashboard.defaultShortcut
+    @AppStorage(ShortcutAction.chat.storageKey) private var chatShortcut = ShortcutAction.chat.defaultShortcut
+    @AppStorage(ShortcutAction.journal.storageKey) private var journalShortcut = ShortcutAction.journal.defaultShortcut
+    @AppStorage(ShortcutAction.tribunal.storageKey) private var tribunalShortcut = ShortcutAction.tribunal.defaultShortcut
     
     @Query(
         filter: #Predicate<Conversation> { !$0.isTribunal },
@@ -151,16 +155,16 @@ struct ContentView: View {
                 }
                 .background {
                     Button("") { switchSection(to: .dashboard) }
-                        .keyboardShortcut("1", modifiers: .command)
+                        .keyboardShortcut(dashboardShortcut.keyEquivalent, modifiers: dashboardShortcut.eventModifiers)
                         .hidden()
                     Button("") { switchSection(to: .chat) }
-                        .keyboardShortcut("2", modifiers: .command)
+                        .keyboardShortcut(chatShortcut.keyEquivalent, modifiers: chatShortcut.eventModifiers)
                         .hidden()
                     Button("") { switchSection(to: .journal) }
-                        .keyboardShortcut("3", modifiers: .command)
+                        .keyboardShortcut(journalShortcut.keyEquivalent, modifiers: journalShortcut.eventModifiers)
                         .hidden()
                     Button("") { switchSection(to: .tribunal) }
-                        .keyboardShortcut("4", modifiers: .command)
+                        .keyboardShortcut(tribunalShortcut.keyEquivalent, modifiers: tribunalShortcut.eventModifiers)
                         .hidden()
                 }
                 .overlay(alignment: .topTrailing) {
