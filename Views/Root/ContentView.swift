@@ -271,7 +271,7 @@ struct ContentView: View {
             return
         }
         
-        if let latest = conversations.first {
+        if let latest = conversations.first(where: { !$0.isArchived }) {
             activeConversation = latest
         } else {
             let new = Conversation()
