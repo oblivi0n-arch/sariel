@@ -25,18 +25,31 @@ extension SettingsView {
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
         }
-        .confirmationDialog(
-            L10n.Settings.resetConfirmTitle,
-            isPresented: $showResetConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button(L10n.Settings.resetConfirmButton, role: .destructive) {
-                resetEverything()
-            }
-            Button(L10n.Settings.cancelButton, role: .cancel) {}
-        } message: {
-            Text(L10n.Settings.resetConfirmMessage)
+    }
+    
+    @ViewBuilder
+    var resetConfirmationOverlayContent: some View {
+        if showResetConfirmation {
+            ResetConfirmationOverlay(
+                conversations: dataCounts.conversations,
+                journalEntries: dataCounts.journalEntries,
+                commitments: dataCounts.commitments,
+                onConfirm: {
+                    showResetConfirmation = false
+                    resetEverything()
+                },
+                onCancel: {
+                    showResetConfirmation = false
+                }
+            )
         }
+    }
+    
+    private var dataCounts: (conversations: Int, journalEntries: Int, commitments: Int) {
+        let conversations = (try? modelContext.fetchCount(FetchDescriptor<Conversation>())) ?? 0
+        let journalEntries = (try? modelContext.fetchCount(FetchDescriptor<JournalEntry>())) ?? 0
+        let commitments = (try? modelContext.fetchCount(FetchDescriptor<Commitment>())) ?? 0
+        return (conversations, journalEntries, commitments)
     }
     
     private func resetEverything(skipOnboarding: Bool = false) {
@@ -182,10 +195,26 @@ extension L10n.Settings {
         }
     }
     
-    static var resetConfirmMessage: String {
+    static func resetConfirmMessage(conversations: Int, journalEntries: Int, commitments: Int) -> String {
         switch L10n.lang {
-        case .en: return "This permanently deletes all conversations, journal entries, and settings, then restarts the app. This cannot be undone."
-        case .pl: return "Ta operacja trwale usuwa wszystkie rozmowy, wpisy w dzienniku i ustawienia, a następnie restartuje aplikację. Nie da się jej cofnąć."
+        case .en:
+            return "This permanently deletes \(conversations) conversations, \(journalEntries) journal entries, and \(commitments) commitments, then restarts the app. This cannot be undone."
+        case .pl:
+            return "Usuniesz bezpowrotnie \(conversations) rozmów, \(journalEntries) wpisów w dzienniku i \(commitments) zobowiązań, a aplikacja zostanie zrestartowana. Tej operacji nie da się cofnąć."
+        }
+    }
+    
+    static var resetConfirmPhrase: String {
+        switch L10n.lang {
+        case .en: return "CLEAR THE MIRROR"
+        case .pl: return "OCZYŚĆ LUSTRO"
+        }
+    }
+
+    static func resetTypeToConfirmLabel(phrase: String) -> String {
+        switch L10n.lang {
+        case .en: return "Type \"\(phrase)\" to confirm."
+        case .pl: return "Wpisz \"\(phrase)\", żeby potwierdzić."
         }
     }
 }

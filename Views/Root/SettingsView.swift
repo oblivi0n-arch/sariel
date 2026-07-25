@@ -67,6 +67,7 @@ struct SettingsView: View {
             versionFooter
         }
         .background(Theme.background)
+        .overlay { resetConfirmationOverlayContent }
         .task {
             await fetchAvailableModels()
         }
