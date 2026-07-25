@@ -23,7 +23,7 @@ struct OnboardingView: View {
     }
     
     private var pauseDuration: Double {
-        currentIndex == 0 ? 1.0 : 0.6
+        currentScreen.pauseDuration
     }
     
     var body: some View {
@@ -103,6 +103,8 @@ struct OnboardingView: View {
             onFinished()
         } else {
             withAnimation(.easeInOut(duration: 0.3)) {
+                isContentVisible = false
+                isRevealComplete = false
                 currentIndex += 1
             }
         }

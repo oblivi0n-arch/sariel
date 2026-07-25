@@ -6,13 +6,15 @@ struct OnboardingScreen: Identifiable {
     let footnote: String?   // TODO: currently unused - kept for potential future use
     let buttonLabel: String
     let revealsText: Bool
+    let pauseDuration: Double
 
-    init(id: Int, text: String, footnote: String? = nil, buttonLabel: String = L10n.Onboarding.next, revealsText: Bool = true) {
+    init(id: Int, text: String, footnote: String? = nil, buttonLabel: String = L10n.Onboarding.next, revealsText: Bool = true, pauseDuration: Double) {
         self.id = id
         self.text = text
         self.footnote = footnote
         self.buttonLabel = buttonLabel
         self.revealsText = revealsText
+        self.pauseDuration = pauseDuration
     }
 }
 
@@ -21,31 +23,39 @@ extension OnboardingScreen {
         [
             OnboardingScreen(
                 id: 0,
-                text: isPostReset
-                    ? L10n.Onboarding.welcomeBack
-                    : L10n.Onboarding.welcomeFirst
+                text: L10n.Onboarding.disclaimer,
+                buttonLabel: L10n.Onboarding.iAmAware,
+                revealsText: false,
+                pauseDuration: 1.0
             ),
             OnboardingScreen(
                 id: 1,
-                text: L10n.Onboarding.beforeYouStart
+                text: isPostReset
+                    ? L10n.Onboarding.welcomeBack
+                    : L10n.Onboarding.welcomeFirst,
+                pauseDuration: 1.0
             ),
             OnboardingScreen(
                 id: 2,
-                text: L10n.Onboarding.sarielIntroduction
+                text: L10n.Onboarding.beforeYouStart,
+                pauseDuration: 0.6
             ),
             OnboardingScreen(
                 id: 3,
-                text: L10n.Onboarding.expectationText
+                text: L10n.Onboarding.sarielIntroduction,
+                pauseDuration: 0.6
             ),
             OnboardingScreen(
                 id: 4,
-                text: L10n.Onboarding.privacyText
+                text: L10n.Onboarding.expectationText,
+                pauseDuration: 0.6
             ),
             OnboardingScreen(
                 id: 5,
-                text: L10n.Onboarding.disclaimer,
-                revealsText: false
+                text: L10n.Onboarding.privacyText,
+                pauseDuration: 0.6
             )
+
         ]
     }
 }
@@ -105,6 +115,13 @@ extension L10n {
             switch lang {
             case .en: return "Before we go any further, I want you to meet someone."
             case .pl: return "Przed rozpoczęciem, chciałbym Tobie kogoś przedstawić."
+            }
+        }
+        
+        static var iAmAware: String {
+            switch lang {
+            case .en: return "I am aware."
+            case .pl: return "Zrozumiałem."
             }
         }
     }
