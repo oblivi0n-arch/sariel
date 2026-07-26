@@ -58,3 +58,39 @@ struct ExportedConversation: Codable {
     let tribunalResolvedAt: Date?
     let isArchived: Bool
 }
+
+struct SarielExport: Codable {
+    let schemaVersion: Int
+    let appVersion: String
+    let exportedAt: Date
+
+    let conversations: [ExportedConversation]
+    let chatMessages: [ExportedChatMessage]
+    let journalEntries: [ExportedJournalEntry]
+    let journalEntryTags: [ExportedJournalEntryTag]
+    let commitments: [ExportedCommitment]
+    let achievementUnlocks: [ExportedAchievementUnlock]
+}
+
+extension SarielExport {
+    static let currentSchemaVersion = 1
+
+    init(
+        conversations: [ExportedConversation],
+        chatMessages: [ExportedChatMessage],
+        journalEntries: [ExportedJournalEntry],
+        journalEntryTags: [ExportedJournalEntryTag],
+        commitments: [ExportedCommitment],
+        achievementUnlocks: [ExportedAchievementUnlock]
+    ) {
+        self.schemaVersion = Self.currentSchemaVersion
+        self.appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+        self.exportedAt = Date()
+        self.conversations = conversations
+        self.chatMessages = chatMessages
+        self.journalEntries = journalEntries
+        self.journalEntryTags = journalEntryTags
+        self.commitments = commitments
+        self.achievementUnlocks = achievementUnlocks
+    }
+}
