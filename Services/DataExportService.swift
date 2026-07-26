@@ -84,4 +84,11 @@ enum DataExportService {
             achievementUnlocks: achievementUnlocks
         )
     }
+    
+    static func encodeToJSON(_ export: SarielExport) throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = .prettyPrinted
+        return try encoder.encode(export)
+    }
 }
