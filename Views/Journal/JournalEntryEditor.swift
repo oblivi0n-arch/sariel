@@ -62,6 +62,10 @@ struct JournalEntryEditor: View {
                     saveTask?.cancel()
                     try? modelContext.save()
                     achievementService.checkNightOwl(modelContext: modelContext)
+                    achievementService.checkConsistencyStreak(modelContext: modelContext)
+                    achievementService.checkReturnedAfterSilence(modelContext: modelContext)
+                    achievementService.checkWritingSpiral(modelContext: modelContext)
+                    achievementService.checkRecurringTag(modelContext: modelContext)
                 }
             }
 
