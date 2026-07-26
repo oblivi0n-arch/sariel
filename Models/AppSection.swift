@@ -13,9 +13,9 @@ enum AppSection: String, CaseIterable, Identifiable {
         case .dashboard:
             return "moon.stars.fill"
         case .chat:
-            return "text.bubble.fill"
+            return "bubble.left.and.bubble.right.fill"
         case .journal:
-            return "bookmark.fill"
+            return "book.closed.fill"
         case .tribunal:
             return "seal"
         }
