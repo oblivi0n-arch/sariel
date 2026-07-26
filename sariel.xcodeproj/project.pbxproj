@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		11A7C8D430163DF500CFC241 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1108497430066B8B007494E4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1108497B30066B8B007494E4;
+			remoteInfo = sariel;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		1108497C30066B8B007494E4 /* sariel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = sariel.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		11A7C8D030163DF500CFC241 /* sarielTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = sarielTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -36,10 +47,22 @@
 			path = DesignSystem;
 			sourceTree = "<group>";
 		};
+		11A7C8D130163DF500CFC241 /* sarielTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = sarielTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1108497930066B8B007494E4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		11A7C8CD30163DF500CFC241 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -57,6 +80,7 @@
 				1108499630067660007494E4 /* Models */,
 				11084991300674D0007494E4 /* Services */,
 				1108499B300677EE007494E4 /* Views */,
+				11A7C8D130163DF500CFC241 /* sarielTests */,
 				1108497D30066B8B007494E4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				1108497C30066B8B007494E4 /* sariel.app */,
+				11A7C8D030163DF500CFC241 /* sarielTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -99,6 +124,29 @@
 			productReference = 1108497C30066B8B007494E4 /* sariel.app */;
 			productType = "com.apple.product-type.application";
 		};
+		11A7C8CF30163DF500CFC241 /* sarielTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 11A7C8D630163DF500CFC241 /* Build configuration list for PBXNativeTarget "sarielTests" */;
+			buildPhases = (
+				11A7C8CC30163DF500CFC241 /* Sources */,
+				11A7C8CD30163DF500CFC241 /* Frameworks */,
+				11A7C8CE30163DF500CFC241 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				11A7C8D530163DF500CFC241 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				11A7C8D130163DF500CFC241 /* sarielTests */,
+			);
+			name = sarielTests;
+			packageProductDependencies = (
+			);
+			productName = sarielTests;
+			productReference = 11A7C8D030163DF500CFC241 /* sarielTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -111,6 +159,10 @@
 				TargetAttributes = {
 					1108497B30066B8B007494E4 = {
 						CreatedOnToolsVersion = 26.6;
+					};
+					11A7C8CF30163DF500CFC241 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = 1108497B30066B8B007494E4;
 					};
 				};
 			};
@@ -129,12 +181,20 @@
 			projectRoot = "";
 			targets = (
 				1108497B30066B8B007494E4 /* sariel */,
+				11A7C8CF30163DF500CFC241 /* sarielTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1108497A30066B8B007494E4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		11A7C8CE30163DF500CFC241 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -172,7 +232,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		11A7C8CC30163DF500CFC241 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		11A7C8D530163DF500CFC241 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1108497B30066B8B007494E4 /* sariel */;
+			targetProxy = 11A7C8D430163DF500CFC241 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1108498730066B8C007494E4 /* Debug */ = {
@@ -353,6 +428,44 @@
 			};
 			name = Release;
 		};
+		11A7C8D730163DF500CFC241 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "oblivi0n-arch.sarielTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/sariel.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/sariel";
+			};
+			name = Debug;
+		};
+		11A7C8D830163DF500CFC241 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "oblivi0n-arch.sarielTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/sariel.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/sariel";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -370,6 +483,15 @@
 			buildConfigurations = (
 				1108498A30066B8C007494E4 /* Debug */,
 				1108498B30066B8C007494E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		11A7C8D630163DF500CFC241 /* Build configuration list for PBXNativeTarget "sarielTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				11A7C8D730163DF500CFC241 /* Debug */,
+				11A7C8D830163DF500CFC241 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
