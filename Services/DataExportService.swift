@@ -1,5 +1,7 @@
 import Foundation
 import SwiftData
+import AppKit
+import UniformTypeIdentifiers
 
 enum DataExportService {
     static func exportAllData(modelContext: ModelContext) throws -> SarielExport {
@@ -90,5 +92,133 @@ enum DataExportService {
         encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = .prettyPrinted
         return try encoder.encode(export)
+    }
+    
+    static func decodeFromJSON(_ data: Data) throws -> SarielExport {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(SarielExport.self, from: data)
+    }
+}
+
+extension DataExportService {
+    @MainActor
+    static func presentSavePanel(suggestedName: String = "sariel-export.json") -> URL? {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.json]
+        panel.nameFieldStringValue = suggestedName
+        panel.title = "Eksportuj dane Sariel"
+
+        guard panel.runModal() == .OK else { return nil }
+        return panel.url
+    }
+}
+
+extension DataExportService {
+    static func deleteAll<T: PersistentModel>(_ type: T.Type, modelContext: ModelContext) {
+        guard let objects = try? modelContext.fetch(FetchDescriptor<T>()) else { return }
+        for object in objects {
+            modelContext.delete(object)
+        }
+    }
+}
+
+extension DataExportService {
+    @MainActor
+    static func importAllData(_ export: SarielExport, modelContext: ModelContext) throws {
+        deleteAll(Conversation.self, modelContext: modelContext)
+        deleteAll(ChatMessage.self, modelContext: modelContext)
+        deleteAll(JournalEntry.self, modelContext: modelContext)
+        deleteAll(JournalEntryTag.self, modelContext: modelContext)
+        deleteAll(Commitment.self, modelContext: modelContext)
+        deleteAll(AchievementUnlock.self, modelContext: modelContext)
+
+        var conversationsByID: [UUID: Conversation] = [:]
+        for exported in export.conversations {
+            let conversation = Conversation(title: exported.title)
+            conversation.id = exported.id
+            conversation.startedAt = exported.startedAt
+            conversation.summary = exported.summary
+            conversation.summarizedMessageCount = exported.summarizedMessageCount
+            conversation.isProvocation = exported.isProvocation
+            conversation.provocationQuestion = exported.provocationQuestion
+            conversation.provocationTitle = exported.provocationTitle
+            conversation.isTribunal = exported.isTribunal
+            conversation.tribunalResolvedAt = exported.tribunalResolvedAt
+            conversation.isArchived = exported.isArchived
+            modelContext.insert(conversation)
+            conversationsByID[exported.id] = conversation
+        }
+
+        var tagsByID: [UUID: JournalEntryTag] = [:]
+        for exported in export.journalEntryTags {
+            let tag = JournalEntryTag(name: exported.name)
+            tag.id = exported.id
+            modelContext.insert(tag)
+            tagsByID[exported.id] = tag
+        }
+
+        var messagesByID: [UUID: ChatMessage] = [:]
+        for exported in export.chatMessages {
+            let role = MessageRole(rawValue: exported.role) ?? .user
+            let message = ChatMessage(role: role, content: exported.content)
+            message.id = exported.id
+            message.timestamp = exported.timestamp
+            modelContext.insert(message)
+            messagesByID[exported.id] = message
+        }
+
+        var entriesByID: [UUID: JournalEntry] = [:]
+        for exported in export.journalEntries {
+            let mood = Mood(rawValue: exported.mood) ?? .neutral
+            let entry = JournalEntry(title: exported.title, content: exported.content, mood: mood)
+            entry.id = exported.id
+            entry.createdAt = exported.createdAt
+            entry.isPinned = exported.isPinned
+            modelContext.insert(entry)
+            entriesByID[exported.id] = entry
+        }
+
+        var commitmentsByID: [UUID: Commitment] = [:]
+        for exported in export.commitments {
+            let commitment = Commitment(declarationText: exported.declarationText, failureMeaning: exported.failureMeaning)
+            commitment.id = exported.id
+            commitment.createdAt = exported.createdAt
+            commitment.status = exported.status
+            commitment.resolvedAt = exported.resolvedAt
+            commitment.verdictReasoning = exported.verdictReasoning
+            commitment.stepsDescription = exported.stepsDescription
+            modelContext.insert(commitment)
+            commitmentsByID[exported.id] = commitment
+        }
+
+        for exported in export.achievementUnlocks {
+            guard let kind = AchievementKind(rawValue: exported.kind) else { continue }
+            let unlock = AchievementUnlock(kind: kind)
+            unlock.id = exported.id
+            unlock.progress = exported.progress
+            unlock.unlockedAt = exported.unlockedAt
+            modelContext.insert(unlock)
+        }
+
+        for exported in export.chatMessages {
+            guard let message = messagesByID[exported.id] else { continue }
+            message.conversation = exported.conversationID.flatMap { conversationsByID[$0] }
+            message.commitment = exported.commitmentID.flatMap { commitmentsByID[$0] }
+        }
+
+        for exported in export.journalEntries {
+            guard let entry = entriesByID[exported.id] else { continue }
+            entry.sourceConversation = exported.sourceConversationID.flatMap { conversationsByID[$0] }
+            entry.tags = exported.tagIDs.compactMap { tagsByID[$0] }
+        }
+
+        for exported in export.commitments {
+            guard let commitment = commitmentsByID[exported.id] else { continue }
+            commitment.sourceMessage = exported.sourceMessageID.flatMap { messagesByID[$0] }
+            commitment.resolvingConversation = exported.resolvingConversationID.flatMap { conversationsByID[$0] }
+        }
+
+        try modelContext.save()
     }
 }
