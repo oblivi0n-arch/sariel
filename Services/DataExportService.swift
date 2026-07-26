@@ -107,7 +107,7 @@ extension DataExportService {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.json]
         panel.nameFieldStringValue = suggestedName
-        panel.title = "Eksportuj dane Sariel"
+        panel.title = L10n.Settings.exportPanelTitle
 
         guard panel.runModal() == .OK else { return nil }
         return panel.url
@@ -225,24 +225,6 @@ extension DataExportService {
     }
 }
 
-extension L10n {
-    enum DataImport {
-        static func incompatibleSchemaVersion(fileVersion: Int, supportedVersion: Int) -> String {
-            switch L10n.lang {
-            case .en: return "This file uses an unsupported format version (\(fileVersion)); this app supports version \(supportedVersion)."
-            case .pl: return "Ten plik używa nieobsługiwanej wersji formatu (\(fileVersion)); aplikacja obsługuje wersję \(supportedVersion)."
-            }
-        }
-
-        static func corruptedFile() -> String {
-            switch L10n.lang {
-            case .en: return "Couldn't read this file — it may be corrupted or in the wrong format."
-            case .pl: return "Nie udało się odczytać pliku — jest uszkodzony lub ma zły format."
-            }
-        }
-    }
-}
-
 enum DataImportError: LocalizedError {
     case incompatibleSchemaVersion(fileVersion: Int, supportedVersion: Int)
     case corruptedFile(underlying: Error)
@@ -264,6 +246,38 @@ extension SarielExport {
                 fileVersion: schemaVersion,
                 supportedVersion: SarielExport.currentSchemaVersion
             )
+        }
+    }
+}
+
+extension DataExportService {
+    @MainActor
+    static func presentOpenPanel() -> URL? {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.title = L10n.Settings.importPanelTitle
+
+        guard panel.runModal() == .OK else { return nil }
+        return panel.url
+    }
+}
+
+extension L10n {
+    enum DataImport {
+        static func incompatibleSchemaVersion(fileVersion: Int, supportedVersion: Int) -> String {
+            switch L10n.lang {
+            case .en: return "This file uses an unsupported format version (\(fileVersion)); this app supports version \(supportedVersion)."
+            case .pl: return "Ten plik używa nieobsługiwanej wersji formatu (\(fileVersion)); aplikacja obsługuje wersję \(supportedVersion)."
+            }
+        }
+
+        static func corruptedFile() -> String {
+            switch L10n.lang {
+            case .en: return "Couldn't read this file — it may be corrupted or in the wrong format."
+            case .pl: return "Nie udało się odczytać pliku — jest uszkodzony lub ma zły format."
+            }
         }
     }
 }

@@ -28,6 +28,9 @@ struct SettingsView: View {
     @State var isLoadingModels = false
     @State var modelsLoadError: String?
     @State var showResetConfirmation = false
+    @State var showImportConfirmation = false
+    @State var pendingImportURL: URL?
+    @State var dataTransferAlert: DataTransferAlert?
     #if DEBUG
     @State var devTapCount = 0
     @State var isDevModeUnlocked = false
@@ -54,7 +57,8 @@ struct SettingsView: View {
                     keyboardShortcutsSection
 
                     Divider().overlay(Theme.border)
-
+                    
+                    dataTransferSection
                     dangerZone
                     #if DEBUG
                     if isDevModeUnlocked {
