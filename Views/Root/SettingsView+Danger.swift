@@ -34,6 +34,7 @@ extension SettingsView {
                 conversations: dataCounts.conversations,
                 journalEntries: dataCounts.journalEntries,
                 commitments: dataCounts.commitments,
+                unlockedAchievements: dataCounts.unlockedAchievements,
                 onConfirm: {
                     showResetConfirmation = false
                     resetEverything()
@@ -45,11 +46,14 @@ extension SettingsView {
         }
     }
     
-    private var dataCounts: (conversations: Int, journalEntries: Int, commitments: Int) {
+    private var dataCounts: (conversations: Int, journalEntries: Int, commitments: Int, unlockedAchievements: Int) {
         let conversations = (try? modelContext.fetchCount(FetchDescriptor<Conversation>())) ?? 0
         let journalEntries = (try? modelContext.fetchCount(FetchDescriptor<JournalEntry>())) ?? 0
         let commitments = (try? modelContext.fetchCount(FetchDescriptor<Commitment>())) ?? 0
-        return (conversations, journalEntries, commitments)
+        let unlockedAchievements = (try? modelContext.fetchCount(
+            FetchDescriptor<AchievementUnlock>(predicate: #Predicate { $0.unlockedAt != nil })
+        )) ?? 0
+        return (conversations, journalEntries, commitments, unlockedAchievements)
     }
     
     private func resetEverything(skipOnboarding: Bool = false) {
@@ -221,8 +225,8 @@ extension L10n.Settings {
     
     static var resetDescription: String {
         switch L10n.lang {
-        case .en: return "This option resets everything, including all conversations, journal entries, and your Ollama settings. The app will restart. This cannot be undone."
-        case .pl: return "Ta opcja resetuje wszystko, w tym wszystkie rozmowy, wpisy w dzienniku i ustawienia Ollama. Aplikacja zostanie zrestartowana. Tej operacji nie da się cofnąć."
+        case .en: return "This resets everything — all your data and settings. The app will restart. This cannot be undone."
+        case .pl: return "Ta opcja resetuje wszystko — wszystkie Twoje dane i ustawienia. Aplikacja zostanie zrestartowana. Tej operacji nie da się cofnąć."
         }
     }
     
@@ -247,12 +251,12 @@ extension L10n.Settings {
         }
     }
     
-    static func resetConfirmMessage(conversations: Int, journalEntries: Int, commitments: Int) -> String {
+    static func resetConfirmMessage(conversations: Int, journalEntries: Int, commitments: Int, unlockedAchievements: Int) -> String {
         switch L10n.lang {
         case .en:
-            return "This permanently deletes \(conversations) conversations, \(journalEntries) journal entries, and \(commitments) commitments, then restarts the app. This cannot be undone."
+            return "This permanently deletes \(conversations) conversations, \(journalEntries) journal entries, \(commitments) commitments, and \(unlockedAchievements) unlocked achievements, then restarts the app. This cannot be undone."
         case .pl:
-            return "Usuniesz bezpowrotnie \(conversations) rozmów, \(journalEntries) wpisów w dzienniku i \(commitments) zobowiązań, a aplikacja zostanie zrestartowana. Tej operacji nie da się cofnąć."
+            return "Usuniesz bezpowrotnie \(conversations) rozmów, \(journalEntries) wpisów w dzienniku, \(commitments) zobowiązań i \(unlockedAchievements) odblokowanych osiągnięć, a aplikacja zostanie zrestartowana. Tej operacji nie da się cofnąć."
         }
     }
     
