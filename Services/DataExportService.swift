@@ -126,6 +126,8 @@ extension DataExportService {
 extension DataExportService {
     @MainActor
     static func importAllData(_ export: SarielExport, modelContext: ModelContext) throws {
+        try export.validateSchemaVersion()
+        
         deleteAll(Conversation.self, modelContext: modelContext)
         deleteAll(ChatMessage.self, modelContext: modelContext)
         deleteAll(JournalEntry.self, modelContext: modelContext)
@@ -220,5 +222,48 @@ extension DataExportService {
         }
 
         try modelContext.save()
+    }
+}
+
+extension L10n {
+    enum DataImport {
+        static func incompatibleSchemaVersion(fileVersion: Int, supportedVersion: Int) -> String {
+            switch L10n.lang {
+            case .en: return "This file uses an unsupported format version (\(fileVersion)); this app supports version \(supportedVersion)."
+            case .pl: return "Ten plik używa nieobsługiwanej wersji formatu (\(fileVersion)); aplikacja obsługuje wersję \(supportedVersion)."
+            }
+        }
+
+        static func corruptedFile() -> String {
+            switch L10n.lang {
+            case .en: return "Couldn't read this file — it may be corrupted or in the wrong format."
+            case .pl: return "Nie udało się odczytać pliku — jest uszkodzony lub ma zły format."
+            }
+        }
+    }
+}
+
+enum DataImportError: LocalizedError {
+    case incompatibleSchemaVersion(fileVersion: Int, supportedVersion: Int)
+    case corruptedFile(underlying: Error)
+
+    var errorDescription: String? {
+        switch self {
+        case .incompatibleSchemaVersion(let fileVersion, let supportedVersion):
+            return L10n.DataImport.incompatibleSchemaVersion(fileVersion: fileVersion, supportedVersion: supportedVersion)
+        case .corruptedFile:
+            return L10n.DataImport.corruptedFile()
+        }
+    }
+}
+
+extension SarielExport {
+    func validateSchemaVersion() throws {
+        guard schemaVersion == SarielExport.currentSchemaVersion else {
+            throw DataImportError.incompatibleSchemaVersion(
+                fileVersion: schemaVersion,
+                supportedVersion: SarielExport.currentSchemaVersion
+            )
+        }
     }
 }
