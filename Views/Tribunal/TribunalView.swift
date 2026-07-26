@@ -3,6 +3,7 @@ import SwiftData
 
 struct TribunalView: View {
     @ObservedObject var chatService: ChatService
+    let achievementService: AchievementService
     
     @Environment(\.modelContext) private var modelContext
     @State private var isStarting = false
@@ -47,6 +48,7 @@ struct TribunalView: View {
                 ChatView(
                     conversation: conversation,
                     chatService: chatService,
+                    achievementService: achievementService,
                     isConversationListOpen: .constant(false),
                     onJournalEntryCreated: { _ in },
                     onDeclarationLimitBlocked: {},

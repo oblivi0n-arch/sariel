@@ -44,6 +44,10 @@ extension ChatView {
                 verdicts: $tribunalVerdicts,
                 onConfirm: { finalVerdicts in
                     chatService.applyVerdicts(finalVerdicts, for: conversation, modelContext: modelContext)
+                    achievementService.checkTribunalFaced(modelContext: modelContext)
+                    achievementService.checkCommitmentStreaks(modelContext: modelContext)
+                    achievementService.checkTribunalVerdictsAccepted(modelContext: modelContext)
+                    achievementService.checkCredibilityRecovered(modelContext: modelContext)
                     isVerdictOverlayShown = false
                 },
                 onCancel: { isVerdictOverlayShown = false }

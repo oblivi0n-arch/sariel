@@ -57,6 +57,7 @@ extension SettingsView {
         deleteAll(JournalEntryTag.self)
         deleteAll(Conversation.self)
         deleteAll(Commitment.self)
+        deleteAll(AchievementUnlock.self)
         
         try? modelContext.save()
         
@@ -79,6 +80,7 @@ extension SettingsView {
         UserDefaults.standard.removeObject(forKey: "dashboardGreetingIndex")
         UserDefaults.standard.removeObject(forKey: "dashboardGreetingDate")
         UserDefaults.standard.removeObject(forKey: "lastDashboardShownDate")
+        UserDefaults.standard.removeObject(forKey: "achievement_hasBeenPoorCredibility")
         
         relaunchApp()
     }
@@ -196,6 +198,7 @@ extension SettingsView {
             unlock.progress = 0
             unlock.unlockedAt = nil
         }
+        UserDefaults.standard.removeObject(forKey: "achievement_hasBeenPoorCredibility")
         try? modelContext.save()
     }
 #endif

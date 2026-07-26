@@ -76,29 +76,7 @@ struct ContentView: View {
                             ZStack(alignment: .leading) {
                                 Group {
                                     if let conversation = activeConversation {
-                                        ChatView(
-                                            conversation: conversation,
-                                            chatService: chatService,
-                                            isConversationListOpen: $isConversationListOpen,
-                                            onJournalEntryCreated: { entry in
-                                                toastManager.show(entry: entry)
-                                            },
-                                            onDeclarationLimitBlocked: {
-                                                toastManager.showDeclarationLimitBlocked()
-                                            },
-                                            onDeclarationEditBlocked: {
-                                                toastManager.showDeclarationRequiresNewMessage()
-                                            },
-                                            onOpenJournalEntry: { entry in
-                                                activeEntry = entry
-                                                selectedSection = .journal
-                                            },
-                                            onBackToTribunal: {
-                                                selectedSection = .tribunal
-                                            },
-                                            isActive: selectedSection == .chat
-                                        )
-                                        .id(conversation.id)
+                                        chatSectionView(for: conversation)
                                     } else {
                                         ProgressView()
                                             .background(Theme.background)
@@ -129,7 +107,7 @@ struct ContentView: View {
                             JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation, achievementService: achievementService)
                             
                         case .tribunal:
-                            TribunalView(chatService: chatService)
+                            TribunalView(chatService: chatService, achievementService: achievementService)
                         }
                     }
                     Theme.background
@@ -291,6 +269,34 @@ struct ContentView: View {
     private func openConversation(_ conversation: Conversation) {
         activeConversation = conversation
         selectedSection = .chat
+    }
+    
+    @ViewBuilder
+    private func chatSectionView(for conversation: Conversation) -> some View {
+        ChatView(
+            conversation: conversation,
+            chatService: chatService,
+            achievementService: achievementService,
+            isConversationListOpen: $isConversationListOpen,
+            onJournalEntryCreated: { entry in
+                toastManager.show(entry: entry)
+            },
+            onDeclarationLimitBlocked: {
+                toastManager.showDeclarationLimitBlocked()
+            },
+            onDeclarationEditBlocked: {
+                toastManager.showDeclarationRequiresNewMessage()
+            },
+            onOpenJournalEntry: { entry in
+                activeEntry = entry
+                selectedSection = .journal
+            },
+            onBackToTribunal: {
+                selectedSection = .tribunal
+            },
+            isActive: selectedSection == .chat
+        )
+        .id(conversation.id)
     }
     
     private func fetchConversation(id: UUID) -> Conversation? {

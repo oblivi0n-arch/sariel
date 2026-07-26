@@ -8,6 +8,7 @@ struct ChatView: View {
     @Bindable var conversation: Conversation
     @Binding var isConversationListOpen: Bool
     let isActive: Bool
+    let achievementService: AchievementService
     @ObservedObject var chatService: ChatService
 
     var onJournalEntryCreated: (JournalEntry) -> Void
@@ -33,10 +34,11 @@ struct ChatView: View {
     @State var sealDocked = false
     @State var hasPlayedSealIntro = false
 
-    init(conversation: Conversation, chatService: ChatService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onDeclarationLimitBlocked: @escaping () -> Void, onDeclarationEditBlocked: @escaping () -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, onBackToTribunal: @escaping () -> Void, isActive: Bool) {
+    init(conversation: Conversation, chatService: ChatService, achievementService: AchievementService, isConversationListOpen: Binding<Bool>, onJournalEntryCreated: @escaping (JournalEntry) -> Void, onDeclarationLimitBlocked: @escaping () -> Void, onDeclarationEditBlocked: @escaping () -> Void, onOpenJournalEntry: @escaping (JournalEntry) -> Void, onBackToTribunal: @escaping () -> Void, isActive: Bool) {
         self.conversation = conversation
         self._isConversationListOpen = isConversationListOpen
         self.chatService = chatService
+        self.achievementService = achievementService
         self.onJournalEntryCreated = onJournalEntryCreated
         self.onDeclarationLimitBlocked = onDeclarationLimitBlocked
         self.onDeclarationEditBlocked = onDeclarationEditBlocked

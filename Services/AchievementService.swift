@@ -81,6 +81,68 @@ final class AchievementService: ObservableObject {
         let maxCount = tagCounts.values.max() ?? 0
         updateProgress(for: .recurringTag, count: maxCount, modelContext: modelContext)
     }
+    
+    func checkTribunalFaced(modelContext: ModelContext) {
+        let resolvedCount = (try? modelContext.fetchCount(
+            FetchDescriptor<Commitment>(predicate: #Predicate { $0.resolvedAt != nil })
+        )) ?? 0
+
+        unlockIfNeeded(.tribunalFaced, condition: resolvedCount >= 1, modelContext: modelContext)
+    }
+
+    func checkTribunalVerdictsAccepted(modelContext: ModelContext) {
+        let resolved = (try? modelContext.fetch(
+            FetchDescriptor<Commitment>(predicate: #Predicate { $0.resolvedAt != nil })
+        )) ?? []
+
+        let uncomfortableCount = resolved.filter { $0.commitmentStatus == .broken }.count
+
+        updateProgress(for: .tribunalVerdictsAccepted, count: uncomfortableCount, modelContext: modelContext)
+    }
+
+    func checkCommitmentStreaks(modelContext: ModelContext) {
+        let resolved = ((try? modelContext.fetch(
+            FetchDescriptor<Commitment>(sortBy: [SortDescriptor(\.resolvedAt, order: .reverse)])
+        )) ?? []).filter { $0.resolvedAt != nil }
+
+        guard let mostRecent = resolved.first else { return }
+
+        var streak = 0
+        for commitment in resolved {
+            guard commitment.commitmentStatus == mostRecent.commitmentStatus else { break }
+            streak += 1
+        }
+
+        switch mostRecent.commitmentStatus {
+        case .fulfilled:
+            updateProgress(for: .commitmentsKept, count: streak, modelContext: modelContext)
+            checkFirstKeptAfterBroken(resolved: resolved, modelContext: modelContext)
+        case .broken:
+            updateProgress(for: .commitmentsBroken, count: streak, modelContext: modelContext)
+        case .pending:
+            break
+        }
+    }
+
+    private func checkFirstKeptAfterBroken(resolved: [Commitment], modelContext: ModelContext) {
+        guard resolved.count >= 2 else { return }
+        let condition = resolved[0].commitmentStatus == .fulfilled && resolved[1].commitmentStatus == .broken
+        unlockIfNeeded(.firstKeptAfterBroken, condition: condition, modelContext: modelContext)
+    }
+    
+    func checkCredibilityRecovered(modelContext: ModelContext) {
+        let allCommitments = (try? modelContext.fetch(FetchDescriptor<Commitment>())) ?? []
+        let band = CredibilityBand.evaluate(from: allCommitments)
+
+        let hasBeenPoorKey = "achievement_hasBeenPoorCredibility"
+
+        if band == .poor {
+            UserDefaults.standard.set(true, forKey: hasBeenPoorKey)
+        }
+
+        let wasEverPoor = UserDefaults.standard.bool(forKey: hasBeenPoorKey)
+        unlockIfNeeded(.credibilityRecovered, condition: wasEverPoor && band == .solid, modelContext: modelContext)
+    }
 
     private func updateProgress(for kind: AchievementKind, count: Int, modelContext: ModelContext) {
         let unlocks = allUnlocks(modelContext: modelContext)
