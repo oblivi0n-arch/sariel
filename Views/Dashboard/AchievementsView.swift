@@ -40,9 +40,6 @@ struct AchievementsView: View {
                 Image(systemName: "chevron.left")
                     .font(Typography.iconButton)
                     .foregroundStyle(Theme.textMuted)
-                    .frame(width: 28, height: 28)
-                    .background(Theme.fieldBackground)
-                    .clipShape(Circle())
             }
             .buttonStyle(.plain)
 
