@@ -90,4 +90,75 @@ struct DataExportRoundTripTests {
         #expect(importedUnlock.progress == 3)
         #expect(importedUnlock.unlockedAt != nil)
     }
+
+    @Test @MainActor
+    func exportAndImportWithEmptyDatabasePreservesEmptiness() throws {
+        let sourceContext = try makeInMemoryContext()
+        try sourceContext.save()
+
+        let export = try DataExportService.exportAllData(modelContext: sourceContext)
+        let jsonData = try DataExportService.encodeToJSON(export)
+        let decodedExport = try DataExportService.decodeFromJSON(jsonData)
+
+        let targetContext = try makeInMemoryContext()
+        try DataExportService.importAllData(decodedExport, modelContext: targetContext)
+
+        #expect(try targetContext.fetch(FetchDescriptor<Conversation>()).isEmpty)
+        #expect(try targetContext.fetch(FetchDescriptor<ChatMessage>()).isEmpty)
+        #expect(try targetContext.fetch(FetchDescriptor<JournalEntry>()).isEmpty)
+        #expect(try targetContext.fetch(FetchDescriptor<Commitment>()).isEmpty)
+        #expect(try targetContext.fetch(FetchDescriptor<AchievementUnlock>()).isEmpty)
+    }
+
+    @Test @MainActor
+    func exportAndImportPreservesAllAchievementKinds() throws {
+        let sourceContext = try makeInMemoryContext()
+
+        for kind in AchievementKind.allCases {
+            let unlock = AchievementUnlock(kind: kind)
+            unlock.progress = 1
+            sourceContext.insert(unlock)
+        }
+        try sourceContext.save()
+
+        let export = try DataExportService.exportAllData(modelContext: sourceContext)
+        let jsonData = try DataExportService.encodeToJSON(export)
+        let decodedExport = try DataExportService.decodeFromJSON(jsonData)
+
+        let targetContext = try makeInMemoryContext()
+        try DataExportService.importAllData(decodedExport, modelContext: targetContext)
+
+        let importedUnlocks = try targetContext.fetch(FetchDescriptor<AchievementUnlock>())
+        let importedKinds = Set(importedUnlocks.compactMap { $0.achievementKind })
+
+        #expect(importedKinds == Set(AchievementKind.allCases))
+    }
+
+    @Test
+    func validateSchemaVersionThrowsForIncompatibleVersion() {
+        let export = SarielExport(
+            schemaVersion: SarielExport.currentSchemaVersion + 1,
+            appVersion: "0.0.0",
+            exportedAt: Date(),
+            conversations: [],
+            chatMessages: [],
+            journalEntries: [],
+            journalEntryTags: [],
+            commitments: [],
+            achievementUnlocks: []
+        )
+
+        #expect(throws: DataImportError.self) {
+            try export.validateSchemaVersion()
+        }
+    }
+
+    @Test
+    func decodeFromJSONThrowsForCorruptedData() {
+        let corrupted = Data("{ this is not valid json".utf8)
+
+        #expect(throws: (any Error).self) {
+            try DataExportService.decodeFromJSON(corrupted)
+        }
+    }
 }
