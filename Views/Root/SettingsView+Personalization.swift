@@ -72,6 +72,10 @@ extension SettingsView {
                 languageOption(.pl, label: "PL")
                 languageOption(.en, label: "EN")
             }
+            
+            Text(L10n.Settings.languageSectionHint)
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
         }
     }
     
@@ -174,6 +178,13 @@ extension L10n.Settings {
         switch L10n.lang {
         case .en: return "What should I call you?"
         case .pl: return "Jak mam się do Ciebie zwracać?"
+        }
+    }
+    
+    static var languageSectionHint: String {
+        switch L10n.lang {
+        case .en: return "Ollama tends to work best in English, regardless of what you pick here."
+        case .pl: return "Ollama działa najlepiej po angielsku, niezależnie od wyboru powyżej."
         }
     }
 }
