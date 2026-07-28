@@ -78,41 +78,64 @@ extension ChatService {
         var verdicts: [TribunalVerdict] = []
         var failedCount = 0
 
+        let maxVerdictParseAttempts = 2
+
         for commitment in pending {
-            guard let response = try? await client.complete(
-                messages: PromptBuilder.buildVerdictMessages(commitment: commitment, history: history),
-            ) else {
-                failedCount += 1
-                continue
+            var resolvedVerdict: TribunalVerdict?
+
+            attempts: for _ in 1...maxVerdictParseAttempts {
+                guard let response = try? await client.complete(
+                    messages: PromptBuilder.buildVerdictMessages(commitment: commitment, history: history),
+                ) else {
+                    break attempts
+                }
+
+                switch parseVerdict(response) {
+                case .fulfilled(let reasoning):
+                    resolvedVerdict = TribunalVerdict(commitment: commitment, proposedStatus: .fulfilled, reasoning: reasoning)
+                    break attempts
+                case .broken(let reasoning):
+                    resolvedVerdict = TribunalVerdict(commitment: commitment, proposedStatus: .broken, reasoning: reasoning)
+                    break attempts
+                case .unrecognized:
+                    continue attempts
+                }
             }
 
-            let (status, reasoning) = parseVerdict(response)
-            verdicts.append(TribunalVerdict(commitment: commitment, proposedStatus: status, reasoning: reasoning))
+            if let resolvedVerdict {
+                verdicts.append(resolvedVerdict)
+            } else {
+                failedCount += 1
+            }
         }
 
         if failedCount > 0 {
-            verdictErrors[conversation.id] = "Could not reach Ollama for \(failedCount) of \(pending.count) commitment\(pending.count == 1 ? "" : "s")."
+            verdictErrors[conversation.id] = "Could not get a valid verdict for \(failedCount) of \(pending.count) commitment\(pending.count == 1 ? "" : "s")."
         }
 
         return verdicts
     }
 
-    func parseVerdict(_ text: String) -> (CommitmentStatus, String) {
+    enum VerdictParseResult: Equatable {
+        case fulfilled(reasoning: String)
+        case broken(reasoning: String)
+        case unrecognized
+    }
+
+    func parseVerdict(_ text: String) -> VerdictParseResult {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         let lines = trimmed.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: false)
 
         let firstLine = lines.first?.uppercased() ?? ""
-        // TODO: This falls back to `.broken` whenever "FULFILLED" isn't found in the first
-        // line — but that also silently catches malformed/unrecognized model output (e.g.
-        // truncated response, model didn't follow the format), not just a genuine BROKEN
-        // judgment. Should detect FULFILLED and BROKEN as two distinct keywords, treat
-        // "neither found" as a separate `unrecognized` case, and retry the Ollama request
-        // a bounded number of times (e.g. 2 attempts total) before falling back to
-        // failedCount/verdictErrors, same as the existing network-failure path below.
-        let status: CommitmentStatus = firstLine.contains("FULFILLED") ? .fulfilled : .broken
         let reasoning = lines.count > 1 ? String(lines[1]).trimmingCharacters(in: .whitespacesAndNewlines) : ""
 
-        return (status, reasoning)
+        if firstLine.contains("FULFILLED") {
+            return .fulfilled(reasoning: reasoning)
+        } else if firstLine.contains("BROKEN") {
+            return .broken(reasoning: reasoning)
+        } else {
+            return .unrecognized
+        }
     }
 
     func applyVerdicts(_ verdicts: [TribunalVerdict], for conversation: Conversation, modelContext: ModelContext) {
