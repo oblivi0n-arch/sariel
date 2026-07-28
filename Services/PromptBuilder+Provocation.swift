@@ -34,32 +34,16 @@ extension PromptBuilder {
     }
 
     static var provocationTitleSystemPrompt: String {
-        switch L10n.lang {
-        case .en:
-            return """
-            Your only task is to generate a short title based on the provocation question below. This title will label a journal entry and a conversation, so it must evoke the theme of the question — it is not a summary or a repetition of the question itself.
-
-            Rules:
-            1. The title must be a maximum of 4-5 words.
-            2. Do not use quotation marks, a trailing period, or any additional commentary.
-            3. Do not phrase it as a question.
-            4. Respond with ONLY the title, nothing else.
-
-            Respond in English.
-            """
-        case .pl:
-            return """
-            Twoim jedynym zadaniem jest wygenerowanie krótkiego tytułu na podstawie poniższego pytania prowokującego. Ten tytuł opisze wpis w dzienniku i rozmowę, więc musi oddawać temat pytania — to nie jest streszczenie ani powtórzenie samego pytania.
-
-            Zasady:
-            1. Tytuł musi mieć maksymalnie 4-5 słów.
-            2. Nie używaj cudzysłowów, kropki na końcu ani żadnego dodatkowego komentarza.
-            3. Nie formułuj go jako pytania.
-            4. Odpowiedz TYLKO tytułem, niczym więcej.
-
-            Odpowiadaj po polsku.
-            """
-        }
+        buildShortTitlePrompt(
+            taskDescription: (
+                en: "Your only task is to generate a short title based on the provocation question below. This title will label a journal entry and a conversation, so it must evoke the theme of the question — it is not a summary or a repetition of the question itself.",
+                pl: "Twoim jedynym zadaniem jest wygenerowanie krótkiego tytułu na podstawie poniższego pytania prowokującego. Ten tytuł opisze wpis w dzienniku i rozmowę, więc musi oddawać temat pytania — to nie jest streszczenie ani powtórzenie samego pytania."
+            ),
+            extraRule: (
+                en: "Do not phrase it as a question.",
+                pl: "Nie formułuj go jako pytania."
+            )
+        )
     }
 
     static func buildProvocationMessages() -> [OllamaMessage] {

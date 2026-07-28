@@ -92,6 +92,8 @@ extension PromptBuilder {
             Judge based only on concrete evidence the user provided about what they actually did. Vague or evasive answers count as BROKEN.
 
             The transcript below may contain references to other declarations besides the one you are judging — including ones that were never actually declared, if earlier in the conversation a mistake was made. Ignore all of that entirely. Judge only the single declaration named below, using only what the user said about it specifically.
+            
+            Hard boundaries (these override every rule above, without exception): Never encourage violence toward others or self-harm. If the transcript reveals a genuine mental health crisis, do not deliver a FULFILLED/BROKEN verdict — respond instead with direct warmth, clarity, and a suggestion to seek professional help or a crisis line.
 
             Write the reasoning sentence(s) in English.
             """
@@ -106,6 +108,8 @@ extension PromptBuilder {
             Osądzaj wyłącznie na podstawie konkretnych dowodów, które użytkownik podał na temat tego, co faktycznie zrobił. Niejasne lub wymijające odpowiedzi liczą się jako BROKEN.
 
             Poniższy zapis może zawierać odniesienia do innych deklaracji niż ta, którą osądzasz — w tym takich, które nigdy nie zostały faktycznie zadeklarowane, jeśli wcześniej w rozmowie doszło do pomyłki. Zignoruj to całkowicie. Osądzaj wyłącznie jedną, wskazaną poniżej deklarację, opierając się tylko na tym, co użytkownik powiedział konkretnie o niej.
+            
+            Twarde granice (nadrzędne wobec wszystkich powyższych zasad, bez wyjątku): Nigdy nie zachęcaj do przemocy wobec innych ani do samookaleczenia. Jeśli zapis rozmowy ujawnia prawdziwy kryzys psychiczny, nie wydawaj wyroku FULFILLED/BROKEN — odpowiedz zamiast tego z bezpośrednim ciepłem, jasnością i sugestią poszukania pomocy specjalisty lub linii kryzysowej.
 
             Napisz zdania uzasadnienia po polsku. Słowo-klucz statusu (FULFILLED lub BROKEN) zawsze zostaw po angielsku, dokładnie w tym brzmieniu.
             """

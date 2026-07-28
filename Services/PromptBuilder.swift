@@ -37,30 +37,17 @@ struct PromptBuilder {
         }
     }
     static var titleSystemPrompt: String {
-        switch L10n.lang {
-        case .en:
-            return """
-            Your only task is to generate a short conversation title based on the message exchange below.
+        buildShortTitlePrompt(taskDescription: (
+            en: "Your only task is to generate a short conversation title based on the message exchange below.",
+            pl: "Twoim jedynym zadaniem jest wygenerowanie krótkiego tytułu rozmowy na podstawie poniższej wymiany wiadomości."
+        ))
+    }
 
-            Rules:
-            1. The title must be a maximum of 4-5 words.
-            2. Do not use quotation marks, a trailing period, or any additional commentary.
-            3. Respond with ONLY the title, nothing else.
-
-            Respond in English.
-            """
-        case .pl:
-            return """
-            Twoim jedynym zadaniem jest wygenerowanie krótkiego tytułu rozmowy na podstawie poniższej wymiany wiadomości.
-
-            Zasady:
-            1. Tytuł musi mieć maksymalnie 4-5 słów.
-            2. Nie używaj cudzysłowów, kropki na końcu ani żadnego dodatkowego komentarza.
-            3. Odpowiedz TYLKO tytułem, niczym więcej.
-
-            Odpowiadaj po polsku.
-            """
-        }
+    static var journalTitleSystemPrompt: String {
+        buildShortTitlePrompt(taskDescription: (
+            en: "Your only task is to generate a short journal entry title based on the entry text below.",
+            pl: "Twoim jedynym zadaniem jest wygenerowanie krótkiego tytułu wpisu do dziennika na podstawie poniższej treści wpisu."
+        ))
     }
     
     static var journalSystemPrompt: String {
@@ -96,33 +83,6 @@ struct PromptBuilder {
         }
     }
 
-    static var journalTitleSystemPrompt: String {
-        switch L10n.lang {
-        case .en:
-            return """
-            Your only task is to generate a short journal entry title based on the entry text below.
-
-            Rules:
-            1. The title must be a maximum of 4-5 words.
-            2. Do not use quotation marks, a trailing period, or any additional commentary.
-            3. Respond with ONLY the title, nothing else.
-
-            Respond in English.
-            """
-        case .pl:
-            return """
-            Twoim jedynym zadaniem jest wygenerowanie krótkiego tytułu wpisu do dziennika na podstawie poniższej treści wpisu.
-
-            Zasady:
-            1. Tytuł musi mieć maksymalnie 4-5 słów.
-            2. Nie używaj cudzysłowów, kropki na końcu ani żadnego dodatkowego komentarza.
-            3. Odpowiedz TYLKO tytułem, niczym więcej.
-
-            Odpowiadaj po polsku.
-            """
-        }
-    }
-
     static var summarySystemPrompt: String {
         switch L10n.lang {
         case .en:
@@ -148,6 +108,54 @@ struct PromptBuilder {
             3. Trzymaj to gęsto i krótko: celuj w 5-10 zdań, niezależnie jak długa staje się rozmowa.
             4. To podsumowanie to wewnętrzny kontekst dla lustra, nie coś, co użytkownik przeczyta bezpośrednio. Bez komentarza, bez wstępu.
             5. Jeśli dostajesz istniejące podsumowanie plus nowe wiadomości, scal je w jedno zaktualizowane podsumowanie — nie opisuj po prostu nowych wiadomości osobno.
+
+            Odpowiadaj po polsku.
+            """
+        }
+    }
+    
+    static func buildShortTitlePrompt(
+        taskDescription: (en: String, pl: String),
+        extraRule: (en: String, pl: String)? = nil
+    ) -> String {
+        switch L10n.lang {
+        case .en:
+            var rules = [
+                "The title must be a maximum of 4-5 words.",
+                "Do not use quotation marks, a trailing period, or any additional commentary."
+            ]
+            if let extraRule { rules.append(extraRule.en) }
+            rules.append("Respond with ONLY the title, nothing else.")
+
+            let numberedRules = rules.enumerated()
+                .map { "\($0.offset + 1). \($0.element)" }
+                .joined(separator: "\n")
+
+            return """
+            \(taskDescription.en)
+
+            Rules:
+            \(numberedRules)
+
+            Respond in English.
+            """
+        case .pl:
+            var rules = [
+                "Tytuł musi mieć maksymalnie 4-5 słów.",
+                "Nie używaj cudzysłowów, kropki na końcu ani żadnego dodatkowego komentarza."
+            ]
+            if let extraRule { rules.append(extraRule.pl) }
+            rules.append("Odpowiedz TYLKO tytułem, niczym więcej.")
+
+            let numberedRules = rules.enumerated()
+                .map { "\($0.offset + 1). \($0.element)" }
+                .joined(separator: "\n")
+
+            return """
+            \(taskDescription.pl)
+
+            Zasady:
+            \(numberedRules)
 
             Odpowiadaj po polsku.
             """
