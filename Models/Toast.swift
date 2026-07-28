@@ -2,7 +2,6 @@ import Foundation
 
 enum ToastKind {
     case journalEntrySaved(JournalEntry)
-    case tribunalUnlocked
     case declarationLimitBlocked
     case declarationRequiresNewMessage
     case achievementUnlocked(AchievementKind)

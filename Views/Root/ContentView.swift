@@ -9,7 +9,6 @@ struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") private var isPostReset: Bool = false
     @AppStorage("lastActiveConversationID") private var lastActiveConversationIDString: String = ""
-    @AppStorage("lastNotifiedCommitmentID") private var lastNotifiedCommitmentIDString: String = ""
     @AppStorage("lastDashboardShownDate") private var lastDashboardShownDateString: String = ""
     @AppStorage(ShortcutAction.dashboard.storageKey) private var dashboardShortcut = ShortcutAction.dashboard.defaultShortcut
     @AppStorage(ShortcutAction.chat.storageKey) private var chatShortcut = ShortcutAction.chat.defaultShortcut
@@ -37,7 +36,6 @@ struct ContentView: View {
     @State private var selectedSection: AppSection = .chat
     @State private var activeEntry: JournalEntry?
     @State private var showSplash = true
-    @State private var tribunalCheckTask: Task<Void, Never>?
     @State private var isGateShown = false
     @State private var hasEvaluatedGate = false
     @State private var isDimmed = false
@@ -154,8 +152,6 @@ struct ContentView: View {
                                 case .journalEntrySaved(let entry):
                                     activeEntry = entry
                                     selectedSection = .journal
-                                case .tribunalUnlocked:
-                                    selectedSection = .tribunal
                                 case .declarationLimitBlocked:
                                     selectedSection = .tribunal
                                 case .declarationRequiresNewMessage:
@@ -182,7 +178,6 @@ struct ContentView: View {
             }
             .onAppear {
                 setupConversation()
-                startTribunalUnlockChecking()
                 evaluateTribunalGateIfNeeded()
                 showDashboardOnNewDay()
                 if isTribunalInProgress {
@@ -194,9 +189,6 @@ struct ContentView: View {
             }
             .onChange(of: isTribunalInProgress) { _, _ in
                 evaluateTribunalGateIfNeeded()
-            }
-            .onDisappear {
-                tribunalCheckTask?.cancel()
             }
             .onChange(of: activeConversation) {
                 if let activeConversation {
@@ -305,32 +297,6 @@ struct ContentView: View {
         )
         descriptor.fetchLimit = 1
         return (try? modelContext.fetch(descriptor))?.first
-    }
-    
-    private func checkTribunalUnlock() {
-        var descriptor = FetchDescriptor<Commitment>(
-            predicate: #Predicate<Commitment> { $0.status == "pending" },
-            sortBy: [SortDescriptor(\.createdAt)]
-        )
-        descriptor.fetchLimit = 1
-        
-        guard let oldest = try? modelContext.fetch(descriptor).first else { return }
-        guard Date().timeIntervalSince(oldest.createdAt) >= Commitment.tribunalUnlockInterval else { return }
-        guard lastNotifiedCommitmentIDString != oldest.id.uuidString else { return }
-        
-        // TODO: tribunal-unlocked toast is broken (fires incorrectly / needs rework) — re-enable once fixed
-        // toastManager.showTribunalUnlocked()
-        lastNotifiedCommitmentIDString = oldest.id.uuidString
-    }
-    
-    private func startTribunalUnlockChecking() {
-        tribunalCheckTask?.cancel()
-        tribunalCheckTask = Task {
-            while !Task.isCancelled {
-                checkTribunalUnlock()
-                try? await Task.sleep(nanoseconds: 60_000_000_000) // 60s
-            }
-        }
     }
     
     private func evaluateTribunalGateIfNeeded() {

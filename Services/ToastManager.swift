@@ -9,10 +9,6 @@ final class ToastManager: ObservableObject {
         show(kind: .journalEntrySaved(entry))
     }
 
-    func showTribunalUnlocked() {
-        show(kind: .tribunalUnlocked)
-    }
-
     private func show(kind: ToastKind) {
         let toast = Toast(kind: kind)
         toasts.append(toast)
