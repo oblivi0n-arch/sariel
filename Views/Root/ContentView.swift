@@ -124,7 +124,7 @@ struct ContentView: View {
                                 }
                             }
                         
-                        SettingsView(isPresented: $isSettingsOpen, toastManager: toastManager)
+                        SettingsView(isPresented: $isSettingsOpen)
                             .frame(maxWidth: 560, maxHeight: 620)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))

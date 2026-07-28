@@ -5,7 +5,6 @@ struct SettingsView: View {
     @Environment(\.modelContext) var modelContext
     @EnvironmentObject var connectionMonitor: ConnectionMonitor
     @Binding var isPresented: Bool
-    let toastManager: ToastManager
     @ObservedObject var themeManager = ThemeManager.shared
     @ObservedObject var languageManager = LanguageManager.shared
 
