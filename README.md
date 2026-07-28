@@ -57,14 +57,21 @@ Prompt construction is split by conversation mode (`PromptBuilder+Provocation`, 
 
 ## Testing
 
-Sariel uses [Swift Testing](https://developer.apple.com/documentation/testing) (not XCTest) for unit tests, run against an in-memory SwiftData container so no real user data is touched.
+Sariel uses [Swift Testing](https://developer.apple.com/documentation/testing) (not XCTest) for unit tests, run against an in-memory SwiftData container so no real user data is touched. **62 automated test cases** across 8 test suites, plus a documented manual test protocol for anything that depends on real LLM output.
 
-Current coverage:
-- **Data export/import round-trip** — verifies that a full export-to-JSON-and-back-import preserves all relationships across conversations, messages, journal entries, tags, commitments, and achievements.
+**Automated coverage:**
+- `CommitmentTests` — declaration prefix detection (`isDeclaration`)
+- `CredibilityBandTests` — credibility threshold logic, including exact percentage boundaries
+- `DateDayKeyTests` — day-key formatting used for streak calculations
+- `TribunalVerdictParsingTests` — verdict response parsing, distinguishing a genuine BROKEN judgment from an unrecognized/malformed model response
+- `PromptBuilderTests` — structure of the message arrays sent to Ollama (section ordering, history window trimming, title-prompt generation)
+- `DataExportRoundTripTests` — full export/import round-trip, empty-database edge case, all achievement kinds, schema-version and corrupted-file error handling
+- `AchievementServiceTests` — every unlock condition (night-owl hour boundary, consistency streaks, silence/spiral thresholds, commitment streaks, credibility recovery)
+- `ChatServiceTests` — declaration limit enforcement, commitment creation, message deletion and summary reconciliation
+
+**Not automated, by design:** AI response quality — prompt behavior, edge cases, and adherence to the crisis-safety boundary — is not something a unit test can meaningfully assert, since it depends on the LLM's output. These are validated manually against a documented test protocol instead. UI tests (XCUITest) are likewise out of scope for this release; see the project's test-plan documentation for the reasoning.
 
 Run tests with `Cmd+U` in Xcode, or `xcodebuild test` from the command line.
-
-AI response quality — prompt behavior, edge cases, and adherence to the crisis-safety boundary — is not something a unit test can meaningfully assert, since it depends on the LLM's output. These are validated manually against a documented test protocol instead of automated tests.
 
 ## Privacy
 
@@ -73,3 +80,7 @@ Everything you write stays on this device. Conversations, journal entries, and c
 ## A Note on Safety
 
 Sariel is not therapy or a crisis service, and was never designed to be one. Its confrontational tone is a deliberate design choice for self-reflection, not a substitute for professional support. If you are in crisis or having thoughts of self-harm, please reach out to a mental health professional or a crisis line. This boundary is stated to the user on first launch and is enforced as a hard override in the AI's system prompt.
+
+## License
+
+Sariel is licensed under the [GNU General Public License v3.0](LICENSE). You're free to use, study, modify, and redistribute it, including commercially — but any distributed copy or modified version must remain under the same license, with source code made available to its recipients.
