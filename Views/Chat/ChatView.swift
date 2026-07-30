@@ -21,6 +21,7 @@ struct ChatView: View {
     var pendingCommitments: [Commitment]
     
     @AppStorage("hasCompletedAcquaintance") private var hasCompletedAcquaintance: Bool = false
+    @AppStorage("aboutMe") private var aboutMe: String = ""
 
     @State private var draft: String = ""
     @FocusState private var isInputFocused: Bool
@@ -106,6 +107,15 @@ struct ChatView: View {
     private func wouldExceedDeclarationLimit(_ text: String) -> Bool {
         !conversation.isTribunal && Commitment.isDeclaration(text) && isDeclarationLimitReached
     }
+    
+    private var pendingAboutMeDraft: String? {
+        guard conversation.isAcquaintance else { return nil }
+        return chatService.pendingAboutMeDrafts[conversation.id]
+    }
+
+    private var isRegeneratingAboutMeDraft: Bool {
+        chatService.isGeneratingAboutMeDraft.contains(conversation.id)
+    }
 
     var body: some View {
         contentStack
@@ -120,6 +130,7 @@ struct ChatView: View {
             }
             .overlay { moodPromptOverlayContent }
             .overlay { failureMeaningPromptOverlayContent }
+            .overlay { aboutMePreviewOverlayContent }
             .overlay { tribunalVerdictOverlayContent }
             .overlay { sealCenterOverlayContent }
             .animation(.easeInOut(duration: 0.2), value: isMoodPromptShown)
@@ -291,6 +302,26 @@ struct ChatView: View {
 
         )
         .id(message.id)
+    }
+    
+    @ViewBuilder
+    private var aboutMePreviewOverlayContent: some View {
+        if let draft = pendingAboutMeDraft {
+            AboutMePreviewOverlay(
+                draftText: draft,
+                existingAboutMe: aboutMe,
+                isRegenerating: isRegeneratingAboutMeDraft,
+                onAccept: {
+                    chatService.acceptAboutMeDraft(for: conversation.id)
+                },
+                onRetry: {
+                    Task { await chatService.retryAboutMeDraft(for: conversation, modelContext: modelContext) }
+                },
+                onSkip: {
+                    chatService.skipAboutMeDraft(for: conversation.id)
+                }
+            )
+        }
     }
 
     private func scrollToBottom(_ proxy: ScrollViewProxy, animated: Bool = true) {

@@ -16,8 +16,6 @@ struct AboutMePreviewOverlay: View {
         ZStack {
             Color.black.opacity(0.5)
                 .ignoresSafeArea()
-                .contentShape(Rectangle())
-                .onTapGesture(perform: onSkip)
             
             VStack(alignment: .leading, spacing: 16) {
                 Text(L10n.AboutMePreview.title)
@@ -114,7 +112,6 @@ struct AboutMePreviewOverlay: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
             .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
-            .onTapGesture {}
         }
         .transition(.opacity.combined(with: .scale(scale: 0.96)))
     }
