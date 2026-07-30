@@ -130,6 +130,18 @@ struct SarielExport: Codable {
     let hasCompletedAcquaintance: Bool
     let hasStartedAcquaintance: Bool
     let username: String
+    let appTheme: String
+    let appThemeFollowsSystem: Bool
+    let appLanguage: String
+    let journalStyle: String
+    let useJournalContext: Bool
+    let useCredibilityContext: Bool
+    let dashboardShortcut: String
+    let chatShortcut: String
+    let journalShortcut: String
+    let tribunalShortcut: String
+    let hasBeenPoorCredibility: Bool
+    let lastActiveConversationID: String
 }
 
 extension SarielExport {
@@ -145,7 +157,19 @@ extension SarielExport {
         aboutMe: String,
         hasCompletedAcquaintance: Bool,
         hasStartedAcquaintance: Bool,
-        username: String
+        username: String,
+        appTheme: String,
+        appThemeFollowsSystem: Bool,
+        appLanguage: String,
+        journalStyle: String,
+        useJournalContext: Bool,
+        useCredibilityContext: Bool,
+        dashboardShortcut: String,
+        chatShortcut: String,
+        journalShortcut: String,
+        tribunalShortcut: String,
+        hasBeenPoorCredibility: Bool,
+        lastActiveConversationID: String
     ) {
         self.schemaVersion = Self.currentSchemaVersion
         self.appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
@@ -160,12 +184,28 @@ extension SarielExport {
         self.hasCompletedAcquaintance = hasCompletedAcquaintance
         self.hasStartedAcquaintance = hasStartedAcquaintance
         self.username = username
+        self.appTheme = appTheme
+        self.appThemeFollowsSystem = appThemeFollowsSystem
+        self.appLanguage = appLanguage
+        self.journalStyle = journalStyle
+        self.useJournalContext = useJournalContext
+        self.useCredibilityContext = useCredibilityContext
+        self.dashboardShortcut = dashboardShortcut
+        self.chatShortcut = chatShortcut
+        self.journalShortcut = journalShortcut
+        self.tribunalShortcut = tribunalShortcut
+        self.hasBeenPoorCredibility = hasBeenPoorCredibility
+        self.lastActiveConversationID = lastActiveConversationID
     }
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion, appVersion, exportedAt
         case conversations, chatMessages, journalEntries, journalEntryTags, commitments, achievementUnlocks
         case aboutMe, hasCompletedAcquaintance, hasStartedAcquaintance, username
+        case appTheme, appThemeFollowsSystem, appLanguage, journalStyle
+        case useJournalContext, useCredibilityContext
+        case dashboardShortcut, chatShortcut, journalShortcut, tribunalShortcut
+        case hasBeenPoorCredibility, lastActiveConversationID
     }
 
     init(from decoder: Decoder) throws {
@@ -183,5 +223,17 @@ extension SarielExport {
         hasCompletedAcquaintance = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedAcquaintance) ?? false
         hasStartedAcquaintance = try container.decodeIfPresent(Bool.self, forKey: .hasStartedAcquaintance) ?? false
         username = try container.decodeIfPresent(String.self, forKey: .username) ?? ""
+        appTheme = try container.decodeIfPresent(String.self, forKey: .appTheme) ?? AppTheme.dark.rawValue
+        appThemeFollowsSystem = try container.decodeIfPresent(Bool.self, forKey: .appThemeFollowsSystem) ?? false
+        appLanguage = try container.decodeIfPresent(String.self, forKey: .appLanguage) ?? ""
+        journalStyle = try container.decodeIfPresent(String.self, forKey: .journalStyle) ?? JournalStyle.conciseFactual.rawValue
+        useJournalContext = try container.decodeIfPresent(Bool.self, forKey: .useJournalContext) ?? false
+        useCredibilityContext = try container.decodeIfPresent(Bool.self, forKey: .useCredibilityContext) ?? false
+        dashboardShortcut = try container.decodeIfPresent(String.self, forKey: .dashboardShortcut) ?? ShortcutAction.dashboard.defaultShortcut.rawValue
+        chatShortcut = try container.decodeIfPresent(String.self, forKey: .chatShortcut) ?? ShortcutAction.chat.defaultShortcut.rawValue
+        journalShortcut = try container.decodeIfPresent(String.self, forKey: .journalShortcut) ?? ShortcutAction.journal.defaultShortcut.rawValue
+        tribunalShortcut = try container.decodeIfPresent(String.self, forKey: .tribunalShortcut) ?? ShortcutAction.tribunal.defaultShortcut.rawValue
+        hasBeenPoorCredibility = try container.decodeIfPresent(Bool.self, forKey: .hasBeenPoorCredibility) ?? false
+        lastActiveConversationID = try container.decodeIfPresent(String.self, forKey: .lastActiveConversationID) ?? ""
     }
 }

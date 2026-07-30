@@ -16,21 +16,21 @@ enum DataExportService {
             }
         let journalEntryTags = try modelContext.fetch(FetchDescriptor<JournalEntryTag>())
             .map { tag in
-                    ExportedJournalEntryTag(
+                ExportedJournalEntryTag(
                     id: tag.id,
                     name: tag.name
                 )
             }
         let chatMessages = try modelContext.fetch(FetchDescriptor<ChatMessage>())
             .map { chatMessage in
-                    ExportedChatMessage(
-                        id: chatMessage.id,
-                        role: chatMessage.role,
-                        content: chatMessage.content,
-                        timestamp: chatMessage.timestamp,
-                        conversationID: chatMessage.conversation?.id,
-                        commitmentID: chatMessage.commitment?.id
-                        )
+                ExportedChatMessage(
+                    id: chatMessage.id,
+                    role: chatMessage.role,
+                    content: chatMessage.content,
+                    timestamp: chatMessage.timestamp,
+                    conversationID: chatMessage.conversation?.id,
+                    commitmentID: chatMessage.commitment?.id
+                )
             }
         let journalEntries = try modelContext.fetch(FetchDescriptor<JournalEntry>())
             .map { entry in
@@ -83,7 +83,19 @@ enum DataExportService {
         let hasCompletedAcquaintance = UserDefaults.standard.bool(forKey: "hasCompletedAcquaintance")
         let hasStartedAcquaintance = UserDefaults.standard.bool(forKey: "hasStartedAcquaintance")
         let username = UserDefaults.standard.string(forKey: "username") ?? ""
-
+        let appTheme = UserDefaults.standard.string(forKey: "appTheme") ?? AppTheme.dark.rawValue
+        let appThemeFollowsSystem = UserDefaults.standard.bool(forKey: "appThemeFollowsSystem")
+        let appLanguage = UserDefaults.standard.string(forKey: "appLanguage") ?? ""
+        let journalStyle = UserDefaults.standard.string(forKey: "journalStyle") ?? JournalStyle.conciseFactual.rawValue
+        let useJournalContext = UserDefaults.standard.bool(forKey: "useJournalContext")
+        let useCredibilityContext = UserDefaults.standard.bool(forKey: "useCredibilityContext")
+        let dashboardShortcut = UserDefaults.standard.string(forKey: ShortcutAction.dashboard.storageKey) ?? ShortcutAction.dashboard.defaultShortcut.rawValue
+        let chatShortcut = UserDefaults.standard.string(forKey: ShortcutAction.chat.storageKey) ?? ShortcutAction.chat.defaultShortcut.rawValue
+        let journalShortcut = UserDefaults.standard.string(forKey: ShortcutAction.journal.storageKey) ?? ShortcutAction.journal.defaultShortcut.rawValue
+        let tribunalShortcut = UserDefaults.standard.string(forKey: ShortcutAction.tribunal.storageKey) ?? ShortcutAction.tribunal.defaultShortcut.rawValue
+        let hasBeenPoorCredibility = UserDefaults.standard.bool(forKey: "achievement_hasBeenPoorCredibility")
+        let lastActiveConversationID = UserDefaults.standard.string(forKey: "lastActiveConversationID") ?? ""
+        
         return SarielExport(
             conversations: conversations,
             chatMessages: chatMessages,
@@ -94,7 +106,19 @@ enum DataExportService {
             aboutMe: aboutMe,
             hasCompletedAcquaintance: hasCompletedAcquaintance,
             hasStartedAcquaintance: hasStartedAcquaintance,
-            username: username
+            username: username,
+            appTheme: appTheme,
+            appThemeFollowsSystem: appThemeFollowsSystem,
+            appLanguage: appLanguage,
+            journalStyle: journalStyle,
+            useJournalContext: useJournalContext,
+            useCredibilityContext: useCredibilityContext,
+            dashboardShortcut: dashboardShortcut,
+            chatShortcut: chatShortcut,
+            journalShortcut: journalShortcut,
+            tribunalShortcut: tribunalShortcut,
+            hasBeenPoorCredibility: hasBeenPoorCredibility,
+            lastActiveConversationID: lastActiveConversationID
         )
     }
     
@@ -119,7 +143,7 @@ extension DataExportService {
         panel.allowedContentTypes = [.json]
         panel.nameFieldStringValue = suggestedName
         panel.title = L10n.Settings.exportPanelTitle
-
+        
         guard panel.runModal() == .OK else { return nil }
         return panel.url
     }
@@ -238,6 +262,20 @@ extension DataExportService {
         UserDefaults.standard.set(export.hasCompletedAcquaintance, forKey: "hasCompletedAcquaintance")
         UserDefaults.standard.set(export.hasStartedAcquaintance, forKey: "hasStartedAcquaintance")
         UserDefaults.standard.set(export.username, forKey: "username")
+        UserDefaults.standard.set(export.appTheme, forKey: "appTheme")
+        UserDefaults.standard.set(export.appThemeFollowsSystem, forKey: "appThemeFollowsSystem")
+        if !export.appLanguage.isEmpty {
+            UserDefaults.standard.set(export.appLanguage, forKey: "appLanguage")
+        }
+        UserDefaults.standard.set(export.journalStyle, forKey: "journalStyle")
+        UserDefaults.standard.set(export.useJournalContext, forKey: "useJournalContext")
+        UserDefaults.standard.set(export.useCredibilityContext, forKey: "useCredibilityContext")
+        UserDefaults.standard.set(export.dashboardShortcut, forKey: ShortcutAction.dashboard.storageKey)
+        UserDefaults.standard.set(export.chatShortcut, forKey: ShortcutAction.chat.storageKey)
+        UserDefaults.standard.set(export.journalShortcut, forKey: ShortcutAction.journal.storageKey)
+        UserDefaults.standard.set(export.tribunalShortcut, forKey: ShortcutAction.tribunal.storageKey)
+        UserDefaults.standard.set(export.hasBeenPoorCredibility, forKey: "achievement_hasBeenPoorCredibility")
+        UserDefaults.standard.set(export.lastActiveConversationID, forKey: "lastActiveConversationID")
         
         try modelContext.save()
     }
@@ -246,7 +284,7 @@ extension DataExportService {
 enum DataImportError: LocalizedError {
     case incompatibleSchemaVersion(fileVersion: Int, supportedVersion: Int)
     case corruptedFile(underlying: Error)
-
+    
     var errorDescription: String? {
         switch self {
         case .incompatibleSchemaVersion(let fileVersion, let supportedVersion):
@@ -276,7 +314,7 @@ extension DataExportService {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.title = L10n.Settings.importPanelTitle
-
+        
         guard panel.runModal() == .OK else { return nil }
         return panel.url
     }
@@ -290,7 +328,7 @@ extension L10n {
             case .pl: return "Ten plik używa nieobsługiwanej wersji formatu (\(fileVersion)); aplikacja obsługuje wersję \(supportedVersion)."
             }
         }
-
+        
         static func corruptedFile() -> String {
             switch L10n.lang {
             case .en: return "Couldn't read this file — it may be corrupted or in the wrong format."
