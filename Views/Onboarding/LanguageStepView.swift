@@ -43,7 +43,7 @@ struct LanguageStepView: View {
                 .font(Typography.label)
                 .foregroundStyle(isSelected ? Theme.background : Theme.textPrimary)
                 .frame(width: 52, height: 32)
-                .background(isSelected ? Color.red.opacity(0.8) : Theme.fieldBackground)
+                .background(isSelected ? Theme.textPrimary : Theme.fieldBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
