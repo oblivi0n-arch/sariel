@@ -341,7 +341,6 @@ struct ChatView: View {
     
     private func submitPendingDeclaration(failureMeaning: String) {
         guard let text = pendingDeclarationText else { return }
-        guard !failureMeaning.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
         pendingDeclarationText = nil
         justDeclared = true

@@ -7,12 +7,11 @@ struct FailureMeaningPromptView: View {
     @State private var answer: String = ""
     @FocusState private var isFocused: Bool
 
-    private var canSubmit: Bool {
+    private var hasAnswer: Bool {
         !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
     private func submit() {
-        guard canSubmit else { return }
         onSubmit(answer.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
@@ -61,16 +60,15 @@ struct FailureMeaningPromptView: View {
 
                     Spacer()
 
-                    Button(L10n.FailureMeaning.sealIt, action: submit)
-                    .font(Typography.subsectionTitle)
-                    .foregroundStyle(canSubmit ? Color.white : Theme.textFaint)
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 8)
-                    .background(canSubmit ? Color.red.opacity(0.85) : Theme.fieldBackground)
-                    .clipShape(Capsule())
-                    .buttonStyle(.plain)
-                    .hoverScale()
-                    .disabled(!canSubmit)
+                    Button(hasAnswer ? L10n.FailureMeaning.sealIt : L10n.FailureMeaning.skip, action: submit)
+                        .font(Typography.subsectionTitle)
+                        .foregroundStyle(Color.white)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 8)
+                        .background(Color.red.opacity(0.85))
+                        .clipShape(Capsule())
+                        .buttonStyle(.plain)
+                        .hoverScale()
                 }
             }
             .padding(24)
@@ -120,6 +118,13 @@ extension L10n {
             switch lang {
             case .en: return "seal it"
             case .pl: return "zapieczętuj"
+            }
+        }
+        
+        static var skip: String {
+            switch lang {
+            case .en: return "skip"
+            case .pl: return "pomiń"
             }
         }
     }

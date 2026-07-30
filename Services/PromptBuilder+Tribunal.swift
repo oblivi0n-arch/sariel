@@ -125,6 +125,11 @@ extension PromptBuilder {
                 role: "system",
                 content: L10n.PromptTribunal.failureMeaningContext(commitment.failureMeaning)
             ))
+        } else {
+            messages.append(OllamaMessage(
+                role: "system",
+                content: L10n.PromptTribunal.failureMeaningSkipped
+            ))
         }
 
         for message in history {
@@ -180,6 +185,15 @@ extension L10n {
             switch lang {
             case .en: return "Deliver your verdict now, on this declaration only: \"\(text)\". Do not mention any other declaration."
             case .pl: return "Wydaj teraz swój wyrok, wyłącznie w sprawie tej deklaracji: \"\(text)\". Nie wspominaj o żadnej innej deklaracji."
+            }
+        }
+        
+        static var failureMeaningSkipped: String {
+            switch lang {
+            case .en:
+                return "When declaring this, the user was asked what it would mean about them if they failed — and chose not to answer. If you judge this BROKEN, you may note that they avoided even considering the cost of failing, without inventing what they might have said."
+            case .pl:
+                return "Podczas składania tej deklaracji użytkownik został zapytany, co by to oznaczało o nim, gdyby zawiódł — i zdecydował się nie odpowiadać. Jeśli osądzasz to jako BROKEN, możesz zauważyć, że nawet nie podjął próby zastanowienia się nad kosztem porażki, bez wymyślania, co mógłby odpowiedzieć."
             }
         }
     }
