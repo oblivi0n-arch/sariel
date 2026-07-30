@@ -56,6 +56,8 @@ enum DataExportService {
                     isProvocation: conversation.isProvocation,
                     provocationQuestion: conversation.provocationQuestion,
                     provocationTitle: conversation.provocationTitle,
+                    isAcquaintance: conversation.isAcquaintance,
+                    acquaintanceQuestion: conversation.acquaintanceQuestion,
                     isTribunal: conversation.isTribunal,
                     tribunalResolvedAt: conversation.tribunalResolvedAt,
                     isArchived: conversation.isArchived
@@ -77,13 +79,20 @@ enum DataExportService {
                 )
             }
         
+        let aboutMe = UserDefaults.standard.string(forKey: "aboutMe") ?? ""
+        let hasCompletedAcquaintance = UserDefaults.standard.bool(forKey: "hasCompletedAcquaintance")
+        let username = UserDefaults.standard.string(forKey: "username") ?? ""
+
         return SarielExport(
             conversations: conversations,
             chatMessages: chatMessages,
             journalEntries: journalEntries,
             journalEntryTags: journalEntryTags,
             commitments: commitments,
-            achievementUnlocks: achievementUnlocks
+            achievementUnlocks: achievementUnlocks,
+            aboutMe: aboutMe,
+            hasCompletedAcquaintance: hasCompletedAcquaintance,
+            username: username
         )
     }
     
@@ -134,7 +143,7 @@ extension DataExportService {
         deleteAll(JournalEntryTag.self, modelContext: modelContext)
         deleteAll(Commitment.self, modelContext: modelContext)
         deleteAll(AchievementUnlock.self, modelContext: modelContext)
-
+        
         var conversationsByID: [UUID: Conversation] = [:]
         for exported in export.conversations {
             let conversation = Conversation(title: exported.title)
@@ -145,13 +154,15 @@ extension DataExportService {
             conversation.isProvocation = exported.isProvocation
             conversation.provocationQuestion = exported.provocationQuestion
             conversation.provocationTitle = exported.provocationTitle
+            conversation.isAcquaintance = exported.isAcquaintance
+            conversation.acquaintanceQuestion = exported.acquaintanceQuestion
             conversation.isTribunal = exported.isTribunal
             conversation.tribunalResolvedAt = exported.tribunalResolvedAt
             conversation.isArchived = exported.isArchived
             modelContext.insert(conversation)
             conversationsByID[exported.id] = conversation
         }
-
+        
         var tagsByID: [UUID: JournalEntryTag] = [:]
         for exported in export.journalEntryTags {
             let tag = JournalEntryTag(name: exported.name)
@@ -159,7 +170,7 @@ extension DataExportService {
             modelContext.insert(tag)
             tagsByID[exported.id] = tag
         }
-
+        
         var messagesByID: [UUID: ChatMessage] = [:]
         for exported in export.chatMessages {
             let role = MessageRole(rawValue: exported.role) ?? .user
@@ -169,7 +180,7 @@ extension DataExportService {
             modelContext.insert(message)
             messagesByID[exported.id] = message
         }
-
+        
         var entriesByID: [UUID: JournalEntry] = [:]
         for exported in export.journalEntries {
             let mood = Mood(rawValue: exported.mood) ?? .neutral
@@ -180,7 +191,7 @@ extension DataExportService {
             modelContext.insert(entry)
             entriesByID[exported.id] = entry
         }
-
+        
         var commitmentsByID: [UUID: Commitment] = [:]
         for exported in export.commitments {
             let commitment = Commitment(declarationText: exported.declarationText, failureMeaning: exported.failureMeaning)
@@ -193,7 +204,7 @@ extension DataExportService {
             modelContext.insert(commitment)
             commitmentsByID[exported.id] = commitment
         }
-
+        
         for exported in export.achievementUnlocks {
             guard let kind = AchievementKind(rawValue: exported.kind) else { continue }
             let unlock = AchievementUnlock(kind: kind)
@@ -202,25 +213,29 @@ extension DataExportService {
             unlock.unlockedAt = exported.unlockedAt
             modelContext.insert(unlock)
         }
-
+        
         for exported in export.chatMessages {
             guard let message = messagesByID[exported.id] else { continue }
             message.conversation = exported.conversationID.flatMap { conversationsByID[$0] }
             message.commitment = exported.commitmentID.flatMap { commitmentsByID[$0] }
         }
-
+        
         for exported in export.journalEntries {
             guard let entry = entriesByID[exported.id] else { continue }
             entry.sourceConversation = exported.sourceConversationID.flatMap { conversationsByID[$0] }
             entry.tags = exported.tagIDs.compactMap { tagsByID[$0] }
         }
-
+        
         for exported in export.commitments {
             guard let commitment = commitmentsByID[exported.id] else { continue }
             commitment.sourceMessage = exported.sourceMessageID.flatMap { messagesByID[$0] }
             commitment.resolvingConversation = exported.resolvingConversationID.flatMap { conversationsByID[$0] }
         }
-
+        
+        UserDefaults.standard.set(export.aboutMe, forKey: "aboutMe")
+        UserDefaults.standard.set(export.hasCompletedAcquaintance, forKey: "hasCompletedAcquaintance")
+        UserDefaults.standard.set(export.username, forKey: "username")
+        
         try modelContext.save()
     }
 }
