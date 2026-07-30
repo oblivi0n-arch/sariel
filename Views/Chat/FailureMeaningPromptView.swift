@@ -10,6 +10,11 @@ struct FailureMeaningPromptView: View {
     private var canSubmit: Bool {
         !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
+    
+    private func submit() {
+        guard canSubmit else { return }
+        onSubmit(answer.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
 
     var body: some View {
         ZStack {
@@ -41,6 +46,11 @@ struct FailureMeaningPromptView: View {
                     )
                     .focused($isFocused)
                     .lineLimit(1...4)
+                    .onKeyPress(phases: .down) { press in
+                        guard press.key == .return else { return .ignored }
+                        submit()
+                        return .handled
+                    }
 
                 HStack {
                     Button(L10n.FailureMeaning.cancel, role: .cancel, action: onCancel)
@@ -51,9 +61,7 @@ struct FailureMeaningPromptView: View {
 
                     Spacer()
 
-                    Button(L10n.FailureMeaning.sealIt) {
-                        onSubmit(answer.trimmingCharacters(in: .whitespacesAndNewlines))
-                    }
+                    Button(L10n.FailureMeaning.sealIt, action: submit)
                     .font(Typography.subsectionTitle)
                     .foregroundStyle(canSubmit ? Color.white : Theme.textFaint)
                     .padding(.horizontal, 18)
