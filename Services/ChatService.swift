@@ -110,12 +110,15 @@ final class ChatService: ObservableObject {
             let credibilityContext = fetchCredibilityContextIfEnabled(modelContext: modelContext)
             let username = UserDefaults.standard.string(forKey: "username")?
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let aboutMe = UserDefaults.standard.string(forKey: "aboutMe")?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             messages = PromptBuilder.buildMessages(
                 history: history,
                 summary: conversation.summary,
                 journalContext: journalContext,
                 credibilityContext: credibilityContext,
-                username: username
+                username: username,
+                aboutMe: aboutMe
             )
         }
 
