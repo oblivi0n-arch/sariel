@@ -191,14 +191,36 @@ final class ChatService: ObservableObject {
             if conversation.isProvocation {
                 entry.tags.append(provocationTag(modelContext: modelContext))
             }
+            if conversation.isAcquaintance {
+                entry.tags.append(acquaintanceTag(modelContext: modelContext))
+            }
 
             try? modelContext.save()
 
+            if conversation.isAcquaintance {
+                await updateAboutMe(from: history)
+            }
+            
             return entry
         } catch {
             endConversationErrors[conversation.id] = (error as? OllamaError)?.errorDescription ?? error.localizedDescription
             return nil
         }
+    }
+    
+    private func updateAboutMe(from history: [ChatMessage]) async {
+        let existingAboutMe = UserDefaults.standard.string(forKey: "aboutMe")?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+        guard let updated = try? await client.complete(
+            messages: PromptBuilder.buildAboutMeMessages(existingAboutMe: existingAboutMe, history: history)
+        ) else { return }
+
+        let trimmed = String(updated.trimmingCharacters(in: .whitespacesAndNewlines).prefix(AppLimits.maxAboutMeLength))
+        guard !trimmed.isEmpty else { return }
+
+        UserDefaults.standard.set(trimmed, forKey: "aboutMe")
+        UserDefaults.standard.set(true, forKey: "hasCompletedAcquaintance")
     }
 
     private func generatedTag(modelContext: ModelContext) -> JournalEntryTag {

@@ -12,6 +12,8 @@ final class Conversation {
     var isProvocation: Bool = false
     var provocationQuestion: String?
     var provocationTitle: String?
+    var isAcquaintance: Bool = false
+    var acquaintanceQuestion: String?
     var isTribunal: Bool = false
     var tribunalResolvedAt: Date?
     var isArchived: Bool = false
