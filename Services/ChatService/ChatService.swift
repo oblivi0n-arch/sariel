@@ -171,9 +171,10 @@ final class ChatService: ObservableObject {
             .filter { $0.isValidExchange }
 
         do {
-            let content = try await client.complete(messages: PromptBuilder.buildJournalMessages(history: history))
-
+            let style = JournalStyle(rawValue: UserDefaults.standard.string(forKey: "journalStyle") ?? "") ?? .conciseFactual
+            let content = try await client.complete(messages: PromptBuilder.buildJournalMessages(history: history, style: style))
             let title: String
+            
             if conversation.isProvocation, let provocationTitle = conversation.provocationTitle {
                 title = provocationTitle
             } else {
