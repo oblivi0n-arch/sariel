@@ -122,6 +122,46 @@ extension SettingsView {
                 .foregroundStyle(Theme.textFaint)
         }
     }
+    
+    var aboutMeSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(icon: "text.quote", title: L10n.Settings.aboutMeSectionTitle) {
+                EmptyView()
+            }
+
+            ZStack(alignment: .topLeading) {
+                if aboutMe.isEmpty {
+                    Text(L10n.Settings.aboutMePlaceholder)
+                        .font(Theme.uiFont)
+                        .foregroundStyle(Theme.textFaint)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
+                        .allowsHitTesting(false)
+                }
+
+                TextEditor(text: $aboutMe)
+                    .font(Theme.uiFont)
+                    .foregroundStyle(Theme.textPrimary)
+                    .scrollContentBackground(.hidden)
+                    .padding(.horizontal, 9)
+                    .padding(.top, 10)
+                    .padding(.bottom, 7)
+                    .onChange(of: aboutMe) { _, newValue in
+                        if newValue.count > AppLimits.maxAboutMeLength {
+                            aboutMe = String(newValue.prefix(AppLimits.maxAboutMeLength))
+                        }
+                    }
+            }
+            .frame(height: 120)
+            .background(Theme.fieldBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
+
+            Text("\(aboutMe.count)/\(AppLimits.maxAboutMeLength)")
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+        }
+    }
 }
 
 extension L10n.Settings {
@@ -185,6 +225,20 @@ extension L10n.Settings {
         switch L10n.lang {
         case .en: return "Ollama tends to work best in English, regardless of what you pick here."
         case .pl: return "Ollama działa najlepiej po angielsku, niezależnie od wyboru powyżej."
+        }
+    }
+    
+    static var aboutMeSectionTitle: String {
+        switch L10n.lang {
+        case .en: return "ABOUT ME"
+        case .pl: return "O MNIE"
+        }
+    }
+    
+    static var aboutMePlaceholder: String {
+        switch L10n.lang {
+        case .en: return "A few words about yourself, for Sariel to keep in mind..."
+        case .pl: return "Kilka słów o Tobie, żeby Sariel je pamiętała..."
         }
     }
 }
