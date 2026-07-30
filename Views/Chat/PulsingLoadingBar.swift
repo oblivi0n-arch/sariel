@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct EndConversationLoadingBar: View {
+struct PulsingLoadingBar: View {
     @State private var progress: CGFloat = 0
 
     var body: some View {

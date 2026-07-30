@@ -252,7 +252,7 @@ struct ChatView: View {
     @ViewBuilder
     private var failureMeaningPromptOverlayContent: some View {
         if pendingDeclarationText != nil {
-            FailureMeaningPromptView(
+            FailureMeaningOverlay(
                 onSubmit: submitPendingDeclaration,
                 onCancel: cancelPendingDeclaration
             )

@@ -64,7 +64,7 @@ struct AboutMePreviewOverlay: View {
                 .opacity(isRegenerating ? 0.4 : 1)
                 .overlay(alignment: .top) {
                     if isRegenerating {
-                        EndConversationLoadingBar()
+                        PulsingLoadingBar()
                             .frame(maxWidth: .infinity)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }

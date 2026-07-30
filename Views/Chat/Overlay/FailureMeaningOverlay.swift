@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FailureMeaningPromptView: View {
+struct FailureMeaningOverlay: View {
     let onSubmit: (String) -> Void
     let onCancel: () -> Void
 
