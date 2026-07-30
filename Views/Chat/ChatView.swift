@@ -19,6 +19,8 @@ struct ChatView: View {
 
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" })
     var pendingCommitments: [Commitment]
+    
+    @AppStorage("hasCompletedAcquaintance") private var hasCompletedAcquaintance: Bool = false
 
     @State private var draft: String = ""
     @FocusState private var isInputFocused: Bool
@@ -199,6 +201,11 @@ struct ChatView: View {
                     if sortedMessages.isEmpty {
                         HStack(spacing: 8) {
                             StarterChip(icon: "eye", label: L10n.Chat.provocationChip, onTap: startProvocation)
+
+                            if !hasCompletedAcquaintance {
+                                StarterChip(icon: "person.fill.questionmark", label: L10n.Chat.acquaintanceChip, onTap: startAcquaintance)
+                            }
+
                             Spacer()
                         }
                         .padding(.horizontal, 16)
@@ -434,6 +441,11 @@ struct ChatView: View {
         guard !isInputLocked else { return }
         Task { await chatService.startProvocation(for: conversation, modelContext: modelContext) }
     }
+
+    private func startAcquaintance() {
+        guard !isInputLocked else { return }
+        Task { await chatService.startAcquaintance(for: conversation, modelContext: modelContext) }
+    }
 }
 
 extension L10n {
@@ -442,6 +454,13 @@ extension L10n {
             switch lang {
             case .en: return "provocation"
             case .pl: return "prowokacja"
+            }
+        }
+        
+        static var acquaintanceChip: String {
+            switch lang {
+            case .en: return "get acquainted"
+            case .pl: return "zapoznaj się"
             }
         }
 
