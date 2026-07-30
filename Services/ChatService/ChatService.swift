@@ -10,6 +10,8 @@ final class ChatService: ObservableObject {
     @Published var endConversationErrors: [UUID: String] = [:]
     @Published var isGeneratingVerdicts: Set<UUID> = []
     @Published var verdictErrors: [UUID: String] = [:]
+    @Published var pendingAboutMeDrafts: [UUID: String] = [:]
+    @Published var isGeneratingAboutMeDraft: Set<UUID> = []
 
     let client: OllamaClient
 
@@ -202,7 +204,7 @@ final class ChatService: ObservableObject {
             try? modelContext.save()
 
             if conversation.isAcquaintance {
-                await updateAboutMe(from: history)
+                await generateAboutMeDraft(for: conversation, history: history)
             }
             
             return entry
@@ -212,7 +214,10 @@ final class ChatService: ObservableObject {
         }
     }
     
-    private func updateAboutMe(from history: [ChatMessage]) async {
+    private func generateAboutMeDraft(for conversation: Conversation, history: [ChatMessage]) async {
+        isGeneratingAboutMeDraft.insert(conversation.id)
+        defer { isGeneratingAboutMeDraft.remove(conversation.id) }
+
         let existingAboutMe = UserDefaults.standard.string(forKey: "aboutMe")?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
@@ -223,8 +228,27 @@ final class ChatService: ObservableObject {
         let trimmed = String(updated.trimmingCharacters(in: .whitespacesAndNewlines).prefix(AppLimits.maxAboutMeLength))
         guard !trimmed.isEmpty else { return }
 
-        UserDefaults.standard.set(trimmed, forKey: "aboutMe")
+        pendingAboutMeDrafts[conversation.id] = trimmed
+    }
+
+    func retryAboutMeDraft(for conversation: Conversation, modelContext: ModelContext) async {
+        let history = conversation.messages
+            .sorted { $0.timestamp < $1.timestamp }
+            .filter { $0.isValidExchange }
+
+        await generateAboutMeDraft(for: conversation, history: history)
+    }
+
+    func acceptAboutMeDraft(for conversationID: UUID) {
+        guard let draft = pendingAboutMeDrafts[conversationID] else { return }
+
+        UserDefaults.standard.set(draft, forKey: "aboutMe")
         UserDefaults.standard.set(true, forKey: "hasCompletedAcquaintance")
+        pendingAboutMeDrafts[conversationID] = nil
+    }
+
+    func skipAboutMeDraft(for conversationID: UUID) {
+        pendingAboutMeDrafts[conversationID] = nil
     }
 
     private func generatedTag(modelContext: ModelContext) -> JournalEntryTag {
@@ -340,3 +364,4 @@ final class ChatService: ObservableObject {
         }
     }
 }
+
