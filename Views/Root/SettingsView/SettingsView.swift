@@ -5,9 +5,10 @@ struct SettingsView: View {
     @Environment(\.modelContext) var modelContext
     @EnvironmentObject var connectionMonitor: ConnectionMonitor
     @Binding var isPresented: Bool
+    var onStartAcquaintance: () -> Void
     @ObservedObject var themeManager = ThemeManager.shared
     @ObservedObject var languageManager = LanguageManager.shared
-
+    
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") var isPostReset: Bool = false
     @AppStorage("ollamaHost") var host: String = OllamaDefaults.host
@@ -23,7 +24,7 @@ struct SettingsView: View {
     @AppStorage(ShortcutAction.chat.storageKey) var chatShortcut = ShortcutAction.chat.defaultShortcut
     @AppStorage(ShortcutAction.journal.storageKey) var journalShortcut = ShortcutAction.journal.defaultShortcut
     @AppStorage(ShortcutAction.tribunal.storageKey) var tribunalShortcut = ShortcutAction.tribunal.defaultShortcut
-
+    
     @State var isManualPathShown = false
     @State var availableModels: [String] = []
     @State var isLoadingModels = false
@@ -34,46 +35,46 @@ struct SettingsView: View {
     @State var dataTransferAlert: DataTransferAlert?
     @FocusState var isUsernameFieldFocused: Bool
     @State var draftUsername: String = ""
-    #if DEBUG
+#if DEBUG
     @State var devTapCount = 0
     @State var isDevModeUnlocked = false
-    #endif
-
+#endif
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-
+            
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     identitySection
                     aboutMeSection
                     appearanceSection
                     languageSection
-
+                    
                     Divider().overlay(Theme.border)
-
+                    
                     ollamaSection
                     contextSection
                     credibilitySection
                     journalStyleSection
-
+                    
                     Divider().overlay(Theme.border)
-
+                    
                     keyboardShortcutsSection
-
+                    
                     Divider().overlay(Theme.border)
                     
                     dataTransferSection
                     dangerZone
-                    #if DEBUG
+#if DEBUG
                     if isDevModeUnlocked {
                         debugOnboardingSection
                     }
-                    #endif
+#endif
                 }
                 .padding(20)
             }
-
+            
             versionFooter
         }
         .background(Theme.background)
@@ -83,19 +84,19 @@ struct SettingsView: View {
             await fetchAvailableModels()
         }
     }
-
+    
     private var header: some View {
         HStack {
             Image(systemName: "gearshape.fill")
                 .font(Typography.icon)
                 .foregroundStyle(Theme.textMuted)
-
+            
             Text(L10n.Settings.title)
                 .font(Typography.title)
                 .foregroundStyle(Theme.textPrimary)
-
+            
             Spacer()
-
+            
             Button(action: { isPresented = false }) {
                 Image(systemName: "xmark")
                     .font(Typography.iconButton)
@@ -112,27 +113,27 @@ struct SettingsView: View {
             Rectangle().fill(Theme.border).frame(height: 0.5)
         }
     }
-
+    
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
     }
-
+    
     private var versionFooter: some View {
         Text(L10n.Settings.versionFooter(version: appVersion, handle: "@oblivi0n-arch"))
             .font(Typography.caption)
             .foregroundStyle(Theme.textFaint)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 10)
-            #if DEBUG
+#if DEBUG
             .onTapGesture {
                 devTapCount += 1
                 if devTapCount == 5 {
                     isDevModeUnlocked = true
                 }
             }
-            #endif
+#endif
     }
-
+    
     func sectionHeader<Accessory: View>(
         icon: String,
         title: String,
@@ -146,15 +147,20 @@ struct SettingsView: View {
                     .font(Typography.caption)
             }
             .foregroundStyle(Theme.textFaint)
-
+            
             Spacer()
-
+            
             accessory()
         }
     }
     
     func commitUsername() {
         username = draftUsername
+    }
+    
+    func handleAcquaintanceLinkTap() {
+        isPresented = false
+        onStartAcquaintance()
     }
 }
 
@@ -166,7 +172,7 @@ extension L10n {
             case .pl: return "ustawienia"
             }
         }
-
+        
         static func versionFooter(version: String, handle: String) -> String {
             switch lang {
             case .en: return "v\(version) · built by \(handle)"

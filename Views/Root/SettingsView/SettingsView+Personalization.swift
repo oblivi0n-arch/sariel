@@ -125,7 +125,7 @@ extension SettingsView {
                         commitUsername()
                     }
                 }
-
+            
             Text("\(draftUsername.count)/\(AppLimits.maxUsernameLength)")
         }
     }
@@ -135,7 +135,7 @@ extension SettingsView {
             sectionHeader(icon: "text.quote", title: L10n.Settings.aboutMeSectionTitle) {
                 EmptyView()
             }
-
+            
             ZStack(alignment: .topLeading) {
                 if aboutMe.isEmpty {
                     Text(L10n.Settings.aboutMePlaceholder)
@@ -145,7 +145,7 @@ extension SettingsView {
                         .padding(.vertical, 12)
                         .allowsHitTesting(false)
                 }
-
+                
                 TextEditor(text: $aboutMe)
                     .font(Theme.uiFont)
                     .foregroundStyle(Theme.textPrimary)
@@ -163,10 +163,17 @@ extension SettingsView {
             .background(Theme.fieldBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
-
+            
             Text("\(aboutMe.count)/\(AppLimits.maxAboutMeLength)")
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
+            
+            Button(action: handleAcquaintanceLinkTap) {
+                Text(L10n.Settings.restartAcquaintanceLink)
+                    .font(Typography.caption)
+                    .foregroundStyle(Theme.textMuted)
+            }
+            .buttonStyle(.plain)
         }
     }
 }
@@ -220,7 +227,7 @@ extension L10n.Settings {
         case .pl: return "TOŻSAMOŚĆ"
         }
     }
-
+    
     static var usernamePlaceholder: String {
         switch L10n.lang {
         case .en: return "What should I call you?"
@@ -246,6 +253,13 @@ extension L10n.Settings {
         switch L10n.lang {
         case .en: return "A few words about yourself, for Sariel to keep in mind..."
         case .pl: return "Kilka słów o Tobie, żeby Sariel je pamiętała..."
+        }
+    }
+    
+    static var restartAcquaintanceLink: String {
+        switch L10n.lang {
+        case .en: return "Have the acquaintance conversation again"
+        case .pl: return "Przeprowadź ponownie rozmowę zapoznawczą"
         }
     }
 }

@@ -122,7 +122,7 @@ struct ContentView: View {
                                 }
                             }
                         
-                        SettingsView(isPresented: $isSettingsOpen)
+                        SettingsView(isPresented: $isSettingsOpen, onStartAcquaintance: startAcquaintanceFromSettings)
                             .frame(maxWidth: 560, maxHeight: 620)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
@@ -256,6 +256,23 @@ struct ContentView: View {
             try? modelContext.save()
             activeConversation = new
         }
+    }
+    
+    private func startAcquaintanceFromSettings() {
+        let target: Conversation
+        
+        if let current = activeConversation, current.messages.isEmpty {
+            target = current
+        } else {
+            let new = Conversation()
+            modelContext.insert(new)
+            try? modelContext.save()
+            activeConversation = new
+            target = new
+        }
+        
+        switchSection(to: .chat)
+        Task { await chatService.startAcquaintance(for: target, modelContext: modelContext) }
     }
     
     private func openConversation(_ conversation: Conversation) {
