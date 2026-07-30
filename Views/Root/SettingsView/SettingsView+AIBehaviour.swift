@@ -233,6 +233,56 @@ extension SettingsView {
                 .foregroundStyle(Theme.textFaint)
         }
     }
+    
+    var journalStyleSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(icon: "text.alignleft", title: L10n.JournalStyle.sectionTitle) {
+                EmptyView()
+            }
+
+            VStack(spacing: 8) {
+                ForEach(JournalStyle.allCases, id: \.self) { style in
+                    journalStyleOption(style)
+                }
+            }
+
+            Text(L10n.JournalStyle.sectionHint)
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+        }
+    }
+
+    private func journalStyleOption(_ style: JournalStyle) -> some View {
+        let isSelected = journalStyle == style
+
+        return Button(action: { journalStyle = style }) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: isSelected ? "largecircle.fill.circle" : "circle")
+                    .font(.system(size: 14))
+                    .foregroundStyle(isSelected ? Theme.textPrimary : Theme.textFaint)
+                    .padding(.top, 2)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(style.displayName)
+                        .font(Theme.uiFont)
+                        .foregroundStyle(Theme.textPrimary)
+                    Text(style.subtitle)
+                        .font(Typography.caption)
+                        .foregroundStyle(Theme.textFaint)
+                }
+
+                Spacer()
+            }
+            .padding(10)
+            .background(Theme.fieldBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? Theme.textPrimary.opacity(0.6) : Theme.border, lineWidth: isSelected ? 1 : 0.5)
+            )
+        }
+        .buttonStyle(.plain)
+    }
 }
 
 extension L10n.Settings {

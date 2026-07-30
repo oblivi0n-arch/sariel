@@ -18,6 +18,7 @@ struct SettingsView: View {
     @AppStorage("ollamaExecutablePath") var ollamaExecutablePath: String = ""
     @AppStorage("username") var username: String = ""
     @AppStorage("aboutMe") var aboutMe: String = ""
+    @AppStorage("journalStyle") var journalStyle: JournalStyle = .conciseFactual
     @AppStorage(ShortcutAction.dashboard.storageKey) var dashboardShortcut = ShortcutAction.dashboard.defaultShortcut
     @AppStorage(ShortcutAction.chat.storageKey) var chatShortcut = ShortcutAction.chat.defaultShortcut
     @AppStorage(ShortcutAction.journal.storageKey) var journalShortcut = ShortcutAction.journal.defaultShortcut
@@ -54,6 +55,7 @@ struct SettingsView: View {
                     ollamaSection
                     contextSection
                     credibilitySection
+                    journalStyleSection
 
                     Divider().overlay(Theme.border)
 
