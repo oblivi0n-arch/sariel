@@ -70,7 +70,11 @@ struct ChatView: View {
     }
 
     private var isPendingProvocationStart: Bool {
-        !conversation.isTribunal && sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
+        conversation.isProvocation && sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
+    }
+
+    private var isPendingAcquaintanceStart: Bool {
+        conversation.isAcquaintance && sortedMessages.count == 1 && sortedMessages[0].messageRole == .guide
     }
 
     private var isEnded: Bool { conversation.journalEntry != nil || conversation.tribunalResolvedAt != nil }
@@ -417,6 +421,8 @@ struct ChatView: View {
         guard hasUnresolvedError, !isInputLocked else { return }
         if isPendingProvocationStart {
             Task { await chatService.retryProvocation(for: conversation, modelContext: modelContext) }
+        } else if isPendingAcquaintanceStart {
+            Task { await chatService.retryAcquaintance(for: conversation, modelContext: modelContext) }
         } else if isPendingTribunalOpening {
             Task { await chatService.retryTribunalOpening(for: conversation, modelContext: modelContext) }
         } else {

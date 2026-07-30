@@ -3,6 +3,8 @@ import SwiftData
 
 extension ChatService {
     func startAcquaintance(for conversation: Conversation, modelContext: ModelContext) async {
+        conversation.isAcquaintance = true
+
         let guideMessage = ChatMessage(role: .guide, content: "")
         guideMessage.conversation = conversation
         conversation.messages.append(guideMessage)
@@ -40,7 +42,6 @@ extension ChatService {
 
         if !guideMessage.content.isEmpty, !guideMessage.content.hasPrefix("⚠️") {
             let question = guideMessage.content.trimmingCharacters(in: .whitespacesAndNewlines)
-            conversation.isAcquaintance = true
             conversation.acquaintanceQuestion = question
 
             if let title = try? await client.complete(messages: PromptBuilder.buildAcquaintanceTitleMessages(question: question)) {
