@@ -31,6 +31,8 @@ struct SettingsView: View {
     @State var showImportConfirmation = false
     @State var pendingImportURL: URL?
     @State var dataTransferAlert: DataTransferAlert?
+    @FocusState var isUsernameFieldFocused: Bool
+    @State var draftUsername: String = ""
     #if DEBUG
     @State var devTapCount = 0
     @State var isDevModeUnlocked = false
@@ -75,6 +77,7 @@ struct SettingsView: View {
         .background(Theme.background)
         .overlay { resetConfirmationOverlayContent }
         .task {
+            draftUsername = username
             await fetchAvailableModels()
         }
     }
@@ -146,6 +149,10 @@ struct SettingsView: View {
 
             accessory()
         }
+    }
+    
+    func commitUsername() {
+        username = draftUsername
     }
 }
 

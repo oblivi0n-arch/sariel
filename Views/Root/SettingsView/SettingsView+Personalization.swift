@@ -103,7 +103,7 @@ extension SettingsView {
                 EmptyView()
             }
             
-            TextField(L10n.Settings.usernamePlaceholder, text: $username)
+            TextField(L10n.Settings.usernamePlaceholder, text: $draftUsername)
                 .textFieldStyle(.plain)
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textPrimary)
@@ -111,15 +111,22 @@ extension SettingsView {
                 .background(Theme.fieldBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
-                .onChange(of: username) { _, newValue in
+                .focused($isUsernameFieldFocused)
+                .onSubmit {
+                    commitUsername()
+                }
+                .onChange(of: draftUsername) { _, newValue in
                     if newValue.count > AppLimits.maxUsernameLength {
-                        username = String(newValue.prefix(AppLimits.maxUsernameLength))
+                        draftUsername = String(newValue.prefix(AppLimits.maxUsernameLength))
                     }
                 }
-            
-            Text("\(username.count)/\(AppLimits.maxUsernameLength)")
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textFaint)
+                .onChange(of: isUsernameFieldFocused) { wasFocused, isFocused in
+                    if wasFocused && !isFocused {
+                        commitUsername()
+                    }
+                }
+
+            Text("\(draftUsername.count)/\(AppLimits.maxUsernameLength)")
         }
     }
     
