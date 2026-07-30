@@ -81,6 +81,7 @@ enum DataExportService {
         
         let aboutMe = UserDefaults.standard.string(forKey: "aboutMe") ?? ""
         let hasCompletedAcquaintance = UserDefaults.standard.bool(forKey: "hasCompletedAcquaintance")
+        let hasStartedAcquaintance = UserDefaults.standard.bool(forKey: "hasStartedAcquaintance")
         let username = UserDefaults.standard.string(forKey: "username") ?? ""
 
         return SarielExport(
@@ -92,6 +93,7 @@ enum DataExportService {
             achievementUnlocks: achievementUnlocks,
             aboutMe: aboutMe,
             hasCompletedAcquaintance: hasCompletedAcquaintance,
+            hasStartedAcquaintance: hasStartedAcquaintance,
             username: username
         )
     }
@@ -234,6 +236,7 @@ extension DataExportService {
         
         UserDefaults.standard.set(export.aboutMe, forKey: "aboutMe")
         UserDefaults.standard.set(export.hasCompletedAcquaintance, forKey: "hasCompletedAcquaintance")
+        UserDefaults.standard.set(export.hasStartedAcquaintance, forKey: "hasStartedAcquaintance")
         UserDefaults.standard.set(export.username, forKey: "username")
         
         try modelContext.save()

@@ -4,7 +4,8 @@ import SwiftData
 extension ChatService {
     func startAcquaintance(for conversation: Conversation, modelContext: ModelContext) async {
         conversation.isAcquaintance = true
-
+        UserDefaults.standard.set(true, forKey: "hasStartedAcquaintance")
+        
         let guideMessage = ChatMessage(role: .guide, content: "")
         guideMessage.conversation = conversation
         conversation.messages.append(guideMessage)

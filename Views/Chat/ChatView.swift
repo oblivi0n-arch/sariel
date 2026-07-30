@@ -20,7 +20,7 @@ struct ChatView: View {
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" })
     var pendingCommitments: [Commitment]
     
-    @AppStorage("hasCompletedAcquaintance") private var hasCompletedAcquaintance: Bool = false
+    @AppStorage("hasStartedAcquaintance") private var hasStartedAcquaintance: Bool = false
     @AppStorage("aboutMe") private var aboutMe: String = ""
 
     @State private var draft: String = ""
@@ -213,7 +213,7 @@ struct ChatView: View {
                         HStack(spacing: 8) {
                             StarterChip(icon: "eye", label: L10n.Chat.provocationChip, onTap: startProvocation)
 
-                            if !hasCompletedAcquaintance {
+                            if !hasStartedAcquaintance {
                                 StarterChip(icon: "person.fill.questionmark", label: L10n.Chat.acquaintanceChip, onTap: startAcquaintance)
                             }
 

@@ -128,6 +128,7 @@ struct SarielExport: Codable {
     let achievementUnlocks: [ExportedAchievementUnlock]
     let aboutMe: String
     let hasCompletedAcquaintance: Bool
+    let hasStartedAcquaintance: Bool
     let username: String
 }
 
@@ -143,6 +144,7 @@ extension SarielExport {
         achievementUnlocks: [ExportedAchievementUnlock],
         aboutMe: String,
         hasCompletedAcquaintance: Bool,
+        hasStartedAcquaintance: Bool,
         username: String
     ) {
         self.schemaVersion = Self.currentSchemaVersion
@@ -156,13 +158,14 @@ extension SarielExport {
         self.achievementUnlocks = achievementUnlocks
         self.aboutMe = aboutMe
         self.hasCompletedAcquaintance = hasCompletedAcquaintance
+        self.hasStartedAcquaintance = hasStartedAcquaintance
         self.username = username
     }
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion, appVersion, exportedAt
         case conversations, chatMessages, journalEntries, journalEntryTags, commitments, achievementUnlocks
-        case aboutMe, hasCompletedAcquaintance, username
+        case aboutMe, hasCompletedAcquaintance, hasStartedAcquaintance, username
     }
 
     init(from decoder: Decoder) throws {
@@ -178,6 +181,7 @@ extension SarielExport {
         achievementUnlocks = try container.decode([ExportedAchievementUnlock].self, forKey: .achievementUnlocks)
         aboutMe = try container.decodeIfPresent(String.self, forKey: .aboutMe) ?? ""
         hasCompletedAcquaintance = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedAcquaintance) ?? false
+        hasStartedAcquaintance = try container.decodeIfPresent(Bool.self, forKey: .hasStartedAcquaintance) ?? false
         username = try container.decodeIfPresent(String.self, forKey: .username) ?? ""
     }
 }
