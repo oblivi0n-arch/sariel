@@ -81,6 +81,8 @@ extension SettingsView {
         tribunalShortcut = ShortcutAction.tribunal.defaultShortcut
         
         UserDefaults.standard.removeObject(forKey: "username")
+        UserDefaults.standard.removeObject(forKey: "aboutMe")
+        UserDefaults.standard.removeObject(forKey: "hasCompletedAcquaintance")
         UserDefaults.standard.removeObject(forKey: "dashboardGreetingIndex")
         UserDefaults.standard.removeObject(forKey: "dashboardGreetingDate")
         UserDefaults.standard.removeObject(forKey: "lastDashboardShownDate")
