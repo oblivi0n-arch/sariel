@@ -21,6 +21,8 @@ struct SettingsView: View {
     @AppStorage("aboutMe") var aboutMe: String = ""
     @AppStorage("hasStartedAcquaintance") var hasStartedAcquaintance: Bool = false
     @AppStorage("journalStyle") var journalStyle: JournalStyle = .conciseFactual
+    @AppStorage("autoDeleteEnabled") var autoDeleteEnabled: Bool = false
+    @AppStorage("autoDeleteThresholdDays") var autoDeleteThresholdDays: Int = AppLimits.autoDeleteThresholdOptions[0]
     @AppStorage(ShortcutAction.dashboard.storageKey) var dashboardShortcut = ShortcutAction.dashboard.defaultShortcut
     @AppStorage(ShortcutAction.chat.storageKey) var chatShortcut = ShortcutAction.chat.defaultShortcut
     @AppStorage(ShortcutAction.journal.storageKey) var journalShortcut = ShortcutAction.journal.defaultShortcut
@@ -65,6 +67,10 @@ struct SettingsView: View {
                     
                     Divider().overlay(Theme.border)
                     
+                    privacySection
+
+                    Divider().overlay(Theme.border)
+
                     dataTransferSection
                     dangerZone
 #if DEBUG

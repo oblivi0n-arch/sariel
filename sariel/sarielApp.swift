@@ -4,6 +4,7 @@ import AppKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
+        UserDefaults.standard.set(Date(), forKey: "lastActiveDate")
         Task {
             await OllamaLauncher.shared.startIfNeeded()
         }
