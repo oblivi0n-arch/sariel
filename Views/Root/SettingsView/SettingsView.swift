@@ -19,6 +19,7 @@ struct SettingsView: View {
     @AppStorage("ollamaExecutablePath") var ollamaExecutablePath: String = ""
     @AppStorage("username") var username: String = ""
     @AppStorage("aboutMe") var aboutMe: String = ""
+    @AppStorage("hasStartedAcquaintance") var hasStartedAcquaintance: Bool = false
     @AppStorage("journalStyle") var journalStyle: JournalStyle = .conciseFactual
     @AppStorage(ShortcutAction.dashboard.storageKey) var dashboardShortcut = ShortcutAction.dashboard.defaultShortcut
     @AppStorage(ShortcutAction.chat.storageKey) var chatShortcut = ShortcutAction.chat.defaultShortcut

@@ -168,12 +168,14 @@ extension SettingsView {
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
             
-            Button(action: handleAcquaintanceLinkTap) {
-                Text(L10n.Settings.restartAcquaintanceLink)
-                    .font(Typography.caption)
-                    .foregroundStyle(Theme.textMuted)
+            if hasStartedAcquaintance {
+                Button(action: handleAcquaintanceLinkTap) {
+                    Text(L10n.Settings.restartAcquaintanceLink)
+                        .font(Typography.caption)
+                        .foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
     }
 }
