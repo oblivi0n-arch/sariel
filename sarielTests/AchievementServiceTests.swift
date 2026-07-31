@@ -431,4 +431,32 @@ struct AchievementServiceTests {
         #expect(result.progress == 3)
         #expect(result.isUnlocked == true)
     }
+    
+    // MARK: - idempotency after unlock
+
+    @Test @MainActor
+    func onceUnlockedProgressAndUnlockDateDoNotChangeOnSubsequentChecks() throws {
+        let context = try makeInMemoryContext()
+        let service = AchievementService()
+
+        let unlocks = service.allUnlocks(modelContext: context)
+        let nightOwlUnlock = try #require(unlocks.first { $0.achievementKind == .nightOwl })
+        let fixedUnlockDate = Date().addingTimeInterval(-1000)
+        nightOwlUnlock.progress = 7
+        nightOwlUnlock.unlockedAt = fixedUnlockDate
+        try context.save()
+
+        for i in 0..<10 {
+            let entry = JournalEntry(title: "t\(i)", content: "c")
+            entry.createdAt = Calendar.current.date(from: DateComponents(year: 2026, month: 6, day: i + 1, hour: 2))!
+            context.insert(entry)
+        }
+        try context.save()
+
+        service.checkNightOwl(modelContext: context)
+
+        let result = try #require(unlock(for: .nightOwl, service: service, context: context))
+        #expect(result.progress == 7)
+        #expect(result.unlockedAt == fixedUnlockDate)
+    }
 }
