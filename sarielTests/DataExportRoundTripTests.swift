@@ -177,4 +177,73 @@ struct DataExportRoundTripTests {
             try DataExportService.decodeFromJSON(corrupted)
         }
     }
+    
+    @Test @MainActor
+    func importGracefullyDropsReferencesToObjectsMissingFromThePackage() throws {
+        let danglingConversationID = UUID()
+        let danglingMessageID = UUID()
+
+        let entry = ExportedJournalEntry(
+            id: UUID(),
+            title: "Wpis z zerwaną referencją",
+            content: "Treść wpisu",
+            createdAt: Date(),
+            isPinned: false,
+            mood: Mood.neutral.rawValue,
+            sourceConversationID: danglingConversationID,
+            tagIDs: []
+        )
+
+        let commitment = ExportedCommitment(
+            id: UUID(),
+            declarationText: "Zobowiązanie z zerwaną referencją",
+            createdAt: Date(),
+            status: CommitmentStatus.pending.rawValue,
+            failureMeaning: "f",
+            resolvedAt: nil,
+            verdictReasoning: nil,
+            stepsDescription: nil,
+            sourceMessageID: danglingMessageID,
+            resolvingConversationID: nil
+        )
+
+        let export = SarielExport(
+            schemaVersion: SarielExport.currentSchemaVersion,
+            appVersion: "1.7.1",
+            exportedAt: Date(),
+            conversations: [],
+            chatMessages: [],
+            journalEntries: [entry],
+            journalEntryTags: [],
+            commitments: [commitment],
+            achievementUnlocks: [],
+            aboutMe: "",
+            hasCompletedAcquaintance: false,
+            hasStartedAcquaintance: false,
+            username: "",
+            appTheme: AppTheme.dark.rawValue,
+            appThemeFollowsSystem: false,
+            appLanguage: "",
+            journalStyle: JournalStyle.conciseFactual.rawValue,
+            useJournalContext: false,
+            useCredibilityContext: false,
+            dashboardShortcut: ShortcutAction.dashboard.defaultShortcut.rawValue,
+            chatShortcut: ShortcutAction.chat.defaultShortcut.rawValue,
+            journalShortcut: ShortcutAction.journal.defaultShortcut.rawValue,
+            tribunalShortcut: ShortcutAction.tribunal.defaultShortcut.rawValue,
+            hasBeenPoorCredibility: false,
+            lastActiveConversationID: ""
+        )
+
+        let context = try makeInMemoryContext()
+
+        try DataExportService.importAllData(export, modelContext: context)
+
+        let importedEntry = try #require(try context.fetch(FetchDescriptor<JournalEntry>()).first)
+        #expect(importedEntry.title == "Wpis z zerwaną referencją")
+        #expect(importedEntry.sourceConversation == nil)
+
+        let importedCommitment = try #require(try context.fetch(FetchDescriptor<Commitment>()).first)
+        #expect(importedCommitment.sourceMessage == nil)
+    }
 }
