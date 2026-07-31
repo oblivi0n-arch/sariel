@@ -10,6 +10,8 @@ enum AppResetService {
         deleteAll(AchievementUnlock.self, in: context)
         try? context.save()
 
+        PinKeychainStore.removePin()
+        UserDefaults.standard.set(false, forKey: "appLockEnabled")
         UserDefaults.standard.set(OllamaDefaults.host, forKey: "ollamaHost")
         UserDefaults.standard.set(OllamaDefaults.model, forKey: "ollamaModel")
         UserDefaults.standard.set(false, forKey: "useJournalContext")
