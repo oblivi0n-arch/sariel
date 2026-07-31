@@ -138,6 +138,7 @@ struct DashboardView: View {
         .onAppear {
             updateGreetingIfNeeded()
             _ = achievementService.allUnlocks(modelContext: modelContext)
+            SelfLetterService.refreshAvailability(context: modelContext)
         }
         .onChange(of: languageManager.current) { _, _ in
             updateGreetingIfNeeded()
