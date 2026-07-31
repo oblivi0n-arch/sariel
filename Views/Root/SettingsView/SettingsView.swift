@@ -23,6 +23,8 @@ struct SettingsView: View {
     @AppStorage("journalStyle") var journalStyle: JournalStyle = .conciseFactual
     @AppStorage("autoDeleteEnabled") var autoDeleteEnabled: Bool = false
     @AppStorage("autoDeleteThresholdDays") var autoDeleteThresholdDays: Int = AppLimits.autoDeleteThresholdOptions[0]
+    @AppStorage("appLockEnabled") var appLockEnabled: Bool = false
+    @AppStorage("appLockUseBiometrics") var appLockUseBiometrics: Bool = true
     @AppStorage(ShortcutAction.dashboard.storageKey) var dashboardShortcut = ShortcutAction.dashboard.defaultShortcut
     @AppStorage(ShortcutAction.chat.storageKey) var chatShortcut = ShortcutAction.chat.defaultShortcut
     @AppStorage(ShortcutAction.journal.storageKey) var journalShortcut = ShortcutAction.journal.defaultShortcut
@@ -38,6 +40,8 @@ struct SettingsView: View {
     @State var dataTransferAlert: DataTransferAlert?
     @FocusState var isUsernameFieldFocused: Bool
     @State var draftUsername: String = ""
+    @State var isPinSetupShown = false
+    @State var hasPinSet = false
 #if DEBUG
     @State var devTapCount = 0
     @State var isDevModeUnlocked = false
@@ -86,8 +90,10 @@ struct SettingsView: View {
         }
         .background(Theme.background)
         .overlay { resetConfirmationOverlayContent }
+        .overlay { pinSetupOverlayContent }
         .task {
             draftUsername = username
+            hasPinSet = PinKeychainStore.hasPinSet()
             await fetchAvailableModels()
         }
     }
