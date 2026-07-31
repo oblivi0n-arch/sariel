@@ -17,6 +17,7 @@ struct DashboardView: View {
     @Query private var achievementUnlocks: [AchievementUnlock]
     @State private var selectedUnlock: AchievementUnlock?
     @State private var isAchievementsScreenShown = false
+    @State private var isWritingLetter = false
     
     private var currentStreak: Int {
         let calendar = Calendar.current
@@ -115,7 +116,7 @@ struct DashboardView: View {
                 }
                 
                 DashboardSelfLetterRow(
-                    onWriteTapped: { /* TODO: otworzyć compose listu */ },
+                    onWriteTapped: { isWritingLetter = true },
                     onOpenTapped: { /* TODO: otworzyć dostępny list */ }
                 )
                 
@@ -138,6 +139,10 @@ struct DashboardView: View {
                     unlocks: sortedAchievementUnlocks,
                     onBack: { isAchievementsScreenShown = false }
                 )
+            }
+            
+            if isWritingLetter {
+                SelfLetterComposeView(onDismiss: { isWritingLetter = false })
             }
         }
         .onAppear {

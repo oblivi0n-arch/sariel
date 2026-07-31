@@ -22,6 +22,15 @@ enum SelfLetterDelay: String, CaseIterable {
         case .oneYear:     return calendar.date(byAdding: .year, value: 1, to: now)!
         }
     }
+
+    var displayName: String {
+        switch self {
+        case .oneWeek:     return L10n.lang == .pl ? "za tydzień" : "in a week"
+        case .oneMonth:    return L10n.lang == .pl ? "za miesiąc" : "in a month"
+        case .threeMonths: return L10n.lang == .pl ? "za 3 miesiące" : "in 3 months"
+        case .oneYear:     return L10n.lang == .pl ? "za rok" : "in a year"
+        }
+    }
 }
 
 @Model
