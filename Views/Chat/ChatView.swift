@@ -215,7 +215,7 @@ struct ChatView: View {
                             StarterChip(icon: "eye", label: L10n.Chat.provocationChip, onTap: startProvocation)
 
                             if !hasStartedAcquaintance {
-                                StarterChip(icon: "person.fill.questionmark", label: L10n.Chat.acquaintanceChip, onTap: startAcquaintance)
+                                StarterChip(icon: "person.fill.questionmark", label: L10n.Chat.acquaintanceChip, isHighlighted: true, onTap: startAcquaintance)
                             }
 
                             Spacer()
