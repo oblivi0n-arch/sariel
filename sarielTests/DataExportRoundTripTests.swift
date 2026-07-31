@@ -145,7 +145,23 @@ struct DataExportRoundTripTests {
             journalEntries: [],
             journalEntryTags: [],
             commitments: [],
-            achievementUnlocks: []
+            achievementUnlocks: [],
+            aboutMe: "",
+            hasCompletedAcquaintance: false,
+            hasStartedAcquaintance: false,
+            username: "",
+            appTheme: AppTheme.dark.rawValue,
+            appThemeFollowsSystem: false,
+            appLanguage: "",
+            journalStyle: JournalStyle.conciseFactual.rawValue,
+            useJournalContext: false,
+            useCredibilityContext: false,
+            dashboardShortcut: ShortcutAction.dashboard.defaultShortcut.rawValue,
+            chatShortcut: ShortcutAction.chat.defaultShortcut.rawValue,
+            journalShortcut: ShortcutAction.journal.defaultShortcut.rawValue,
+            tribunalShortcut: ShortcutAction.tribunal.defaultShortcut.rawValue,
+            hasBeenPoorCredibility: false,
+            lastActiveConversationID: ""
         )
 
         #expect(throws: DataImportError.self) {
