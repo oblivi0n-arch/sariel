@@ -7,6 +7,7 @@ struct TribunalView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
     
     let achievementService: AchievementService
+    let onOpenConversation: (Conversation) -> Void
     
     @State private var isStarting = false
     @State private var isHistoryExpanded = false
@@ -127,6 +128,11 @@ struct TribunalView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     statusSection
+
+                    if !pendingCommitments.isEmpty {
+                        pendingDeclarationsSection
+                    }
+
                     credibilitySection
                     
                     if !resolvedCommitments.isEmpty {
@@ -332,6 +338,25 @@ struct TribunalView: View {
         }
     }
     
+    private var pendingDeclarationsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(L10n.Tribunal.pendingLabel)
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+                .kerning(0.5)
+
+            VStack(spacing: 8) {
+                ForEach(pendingCommitments) { commitment in
+                    PendingDeclarationRow(commitment: commitment, onSelect: {
+                        if let conversation = commitment.sourceMessage?.conversation {
+                            onOpenConversation(conversation)
+                        }
+                    })
+                }
+            }
+        }
+    }
+    
     private func toggleHistory() {
         withAnimation(.easeInOut(duration: 0.2)) {
             isHistoryExpanded.toggle()
@@ -416,6 +441,13 @@ extension L10n {
             switch lang {
             case .en: return "HISTORY"
             case .pl: return "HISTORIA"
+            }
+        }
+        
+        static var pendingLabel: String {
+            switch lang {
+            case .en: return "PENDING DECLARATIONS"
+            case .pl: return "OCZEKUJĄCE DEKLARACJE"
             }
         }
 

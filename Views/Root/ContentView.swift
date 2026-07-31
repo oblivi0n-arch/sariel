@@ -107,7 +107,11 @@ struct ContentView: View {
                             JournalView(activeEntry: $activeEntry, onOpenConversation: openConversation, achievementService: achievementService)
                             
                         case .tribunal:
-                            TribunalView(chatService: chatService, achievementService: achievementService)
+                            TribunalView(
+                                chatService: chatService,
+                                achievementService: achievementService,
+                                onOpenConversation: openConversation
+                            )
                         }
                     }
                     Theme.background
