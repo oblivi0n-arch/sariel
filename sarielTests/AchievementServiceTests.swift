@@ -384,4 +384,51 @@ struct AchievementServiceTests {
         let recovered = try #require(unlock(for: .credibilityRecovered, service: service, context: context))
         #expect(recovered.isUnlocked == true)
     }
+    
+    // MARK: - commitmentsBroken
+
+    @Test @MainActor
+    func brokenStreakBelowTargetDoesNotUnlockYet() throws {
+        let context = try makeInMemoryContext()
+        let service = AchievementService()
+
+        let now = Date()
+        let commitments = (0..<2).map { offset -> Commitment in
+            let commitment = Commitment(declarationText: "d\(offset)", failureMeaning: "f")
+            commitment.commitmentStatus = .broken
+            commitment.resolvedAt = now.addingTimeInterval(Double(-offset) * 60)
+            return commitment
+        }
+        commitments.forEach { context.insert($0) }
+        try context.save()
+
+        service.checkCommitmentStreaks(modelContext: context)
+
+        let result = try #require(unlock(for: .commitmentsBroken, service: service, context: context))
+        #expect(result.progress == 2)
+        #expect(result.isUnlocked == false)
+    }
+    
+    @Test @MainActor
+    func brokenStreakOfThreeUnlocksCommitmentsBroken() throws {
+        let context = try makeInMemoryContext()
+        let service = AchievementService()
+
+        let now = Date()
+        
+        let commitments = (0..<3).map { offset -> Commitment in
+            let commitment = Commitment(declarationText: "d\(offset)", failureMeaning: "f")
+            commitment.commitmentStatus = .broken
+            commitment.resolvedAt = now.addingTimeInterval(Double(-offset) * 60)
+            return commitment
+        }
+        commitments.forEach { context.insert($0) }
+        try context.save()
+
+        service.checkCommitmentStreaks(modelContext: context)
+
+        let result = try #require(unlock(for: .commitmentsBroken, service: service, context: context))
+        #expect(result.progress == 3)
+        #expect(result.isUnlocked == true)
+    }
 }
