@@ -8,6 +8,7 @@ struct DashboardView: View {
     @AppStorage("dashboardGreetingIndex") private var greetingIndex: Int = 0
     @AppStorage("dashboardGreetingDate") private var greetingDateString: String = ""
     @ObservedObject private var languageManager = LanguageManager.shared
+    @ObservedObject private var themeManager = ThemeManager.shared
     @Query(sort: \JournalEntry.createdAt, order: .reverse)
     private var journalEntries: [JournalEntry]
     @State private var greetingText: String = ""

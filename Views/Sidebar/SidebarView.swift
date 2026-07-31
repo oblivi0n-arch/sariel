@@ -4,6 +4,8 @@ struct SidebarView: View {
     @EnvironmentObject var connectionMonitor: ConnectionMonitor
     @Binding var selectedSection: AppSection
     @Binding var isSettingsOpen: Bool
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     let isTribunalLocked: Bool
     let isTribunalAwaitingJudgment: Bool
     let onSelectSection: (AppSection) -> Void

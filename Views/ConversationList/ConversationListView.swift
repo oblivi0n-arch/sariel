@@ -8,6 +8,7 @@ struct ConversationListView: View {
     @Binding var activeConversation: Conversation?
     @Binding var isConversationListOpen: Bool
     @ObservedObject var chatService: ChatService
+    @ObservedObject private var themeManager = ThemeManager.shared
 
     @State private var isPlusHovering = false
     @State private var isSearchHovering = false

@@ -10,6 +10,7 @@ struct ChatView: View {
     let isActive: Bool
     let achievementService: AchievementService
     @ObservedObject var chatService: ChatService
+    @ObservedObject private var themeManager = ThemeManager.shared
 
     var onJournalEntryCreated: (JournalEntry) -> Void
     var onDeclarationLimitBlocked: () -> Void

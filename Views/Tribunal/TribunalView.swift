@@ -2,10 +2,12 @@ import SwiftUI
 import SwiftData
 
 struct TribunalView: View {
+    @Environment(\.modelContext) private var modelContext
     @ObservedObject var chatService: ChatService
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     let achievementService: AchievementService
     
-    @Environment(\.modelContext) private var modelContext
     @State private var isStarting = false
     @State private var isHistoryExpanded = false
     @State private var isInfoShown = false

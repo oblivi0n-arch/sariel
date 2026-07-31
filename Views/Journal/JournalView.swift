@@ -5,6 +5,8 @@ struct JournalView: View {
     @Environment(\.modelContext) private var modelContext
 
     @Binding var activeEntry: JournalEntry?
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     let onOpenConversation: (Conversation) -> Void
     let achievementService: AchievementService
 
