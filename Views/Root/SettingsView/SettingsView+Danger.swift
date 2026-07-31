@@ -57,38 +57,13 @@ extension SettingsView {
     }
     
     private func resetEverything(skipOnboarding: Bool = false) {
-        deleteAll(JournalEntry.self)
-        deleteAll(JournalEntryTag.self)
-        deleteAll(Conversation.self)
-        deleteAll(Commitment.self)
-        deleteAll(AchievementUnlock.self)
-        
-        try? modelContext.save()
-        
-        hasCompletedOnboarding = skipOnboarding
-        isPostReset = !skipOnboarding
-        
-        host = OllamaDefaults.host
-        model = OllamaDefaults.model
-        useJournalContext = false
-        useCredibilityContext = false
-        autoStartOllama = false
-        ollamaExecutablePath = ""
+        AppResetService.wipeAllData(context: modelContext)
 
-        dashboardShortcut = ShortcutAction.dashboard.defaultShortcut
-        chatShortcut = ShortcutAction.chat.defaultShortcut
-        journalShortcut = ShortcutAction.journal.defaultShortcut
-        tribunalShortcut = ShortcutAction.tribunal.defaultShortcut
-        
-        UserDefaults.standard.removeObject(forKey: "username")
-        UserDefaults.standard.removeObject(forKey: "aboutMe")
-        UserDefaults.standard.removeObject(forKey: "hasCompletedAcquaintance")
-        UserDefaults.standard.removeObject(forKey: "hasStartedAcquaintance")
-        UserDefaults.standard.removeObject(forKey: "dashboardGreetingIndex")
-        UserDefaults.standard.removeObject(forKey: "dashboardGreetingDate")
-        UserDefaults.standard.removeObject(forKey: "lastDashboardShownDate")
-        UserDefaults.standard.removeObject(forKey: "achievement_hasBeenPoorCredibility")
-        
+        if skipOnboarding {
+            hasCompletedOnboarding = true
+            isPostReset = false
+        }
+
         relaunchApp()
     }
     
