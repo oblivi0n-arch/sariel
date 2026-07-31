@@ -51,12 +51,18 @@ struct PromptBuilderTests {
     }
 
 
-    @Test func verdictMessagesOmitFailureMeaningContextWhenEmpty() {
+    @Test func verdictMessagesIncludeSkippedNoticeWhenFailureMeaningIsEmpty() {
         let commitment = Commitment(declarationText: "I declare I will run every day", failureMeaning: "")
         let messages = PromptBuilder.buildVerdictMessages(commitment: commitment, history: [])
 
-        #expect(messages.count == 3)
+        #expect(messages.count == 4)
         #expect(messages[1].content.contains("I declare I will run every day"))
+        switch L10n.lang {
+        case .en:
+            #expect(messages[2].content.contains("chose not to answer"))
+        case .pl:
+            #expect(messages[2].content.contains("zdecydował się nie odpowiadać"))
+        }
     }
 
     @Test func verdictMessagesIncludeFailureMeaningContextWhenPresent() {

@@ -65,7 +65,7 @@ struct ChatServiceTests {
     }
 
     @Test @MainActor
-    func sendDoesNotCreateCommitmentWhenFailureMeaningIsEmpty() async throws {
+    func sendCreatesCommitmentEvenWhenFailureMeaningIsEmpty() async throws {
         let context = try makeInMemoryContext()
         let chatService = ChatService()
         let conversation = Conversation()
@@ -80,7 +80,9 @@ struct ChatServiceTests {
         )
 
         let commitments = try context.fetch(FetchDescriptor<Commitment>())
-        #expect(commitments.isEmpty)
+        #expect(commitments.count == 1)
+        #expect(commitments.first?.declarationText == "I declare I will meditate every morning")
+        #expect(commitments.first?.failureMeaning == "   ")
         #expect(conversation.messages.contains { $0.content == "I declare I will meditate every morning" })
     }
 
