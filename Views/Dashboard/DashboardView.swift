@@ -114,6 +114,11 @@ struct DashboardView: View {
                     }
                 }
                 
+                DashboardSelfLetterRow(
+                    onWriteTapped: { /* TODO: otworzyć compose listu */ },
+                    onOpenTapped: { /* TODO: otworzyć dostępny list */ }
+                )
+                
                 DashboardAchievementsSection(
                     unlocks: sortedAchievementUnlocks,
                     onTapIcon: { unlock in selectedUnlock = unlock },
