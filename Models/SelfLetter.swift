@@ -12,7 +12,7 @@ enum SelfLetterDelay: String, CaseIterable {
     case oneMonth
     case threeMonths
     case oneYear
-
+    
     func openDate(from now: Date = Date()) -> Date {
         let calendar = Calendar.current
         switch self {
@@ -33,7 +33,7 @@ final class SelfLetter {
     var openDate: Date
     var status: String = SelfLetterStatus.sealed.rawValue
     var openedAt: Date?
-
+    
     init(title: String? = nil, content: String, openDate: Date) {
         self.id = UUID()
         self.title = title
@@ -43,7 +43,9 @@ final class SelfLetter {
     }
     
     var letterStatus: SelfLetterStatus {
-            get { SelfLetterStatus(rawValue: status) ?? .sealed }
-            set { status = newValue.rawValue }
-        }
+        get { SelfLetterStatus(rawValue: status) ?? .sealed }
+        set { status = newValue.rawValue }
+    }
+    
+    static let maxActiveLetters = 5
 }
