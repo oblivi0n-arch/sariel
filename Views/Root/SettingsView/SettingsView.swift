@@ -42,6 +42,7 @@ struct SettingsView: View {
     @State var draftUsername: String = ""
     @State var isPinSetupShown = false
     @State var hasPinSet = false
+    @State var pendingPinAction: PendingPinAction?
 #if DEBUG
     @State var devTapCount = 0
     @State var isDevModeUnlocked = false
@@ -90,7 +91,7 @@ struct SettingsView: View {
         }
         .background(Theme.background)
         .overlay { resetConfirmationOverlayContent }
-        .overlay { pinSetupOverlayContent }
+        .overlay { pinVerificationOverlayContent }
         .task {
             draftUsername = username
             hasPinSet = PinKeychainStore.hasPinSet()

@@ -10,6 +10,7 @@ struct ContentView: View {
     @AppStorage("isPostReset") private var isPostReset: Bool = false
     @AppStorage("lastActiveConversationID") private var lastActiveConversationIDString: String = ""
     @AppStorage("lastDashboardShownDate") private var lastDashboardShownDateString: String = ""
+    @AppStorage("appLockEnabled") private var appLockEnabled: Bool = false
     @AppStorage(ShortcutAction.dashboard.storageKey) private var dashboardShortcut = ShortcutAction.dashboard.defaultShortcut
     @AppStorage(ShortcutAction.chat.storageKey) private var chatShortcut = ShortcutAction.chat.defaultShortcut
     @AppStorage(ShortcutAction.journal.storageKey) private var journalShortcut = ShortcutAction.journal.defaultShortcut
@@ -40,6 +41,7 @@ struct ContentView: View {
     @State private var hasEvaluatedGate = false
     @State private var isDimmed = false
     @State private var hasFinishedNarrativeOnboarding = false
+    @State private var isUnlocked = false
     @StateObject private var chatService = ChatService()
     @StateObject private var toastManager = ToastManager()
     @StateObject private var achievementService = AchievementService()
@@ -210,6 +212,10 @@ struct ContentView: View {
             if showSplash {
                 SplashView {
                     showSplash = false
+                }
+            } else if appLockEnabled && !isUnlocked {
+                PinUnlockView {
+                    isUnlocked = true
                 }
             } else if !hasCompletedOnboarding {
                 if !hasFinishedNarrativeOnboarding {
