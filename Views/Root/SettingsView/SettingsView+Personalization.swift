@@ -36,6 +36,10 @@ extension SettingsView {
 
             themeGroup(title: L10n.Settings.themeGroupCustom) {
                 themeSwatch(for: .starlight, label: L10n.Settings.themeStarlight, fill: Color(hex: "05070D"))
+                themeSwatch(for: .witness, label: L10n.Settings.themeWitness, fill: Color(hex: "14100A"))
+                themeSwatch(for: .ash, label: L10n.Settings.themeAsh, fill: Color(hex: "0E0E12"))
+                themeSwatch(for: .wildwood, label: L10n.Settings.themeWildwood, fill: Color(hex: "0A1210"))
+                themeSwatch(for: .rust, label: L10n.Settings.themeRust, fill: Color(hex: "150A08"))
             }
         }
     }
@@ -268,6 +272,34 @@ extension L10n.Settings {
         switch L10n.lang {
         case .en: return "Starlight"
         case .pl: return "Starlight"
+        }
+    }
+    
+    static var themeWitness: String {
+        switch L10n.lang {
+        case .en: return "Testament"
+        case .pl: return "Świadectwo"
+        }
+    }
+
+    static var themeAsh: String {
+        switch L10n.lang {
+        case .en: return "Ash"
+        case .pl: return "Popiół"
+        }
+    }
+
+    static var themeWildwood: String {
+        switch L10n.lang {
+        case .en: return "Wildwood"
+        case .pl: return "Knieja"
+        }
+    }
+
+    static var themeRust: String {
+        switch L10n.lang {
+        case .en: return "Rust"
+        case .pl: return "Rdza"
         }
     }
     
