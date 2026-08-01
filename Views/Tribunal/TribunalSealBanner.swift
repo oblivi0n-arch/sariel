@@ -12,18 +12,18 @@ struct TribunalSealBanner: View {
         VStack(spacing: isDocked ? 6 : 12) {
             Image(systemName: "seal.fill")
                 .font(.system(size: isDocked ? 13 : 30))
-                .foregroundStyle(Color.red.opacity(0.8))
+                .foregroundStyle(Theme.tribunalAccent.opacity(0.8))
                 .opacity(isIconVisible ? 1 : 0)
                 .scaleEffect(isIconVisible ? 1 : 0.6)
 
             if isDocked {
                 Text(message)
                     .font(Typography.caption)
-                    .foregroundStyle(Color.red.opacity(0.75))
+                    .foregroundStyle(Theme.tribunalAccent.opacity(0.75))
             } else {
                 Group {
                     if isTextStarted {
-                        RevealingText(fullText: message, font: Typography.label, color: Color.red.opacity(0.8), charsPerSecond: 40)
+                        RevealingText(fullText: message, font: Typography.label, color: Theme.tribunalAccent.opacity(0.8), charsPerSecond: 40)
                     } else {
                         Text(" ").font(Typography.label)
                     }
@@ -37,7 +37,7 @@ struct TribunalSealBanner: View {
         .clipShape(RoundedRectangle(cornerRadius: isDocked ? 0 : 12))
         .overlay {
             if !isDocked {
-                RoundedRectangle(cornerRadius: 12).stroke(Color.red.opacity(0.4), lineWidth: 0.5)
+                RoundedRectangle(cornerRadius: 12).stroke(Theme.tribunalAccent.opacity(0.4), lineWidth: 0.5)
             }
         }
         .onAppear {

@@ -14,7 +14,7 @@ struct TribunalVerdictOverlay: View {
                 HStack(spacing: 8) {
                     Image(systemName: "seal.fill")
                         .font(.system(size: 16))
-                        .foregroundStyle(Color.red.opacity(0.8))
+                        .foregroundStyle(Theme.tribunalAccent.opacity(0.8))
 
                     Text(L10n.TribunalVerdictOverlay.title)
                         .font(Typography.title)
@@ -78,7 +78,7 @@ struct TribunalVerdictOverlay: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isFulfilled ? Theme.borderStrong : Color.red.opacity(0.5), lineWidth: isFulfilled ? 0.5 : 1)
+                .stroke(isFulfilled ? Theme.borderStrong : Theme.tribunalAccent.opacity(0.5), lineWidth: isFulfilled ? 0.5 : 1)
         )
     }
 
@@ -96,13 +96,13 @@ struct TribunalVerdictOverlay: View {
     private func statusOption(_ label: String, isBroken: Bool, isSelected: Bool, onTap: @escaping () -> Void) -> some View {
         Text(label)
             .font(Typography.caption)
-            .foregroundStyle(isSelected ? (isBroken ? Color.red.opacity(0.9) : Theme.textPrimary) : Theme.textFaint)
+            .foregroundStyle(isSelected ? (isBroken ? Theme.tribunalAccent.opacity(0.9) : Theme.textPrimary) : Theme.textFaint)
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(isSelected && isBroken ? Color.red.opacity(0.12) : Color.clear)
+            .background(isSelected && isBroken ? Theme.tribunalAccent.opacity(0.12) : Color.clear)
             .clipShape(Capsule())
             .overlay(
-                Capsule().stroke(isSelected ? (isBroken ? Color.red.opacity(0.5) : Theme.borderStrong) : Theme.border, lineWidth: 0.5)
+                Capsule().stroke(isSelected ? (isBroken ? Theme.tribunalAccent.opacity(0.5) : Theme.borderStrong) : Theme.border, lineWidth: 0.5)
             )
             .contentShape(Capsule())
             .onTapGesture(perform: onTap)

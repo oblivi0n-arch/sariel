@@ -21,7 +21,7 @@ struct TribunalGateView: View {
             VStack(spacing: 20) {
                 Image(systemName: "seal")
                     .font(.system(size: 32))
-                    .foregroundStyle(Color.red.opacity(0.85))
+                    .foregroundStyle(Theme.tribunalAccent.opacity(0.85))
                     .opacity(isIconVisible ? 1 : 0)
                     .scaleEffect(isIconVisible ? 1 : 0.7)
 
@@ -50,12 +50,12 @@ struct TribunalGateView: View {
                     Button(action: onFaceTribunal) {
                         Text(L10n.Tribunal.faceTheTribunal)
                             .font(Typography.label)
-                            .foregroundStyle(Color.red.opacity(0.9))
+                            .foregroundStyle(Theme.tribunalAccent.opacity(0.9))
                             .padding(.horizontal, 20)
                             .padding(.vertical, 10)
-                            .background(Color.red.opacity(0.12))
+                            .background(Theme.tribunalAccent.opacity(0.12))
                             .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.4), lineWidth: 0.5))
+                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.tribunalAccent.opacity(0.4), lineWidth: 0.5))
                     }
                     .buttonStyle(.plain)
                     .padding(.top, 8)

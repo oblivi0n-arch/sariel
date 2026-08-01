@@ -15,7 +15,13 @@ struct CommitmentHistoryRow: View {
     }
 
     private var borderColor: Color {
-        isFulfilled ? Theme.textPrimary : Color.red.opacity(0.6)
+        isFulfilled ? Theme.textPrimary : Theme.tribunalAccent.opacity(0.6)
+    }
+    
+    private var statusBadge: some View {
+        Text(isFulfilled ? L10n.CommitmentHistory.fulfilled : L10n.CommitmentHistory.broken)
+            .font(Typography.caption)
+            .foregroundStyle(isFulfilled ? Theme.textMuted : Theme.tribunalAccent.opacity(0.8))
     }
 
     var body: some View {
@@ -57,12 +63,6 @@ struct CommitmentHistoryRow: View {
             onSelect()
         }
         .onHover { hovering in isHovering = hovering }
-    }
-
-    private var statusBadge: some View {
-        Text(isFulfilled ? L10n.CommitmentHistory.fulfilled : L10n.CommitmentHistory.broken)
-            .font(Typography.caption)
-            .foregroundStyle(isFulfilled ? Theme.textMuted : Color.red.opacity(0.8))
     }
 }
 

@@ -31,13 +31,13 @@ struct ChatInputBar: View {
             if isBlockedByLimit {
                 Text(L10n.ChatInput.declarationLimitReached(count: Commitment.maxPendingDeclarations))
                     .font(Typography.caption)
-                    .foregroundStyle(Color.red.opacity(0.75))
+                    .foregroundStyle(Theme.tribunalAccent.opacity(0.75))
                     .padding(.horizontal, 4)
                     .transition(.opacity)
             } else if isDeclaration {
                 Text(L10n.ChatInput.noTakeBacks)
                     .font(Typography.caption)
-                    .foregroundStyle(Color.red.opacity(0.75))
+                    .foregroundStyle(Theme.tribunalAccent.opacity(0.75))
                     .padding(.horizontal, 4)
                     .transition(.opacity)
             }
@@ -49,12 +49,12 @@ struct ChatInputBar: View {
                 .foregroundStyle(Theme.textPrimary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background((isDeclaration || isTribunal) ? Color.red.opacity(0.12) : Theme.fieldBackground)
+                .background((isDeclaration || isTribunal) ? Theme.tribunalAccent.opacity(0.12) : Theme.fieldBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .stroke(
-                            (isDeclaration || isTribunal) ? Color.red.opacity(0.45) : (isFocused.wrappedValue ? Theme.borderStrong : Theme.border),
+                            (isDeclaration || isTribunal) ? Theme.tribunalAccent.opacity(0.45) : (isFocused.wrappedValue ? Theme.borderStrong : Theme.border),
                             lineWidth: (isDeclaration || isTribunal) ? 1 : (isFocused.wrappedValue ? 1 : 0.5)
                         )
                 )
@@ -67,13 +67,13 @@ struct ChatInputBar: View {
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(canSend ? (isDeclaration ? Color.white : Theme.background) : Theme.textFaint)
                     .frame(width: 32, height: 32)
-                    .background(canSend ? (isDeclaration ? Color.red.opacity(0.85) : Theme.textPrimary) : Theme.fieldBackground)
+                    .background(canSend ? (isDeclaration ? Theme.tribunalAccent.opacity(0.85) : Theme.textPrimary) : Theme.fieldBackground)
                     .clipShape(Circle())
-                    .overlay(Circle().stroke(isDeclaration && canSend ? Color.red.opacity(0.5) : Theme.border, lineWidth: 0.5))
+                    .overlay(Circle().stroke(isDeclaration && canSend ? Theme.tribunalAccent.opacity(0.5) : Theme.border, lineWidth: 0.5))
                     .scaleEffect(isStamping ? 0.55 : 1.0)
                     .overlay {
                         Circle()
-                            .stroke(Color.red.opacity(ringOpacity), lineWidth: 2)
+                            .stroke(Theme.tribunalAccent.opacity(ringOpacity), lineWidth: 2)
                             .scaleEffect(ringScale)
                     }
             }

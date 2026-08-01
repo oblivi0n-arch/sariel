@@ -82,18 +82,18 @@ struct MessageBubble: View {
                     .foregroundStyle(isGuide ? Theme.textPrimary : Theme.textSecondary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
-                    .background(isCommitment ? Color.red.opacity(0.1) : Color.clear)
+                    .background(isCommitment ? Theme.tribunalAccent.opacity(0.1) : Color.clear)
                     .clipShape(bubbleShape)
                     .overlay(
                         bubbleShape.stroke(
-                            isCommitment ? Color.red.opacity(0.65) : Theme.border,
+                            isCommitment ? Theme.tribunalAccent.opacity(0.65) : Theme.border,
                             lineWidth: isCommitment ? 1.2 : 0.5
                         )
                     )
                     .overlay(alignment: .leading) {
                         if isGuide {
                             Rectangle()
-                                .fill(isTribunalMessage ? Color.red.opacity(0.6) : Theme.borderStrong)
+                                .fill(isTribunalMessage ? Theme.tribunalAccent.opacity(0.6) : Theme.borderStrong)
                                 .frame(width: 2)
                         }
                     }
@@ -101,7 +101,7 @@ struct MessageBubble: View {
                         if isCommitment {
                             Image(systemName: "seal.fill")
                                 .font(.system(size: 13))
-                                .foregroundStyle(Color.red.opacity(0.9))
+                                .foregroundStyle(Theme.tribunalAccent.opacity(0.9))
                                 .opacity(stampProgress)
                                 .scaleEffect(0.4 + 0.6 * stampProgress)
                                 .offset(x: 6, y: -6)
@@ -110,7 +110,7 @@ struct MessageBubble: View {
                     .scaleEffect(isCommitment ? stampScale : 1)
                     .background {
                         if isCommitment {
-                            bubbleShape.fill(Color.red.opacity(stampFlashOpacity))
+                            bubbleShape.fill(Theme.tribunalAccent.opacity(stampFlashOpacity))
                         }
                     }
             }
@@ -275,12 +275,12 @@ struct MessageBubble: View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(Typography.label)
-                .foregroundStyle(isTribunalMessage ? Color.red.opacity(0.85) : Theme.textPrimary)
+                .foregroundStyle(isTribunalMessage ? Theme.tribunalAccent.opacity(0.85) : Theme.textPrimary)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(errorParts.description)
                     .font(Theme.uiFont)
-                    .foregroundStyle(isTribunalMessage ? Color.red.opacity(0.9) : Theme.textPrimary)
+                    .foregroundStyle(isTribunalMessage ? Theme.tribunalAccent.opacity(0.9) : Theme.textPrimary)
 
                 if let suggestion = errorParts.suggestion {
                     Text(suggestion).italic()
@@ -291,11 +291,11 @@ struct MessageBubble: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .background(isTribunalMessage ? Color.red.opacity(0.1) : Color.clear)
+        .background(isTribunalMessage ? Theme.tribunalAccent.opacity(0.1) : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(isTribunalMessage ? Color.red.opacity(0.4) : Theme.borderStrong, lineWidth: isTribunalMessage ? 1.2 : 1)
+                .stroke(isTribunalMessage ? Theme.tribunalAccent.opacity(0.4) : Theme.borderStrong, lineWidth: isTribunalMessage ? 1.2 : 1)
         )
     }
 

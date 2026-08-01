@@ -260,7 +260,7 @@ struct TribunalView: View {
         HStack(spacing: 10) {
             Image(systemName: "lock.open.fill")
                 .font(.system(size: 20))
-                .foregroundStyle(Color.red.opacity(0.85))
+                .foregroundStyle(Theme.tribunalAccent.opacity(0.85))
 
             Text(L10n.Tribunal.commitmentsAwaitTrial(count: pendingCommitments.count))
                 .font(Theme.uiFont)
@@ -270,19 +270,19 @@ struct TribunalView: View {
         .padding(16)
         .background(Theme.background)
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.red.opacity(0.4), lineWidth: 0.5))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.tribunalAccent.opacity(0.4), lineWidth: 0.5))
     }
     
     private var startButton: some View {
         Button(action: startTribunal) {
             Text(isStarting ? L10n.Tribunal.opening : L10n.Tribunal.faceTheTribunal)
                 .font(Typography.label)
-                .foregroundStyle(Color.red.opacity(0.9))
+                .foregroundStyle(Theme.tribunalAccent.opacity(0.9))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
-                .background(Color.red.opacity(0.12))
+                .background(Theme.tribunalAccent.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.4), lineWidth: 0.5))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.tribunalAccent.opacity(0.4), lineWidth: 0.5))
         }
         .buttonStyle(.plain)
         .disabled(isStarting)
