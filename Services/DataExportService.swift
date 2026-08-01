@@ -40,6 +40,7 @@ enum DataExportService {
                     content: entry.content,
                     createdAt: entry.createdAt,
                     isPinned: entry.isPinned,
+                    isArchived: entry.isArchived,
                     mood: entry.mood,
                     sourceConversationID: entry.sourceConversation?.id,
                     tagIDs: entry.tags.map { tag in tag.id }
@@ -229,6 +230,7 @@ extension DataExportService {
             entry.id = exported.id
             entry.createdAt = exported.createdAt
             entry.isPinned = exported.isPinned
+            entry.isArchived = exported.isArchived 
             modelContext.insert(entry)
             entriesByID[exported.id] = entry
         }

@@ -191,6 +191,7 @@ struct DataExportRoundTripTests {
             content: "Treść wpisu",
             createdAt: Date(),
             isPinned: false,
+            isArchived: false,                
             mood: Mood.neutral.rawValue,
             sourceConversationID: danglingConversationID,
             tagIDs: []

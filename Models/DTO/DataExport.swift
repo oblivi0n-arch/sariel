@@ -18,6 +18,7 @@ struct ExportedJournalEntry: Codable {
     let content: String
     let createdAt: Date
     let isPinned: Bool
+    let isArchived: Bool  
     let mood: String
     let sourceConversationID: UUID?
     let tagIDs: [UUID]

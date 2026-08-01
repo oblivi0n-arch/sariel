@@ -6,6 +6,7 @@ struct JournalEntryRow: View {
     let onSelect: () -> Void
     let onDelete: () -> Void
     let onTogglePin: () -> Void
+    let onArchive: () -> Void
 
     @State private var isHovering = false
     
@@ -36,6 +37,12 @@ struct JournalEntryRow: View {
                 )
 
                 Spacer()
+
+                if entry.isArchived {
+                    Image(systemName: "archivebox")
+                        .font(Typography.iconSmall)
+                        .foregroundStyle(Theme.textFaint)
+                }
 
                 if entry.isPinned {
                     Image(systemName: "pin.fill")
@@ -86,6 +93,14 @@ struct JournalEntryRow: View {
                 Label(entry.isPinned ? L10n.JournalRow.unpin : L10n.JournalRow.pin, systemImage: entry.isPinned ? "pin.slash" : "pin")
             }
 
+            Button(action: onArchive) {
+                if entry.isArchived {
+                    Label(L10n.JournalRow.unarchive, systemImage: "tray.and.arrow.up")
+                } else {
+                    Label(L10n.JournalRow.archive, systemImage: "archivebox")
+                }
+            }
+
             Button(role: .destructive, action: onDelete) {
                 Label(L10n.JournalRow.delete, systemImage: "trash")
             }
@@ -111,6 +126,18 @@ extension L10n {
             switch lang {
             case .en: return "Delete"
             case .pl: return "Usuń"
+            }
+        }
+        static var archive: String {
+            switch lang {
+            case .en: return "Archive"
+            case .pl: return "Archiwizuj"
+            }
+        }
+        static var unarchive: String {
+            switch lang {
+            case .en: return "Restore from archive"
+            case .pl: return "Przywróć z archiwum"
             }
         }
     }
