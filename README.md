@@ -1,5 +1,7 @@
 # Sariel
 
+_Regarding v1.11.0_
+
 A local-first SwiftUI app for confronting your own rationalizations, powered by on-device AI (Ollama).
 
 Sariel is not a gentle personal-growth coach. It's a mirror: a space to talk through your thoughts where the AI is built to name avoidance and rationalization directly, rather than offer comfort. Conversations can be closed into honest, first-person journal entries — and a running record of self-declared commitments (the Tribunal) holds you accountable to what you said you'd do.
@@ -28,11 +30,16 @@ The project is organized by responsibility rather than by feature:
 
 ```
 sariel/
-├── DesignSystem/ # Colors, typography, localization strings
-├── Models/ # SwiftData models (Conversation, JournalEntry, Commitment, etc.)
-├── Services/ # Business logic: chat orchestration, Ollama client, prompt building
-├── Views/ # SwiftUI views, grouped by feature (Chat, Journal, Dashboard, Onboarding, Tribunal)
-└── Shared/ # Reusable UI components and helpers used across features
+├── Core/            # App-wide constants, navigation enum, transient UI state (AppLimits, AppSection, Toast)
+├── DesignSystem/     # Colors, typography, localization strings
+├── Models/
+│   ├── Persistence/  # SwiftData @Model classes (Conversation, JournalEntry, Commitment, etc.)
+│   ├── Domain/       # Pure domain enums with no persistence (AchievementKind, CredibilityBand, JournalStyle, TribunalVerdict)
+│   └── DTO/          # Codable snapshot types used for export/import
+├── Services/         # Business logic: chat orchestration, Ollama client, prompt building
+├── Utilities/        # Non-UI helpers used across the app (e.g. Date+DayKey)
+└── Views/            # SwiftUI views, grouped by feature (Chat, Journal, Dashboard, Onboarding, Tribunal, Sidebar),
+                       # plus a Shared/ subfolder for UI components reused across more than one feature
 ```
 
 Prompt construction is split by conversation mode (`PromptBuilder+Provocation`, `PromptBuilder+Tribunal`, `PromptBuilder+Credibility`) rather than kept in one large file, to keep each system prompt independently readable and testable.
@@ -50,14 +57,14 @@ Prompt construction is split by conversation mode (`PromptBuilder+Provocation`, 
 ## Getting Started
 
 1. Install Ollama (via Homebrew or the [official installer](https://ollama.com/download)).
-2. Pull a model that supports system-role instructions well, e.g.: 'ollama pull gemma4:e4b'.
-3.  Clone this repository and open it in Xcode.
+2. Pull a model that supports system-role instructions well, e.g.: `ollama pull gemma4:e4b`.
+3. Clone this repository and open it in Xcode.
 4. Build and run. On first launch, Sariel can start the Ollama server automatically (configurable in Settings), or you can start it manually with `ollama serve`.
 5. Configure the Ollama host and model in Settings if you're not using the defaults.
 
 ## Testing
 
-Sariel uses [Swift Testing](https://developer.apple.com/documentation/testing) (not XCTest) for unit tests, run against an in-memory SwiftData container so no real user data is touched. **62 automated test cases** across 8 test suites, plus a documented manual test protocol for anything that depends on real LLM output.
+Sariel uses [Swift Testing](https://developer.apple.com/documentation/testing) (not XCTest) for unit tests, run against an in-memory SwiftData container so no real user data is touched. **79 automated test cases** across 11 test suites, plus a documented manual test protocol for anything that depends on real LLM output.
 
 **Automated coverage:**
 - `CommitmentTests` — declaration prefix detection (`isDeclaration`)
@@ -68,6 +75,11 @@ Sariel uses [Swift Testing](https://developer.apple.com/documentation/testing) (
 - `DataExportRoundTripTests` — full export/import round-trip, empty-database edge case, all achievement kinds, schema-version and corrupted-file error handling
 - `AchievementServiceTests` — every unlock condition (night-owl hour boundary, consistency streaks, silence/spiral thresholds, commitment streaks, credibility recovery)
 - `ChatServiceTests` — declaration limit enforcement, commitment creation, message deletion and summary reconciliation
+- `AutoDeletePolicyTests` — inactivity-wipe threshold logic, including the exact-boundary case and a safe fallback when the threshold is misconfigured to zero
+- `PinKeychainStoreTests` — PIN hashing correctness (determinism, distinctness, format)
+- `AppResetServiceTests` — full data wipe correctness: all SwiftData model types are cleared, and the PIN/app-lock state is reset
+
+> **Note:** `AppResetServiceTests` touches the real macOS Keychain (there is currently no mocking layer for `PinKeychainStore`). It's safe on a dev machine with no PIN in daily use, but is a known limitation worth revisiting if that changes.
 
 **Not automated, by design:** AI response quality — prompt behavior, edge cases, and adherence to the crisis-safety boundary — is not something a unit test can meaningfully assert, since it depends on the LLM's output. These are validated manually against a documented test protocol instead. UI tests (XCUITest) are likewise out of scope for this release; see the project's test-plan documentation for the reasoning.
 
