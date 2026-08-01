@@ -5,6 +5,13 @@ enum AppTheme: String, CaseIterable {
     case dark
     case light
     case starlight
+
+    var baseColorScheme: ColorScheme {
+        switch self {
+        case .dark, .starlight: return .dark
+        case .light: return .light
+        }
+    }
 }
 
 final class ThemeManager: ObservableObject {
