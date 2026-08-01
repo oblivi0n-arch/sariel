@@ -47,6 +47,11 @@
 			path = DesignSystem;
 			sourceTree = "<group>";
 		};
+		11718028301E03120066A493 /* Utilities */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		11A7C8D130163DF500CFC241 /* sarielTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = sarielTests;
@@ -75,6 +80,7 @@
 		1108497330066B8B007494E4 = {
 			isa = PBXGroup;
 			children = (
+				11718028301E03120066A493 /* Utilities */,
 				1108497E30066B8B007494E4 /* sariel */,
 				110849AA30067C69007494E4 /* DesignSystem */,
 				1108499630067660007494E4 /* Models */,
@@ -116,6 +122,7 @@
 				1108499630067660007494E4 /* Models */,
 				1108499B300677EE007494E4 /* Views */,
 				110849AA30067C69007494E4 /* DesignSystem */,
+				11718028301E03120066A493 /* Utilities */,
 			);
 			name = sariel;
 			packageProductDependencies = (
