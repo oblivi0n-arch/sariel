@@ -53,6 +53,8 @@ struct AppResetServiceTests {
         context.insert(commitment)
         let unlock = AchievementUnlock(kind: .nightOwl)
         context.insert(unlock)
+        let letter = SelfLetter(content: "list testowy", openDate: Date())
+        context.insert(letter)
         try context.save()
 
         AppResetService.wipeAllData(context: context)
@@ -61,5 +63,6 @@ struct AppResetServiceTests {
         #expect(try context.fetch(FetchDescriptor<JournalEntry>()).isEmpty)
         #expect(try context.fetch(FetchDescriptor<Commitment>()).isEmpty)
         #expect(try context.fetch(FetchDescriptor<AchievementUnlock>()).isEmpty)
+        #expect(try context.fetch(FetchDescriptor<SelfLetter>()).isEmpty)
     }
 }

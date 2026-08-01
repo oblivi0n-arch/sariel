@@ -36,6 +36,16 @@ struct ExportedCommitment: Codable {
     let resolvingConversationID: UUID?
 }
 
+struct ExportedSelfLetter: Codable {
+    let id: UUID
+    let title: String?
+    let content: String
+    let createdAt: Date
+    let openDate: Date
+    let status: String
+    let openedAt: Date?
+}
+
 struct ExportedChatMessage: Codable {
     let id: UUID
     let role: String
@@ -59,7 +69,7 @@ struct ExportedConversation: Codable {
     let isTribunal: Bool
     let tribunalResolvedAt: Date?
     let isArchived: Bool
-
+    
     init(
         id: UUID,
         startedAt: Date,
@@ -89,14 +99,14 @@ struct ExportedConversation: Codable {
         self.tribunalResolvedAt = tribunalResolvedAt
         self.isArchived = isArchived
     }
-
+    
     enum CodingKeys: String, CodingKey {
         case id, startedAt, title, summary, summarizedMessageCount
         case isProvocation, provocationQuestion, provocationTitle
         case isAcquaintance, acquaintanceQuestion
         case isTribunal, tribunalResolvedAt, isArchived
     }
-
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
@@ -119,13 +129,14 @@ struct SarielExport: Codable {
     let schemaVersion: Int
     let appVersion: String
     let exportedAt: Date
-
+    
     let conversations: [ExportedConversation]
     let chatMessages: [ExportedChatMessage]
     let journalEntries: [ExportedJournalEntry]
     let journalEntryTags: [ExportedJournalEntryTag]
     let commitments: [ExportedCommitment]
     let achievementUnlocks: [ExportedAchievementUnlock]
+    let selfLetters: [ExportedSelfLetter]
     let aboutMe: String
     let hasCompletedAcquaintance: Bool
     let hasStartedAcquaintance: Bool
@@ -146,7 +157,7 @@ struct SarielExport: Codable {
 
 extension SarielExport {
     static let currentSchemaVersion = 1
-
+    
     init(
         conversations: [ExportedConversation],
         chatMessages: [ExportedChatMessage],
@@ -154,6 +165,7 @@ extension SarielExport {
         journalEntryTags: [ExportedJournalEntryTag],
         commitments: [ExportedCommitment],
         achievementUnlocks: [ExportedAchievementUnlock],
+        selfLetters: [ExportedSelfLetter] = [],
         aboutMe: String,
         hasCompletedAcquaintance: Bool,
         hasStartedAcquaintance: Bool,
@@ -180,6 +192,7 @@ extension SarielExport {
         self.journalEntryTags = journalEntryTags
         self.commitments = commitments
         self.achievementUnlocks = achievementUnlocks
+        self.selfLetters = selfLetters
         self.aboutMe = aboutMe
         self.hasCompletedAcquaintance = hasCompletedAcquaintance
         self.hasStartedAcquaintance = hasStartedAcquaintance
@@ -197,17 +210,17 @@ extension SarielExport {
         self.hasBeenPoorCredibility = hasBeenPoorCredibility
         self.lastActiveConversationID = lastActiveConversationID
     }
-
+    
     enum CodingKeys: String, CodingKey {
         case schemaVersion, appVersion, exportedAt
-        case conversations, chatMessages, journalEntries, journalEntryTags, commitments, achievementUnlocks
+        case conversations, chatMessages, journalEntries, journalEntryTags, commitments, achievementUnlocks, selfLetters
         case aboutMe, hasCompletedAcquaintance, hasStartedAcquaintance, username
         case appTheme, appThemeFollowsSystem, appLanguage, journalStyle
         case useJournalContext, useCredibilityContext
         case dashboardShortcut, chatShortcut, journalShortcut, tribunalShortcut
         case hasBeenPoorCredibility, lastActiveConversationID
     }
-
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         schemaVersion = try container.decode(Int.self, forKey: .schemaVersion)
@@ -219,6 +232,7 @@ extension SarielExport {
         journalEntryTags = try container.decode([ExportedJournalEntryTag].self, forKey: .journalEntryTags)
         commitments = try container.decode([ExportedCommitment].self, forKey: .commitments)
         achievementUnlocks = try container.decode([ExportedAchievementUnlock].self, forKey: .achievementUnlocks)
+        selfLetters = try container.decodeIfPresent([ExportedSelfLetter].self, forKey: .selfLetters) ?? []
         aboutMe = try container.decodeIfPresent(String.self, forKey: .aboutMe) ?? ""
         hasCompletedAcquaintance = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedAcquaintance) ?? false
         hasStartedAcquaintance = try container.decodeIfPresent(Bool.self, forKey: .hasStartedAcquaintance) ?? false

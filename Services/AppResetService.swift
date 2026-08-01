@@ -8,6 +8,7 @@ enum AppResetService {
         deleteAll(Conversation.self, in: context)
         deleteAll(Commitment.self, in: context)
         deleteAll(AchievementUnlock.self, in: context)
+        deleteAll(SelfLetter.self, in: context)
         try? context.save()
 
         PinKeychainStore.removePin()

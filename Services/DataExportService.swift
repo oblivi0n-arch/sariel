@@ -79,6 +79,19 @@ enum DataExportService {
                 )
             }
         
+        let selfLetters = try modelContext.fetch(FetchDescriptor<SelfLetter>())
+            .map { letter in
+                ExportedSelfLetter(
+                    id: letter.id,
+                    title: letter.title,
+                    content: letter.content,
+                    createdAt: letter.createdAt,
+                    openDate: letter.openDate,
+                    status: letter.status,
+                    openedAt: letter.openedAt
+                )
+            }
+        
         let aboutMe = UserDefaults.standard.string(forKey: "aboutMe") ?? ""
         let hasCompletedAcquaintance = UserDefaults.standard.bool(forKey: "hasCompletedAcquaintance")
         let hasStartedAcquaintance = UserDefaults.standard.bool(forKey: "hasStartedAcquaintance")
@@ -103,6 +116,7 @@ enum DataExportService {
             journalEntryTags: journalEntryTags,
             commitments: commitments,
             achievementUnlocks: achievementUnlocks,
+            selfLetters: selfLetters,
             aboutMe: aboutMe,
             hasCompletedAcquaintance: hasCompletedAcquaintance,
             hasStartedAcquaintance: hasStartedAcquaintance,
@@ -169,6 +183,7 @@ extension DataExportService {
         deleteAll(JournalEntryTag.self, modelContext: modelContext)
         deleteAll(Commitment.self, modelContext: modelContext)
         deleteAll(AchievementUnlock.self, modelContext: modelContext)
+        deleteAll(SelfLetter.self, modelContext: modelContext)
         
         var conversationsByID: [UUID: Conversation] = [:]
         for exported in export.conversations {
@@ -256,6 +271,19 @@ extension DataExportService {
             guard let commitment = commitmentsByID[exported.id] else { continue }
             commitment.sourceMessage = exported.sourceMessageID.flatMap { messagesByID[$0] }
             commitment.resolvingConversation = exported.resolvingConversationID.flatMap { conversationsByID[$0] }
+        }
+        
+        for exported in export.selfLetters {
+            let letter = SelfLetter(
+                title: exported.title,
+                content: exported.content,
+                openDate: exported.openDate
+            )
+            letter.id = exported.id
+            letter.createdAt = exported.createdAt
+            letter.status = exported.status
+            letter.openedAt = exported.openedAt
+            modelContext.insert(letter)
         }
         
         UserDefaults.standard.set(export.aboutMe, forKey: "aboutMe")

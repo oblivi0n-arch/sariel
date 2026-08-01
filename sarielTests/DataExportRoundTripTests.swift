@@ -13,7 +13,8 @@ struct DataExportRoundTripTests {
             JournalEntry.self,
             JournalEntryTag.self,
             Commitment.self,
-            AchievementUnlock.self
+            AchievementUnlock.self,
+            SelfLetter.self
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: configuration)
@@ -146,6 +147,7 @@ struct DataExportRoundTripTests {
             journalEntryTags: [],
             commitments: [],
             achievementUnlocks: [],
+            selfLetters: [],
             aboutMe: "",
             hasCompletedAcquaintance: false,
             hasStartedAcquaintance: false,
@@ -217,6 +219,7 @@ struct DataExportRoundTripTests {
             journalEntryTags: [],
             commitments: [commitment],
             achievementUnlocks: [],
+            selfLetters: [],
             aboutMe: "",
             hasCompletedAcquaintance: false,
             hasStartedAcquaintance: false,
@@ -245,5 +248,30 @@ struct DataExportRoundTripTests {
 
         let importedCommitment = try #require(try context.fetch(FetchDescriptor<Commitment>()).first)
         #expect(importedCommitment.sourceMessage == nil)
+    }
+    
+    @Test @MainActor
+    func exportAndImportPreservesSelfLetters() throws {
+        let sourceContext = try makeInMemoryContext()
+
+        let letter = SelfLetter(title: "Testowy tytuł", content: "Treść testowego listu", openDate: Date().addingTimeInterval(86_400))
+        letter.letterStatus = .opened
+        letter.openedAt = Date()
+        sourceContext.insert(letter)
+        try sourceContext.save()
+
+        let export = try DataExportService.exportAllData(modelContext: sourceContext)
+        let jsonData = try DataExportService.encodeToJSON(export)
+        let decodedExport = try DataExportService.decodeFromJSON(jsonData)
+
+        let targetContext = try makeInMemoryContext()
+        try DataExportService.importAllData(decodedExport, modelContext: targetContext)
+
+        let importedLetters = try targetContext.fetch(FetchDescriptor<SelfLetter>())
+        let importedLetter = try #require(importedLetters.first)
+        #expect(importedLetter.title == "Testowy tytuł")
+        #expect(importedLetter.content == "Treść testowego listu")
+        #expect(importedLetter.letterStatus == .opened)
+        #expect(importedLetter.openedAt != nil)
     }
 }
