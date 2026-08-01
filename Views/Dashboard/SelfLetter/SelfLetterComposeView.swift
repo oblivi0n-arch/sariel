@@ -13,13 +13,20 @@ private enum ComposeField {
 
 struct SelfLetterComposeView: View {
     @Environment(\.modelContext) private var modelContext
+    @Bindable var letter: SelfLetter
     let onDismiss: () -> Void
 
     @State private var stage: ComposeStage = .writing
     @FocusState private var focusedField: ComposeField?
-    @State private var draftContent: String = ""
     @State private var selectedDelay: SelfLetterDelay = .oneMonth
-    @State private var draftTitle: String = ""
+    @State private var saveTask: Task<Void, Never>?
+
+    private var titleBinding: Binding<String> {
+        Binding(
+            get: { letter.title ?? "" },
+            set: { letter.title = $0.isEmpty ? nil : $0 }
+        )
+    }
 
     var body: some View {
         ZStack {
@@ -29,7 +36,7 @@ struct SelfLetterComposeView: View {
             case .writing:
                 VStack(alignment: .leading, spacing: 0) {
                     HStack {
-                        Button(action: onDismiss) {
+                        Button(action: closeCompose) {
                             Image(systemName: "xmark")
                                 .font(Typography.iconButton)
                                 .foregroundStyle(Theme.textFaint)
@@ -39,8 +46,8 @@ struct SelfLetterComposeView: View {
                         Spacer()
                     }
                     .padding(20)
-                    
-                    TextField(L10n.SelfLetterCompose.titlePlaceholder, text: $draftTitle)
+
+                    TextField(L10n.SelfLetterCompose.titlePlaceholder, text: titleBinding)
                         .textFieldStyle(.plain)
                         .font(Typography.title)
                         .foregroundStyle(Theme.textPrimary)
@@ -48,9 +55,10 @@ struct SelfLetterComposeView: View {
                         .padding(.bottom, 8)
                         .focused($focusedField, equals: .title)
                         .onSubmit { focusedField = .content }
+                        .onChange(of: letter.title) { scheduleSave() }
 
                     ZStack(alignment: .topLeading) {
-                        if draftContent.isEmpty {
+                        if letter.content.isEmpty {
                             Text(L10n.SelfLetterCompose.writingPlaceholder)
                                 .font(Theme.voiceFont)
                                 .foregroundStyle(Theme.textFaint)
@@ -59,13 +67,14 @@ struct SelfLetterComposeView: View {
                                 .allowsHitTesting(false)
                         }
 
-                        TextEditor(text: $draftContent)
+                        TextEditor(text: $letter.content)
                             .font(Theme.voiceFont)
                             .foregroundStyle(Theme.textPrimary)
                             .scrollContentBackground(.hidden)
                             .padding(.horizontal, 9)
                             .padding(.top, 10)
                             .focused($focusedField, equals: .content)
+                            .onChange(of: letter.content) { scheduleSave() }
                     }
                     .padding(.horizontal, 16)
 
@@ -80,7 +89,7 @@ struct SelfLetterComposeView: View {
                                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
                         }
                         .buttonStyle(.plain)
-                        .disabled(draftContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .disabled(letter.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                     .padding(20)
                     .onAppear { focusedField = .title }
@@ -132,8 +141,12 @@ struct SelfLetterComposeView: View {
                 }
             }
         }
+        .onDisappear {
+            saveTask?.cancel()
+            try? modelContext.save()
+        }
     }
-    
+
     private func delayOption(_ delay: SelfLetterDelay) -> some View {
         let isSelected = selectedDelay == delay
         return Text(delay.displayName)
@@ -147,15 +160,31 @@ struct SelfLetterComposeView: View {
             .onTapGesture { selectedDelay = delay }
     }
 
-    private func sealLetter() {
-        let trimmedTitle = draftTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+    private func scheduleSave() {
+        saveTask?.cancel()
+        saveTask = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            guard !Task.isCancelled else { return }
+            try? modelContext.save()
+        }
+    }
 
-        let letter = SelfLetter(
-            title: trimmedTitle.isEmpty ? nil : trimmedTitle,
-            content: draftContent,
-            openDate: selectedDelay.openDate()
-        )
-        modelContext.insert(letter)
+    private func closeCompose() {
+        saveTask?.cancel()
+        let isEmpty = letter.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && (letter.title?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+        if isEmpty {
+            modelContext.delete(letter)
+        }
+        try? modelContext.save()
+        onDismiss()
+    }
+
+    private func sealLetter() {
+        let trimmedTitle = letter.title?.trimmingCharacters(in: .whitespacesAndNewlines)
+        letter.title = (trimmedTitle?.isEmpty ?? true) ? nil : trimmedTitle
+        letter.openDate = selectedDelay.openDate()
+        letter.letterStatus = .sealed
         try? modelContext.save()
         onDismiss()
     }

@@ -17,7 +17,7 @@ struct DashboardView: View {
     @Query private var achievementUnlocks: [AchievementUnlock]
     @State private var selectedUnlock: AchievementUnlock?
     @State private var isAchievementsScreenShown = false
-    @State private var isWritingLetter = false
+    @State private var activeDraft: SelfLetter?
     @State private var letterBeingRead: SelfLetter?
     @Query private var selfLetters: [SelfLetter]
     @State private var isArchiveShown = false
@@ -119,7 +119,7 @@ struct DashboardView: View {
                 }
                 
                 DashboardSelfLetterRow(
-                    onWriteTapped: { isWritingLetter = true },
+                    onWriteTapped: { activeDraft = findOrCreateDraftLetter() },
                     onOpenTapped: { letterBeingRead = oldestAvailableLetter() }
                 )
                 
@@ -152,8 +152,8 @@ struct DashboardView: View {
                 )
             }
             
-            if isWritingLetter {
-                SelfLetterComposeView(onDismiss: { isWritingLetter = false })
+            if let activeDraft {
+                SelfLetterComposeView(letter: activeDraft, onDismiss: { self.activeDraft = nil })
             }
             
             if let letterBeingRead {
@@ -210,6 +210,16 @@ struct DashboardView: View {
         selfLetters
             .filter { $0.letterStatus == .available }
             .min(by: { $0.openDate < $1.openDate })
+    }
+    
+    private func findOrCreateDraftLetter() -> SelfLetter {
+        if let existingDraft = selfLetters.first(where: { $0.letterStatus == .draft }) {
+            return existingDraft
+        }
+        let newLetter = SelfLetter(content: "", openDate: Date())
+        modelContext.insert(newLetter)
+        try? modelContext.save()
+        return newLetter
     }
 }
 
