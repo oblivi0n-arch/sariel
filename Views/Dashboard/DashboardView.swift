@@ -18,6 +18,8 @@ struct DashboardView: View {
     @State private var selectedUnlock: AchievementUnlock?
     @State private var isAchievementsScreenShown = false
     @State private var isWritingLetter = false
+    @State private var letterBeingRead: SelfLetter?
+    @Query private var selfLetters: [SelfLetter]
     
     private var currentStreak: Int {
         let calendar = Calendar.current
@@ -117,7 +119,7 @@ struct DashboardView: View {
                 
                 DashboardSelfLetterRow(
                     onWriteTapped: { isWritingLetter = true },
-                    onOpenTapped: { /* TODO: otworzyć dostępny list */ }
+                    onOpenTapped: { letterBeingRead = oldestAvailableLetter() }
                 )
                 
                 DashboardAchievementsSection(
@@ -143,6 +145,13 @@ struct DashboardView: View {
             
             if isWritingLetter {
                 SelfLetterComposeView(onDismiss: { isWritingLetter = false })
+            }
+            
+            if let letterBeingRead {
+                SelfLetterRevealView(
+                    letter: letterBeingRead,
+                    onDismiss: { self.letterBeingRead = nil }
+                )
             }
         }
         .onAppear {
@@ -176,6 +185,12 @@ struct DashboardView: View {
         formatter.locale = Locale(identifier: L10n.lang == .pl ? "pl_PL" : "en_US")
         formatter.setLocalizedDateFormatFromTemplate("EEE")
         return formatter.string(from: date)
+    }
+    
+    private func oldestAvailableLetter() -> SelfLetter? {
+        selfLetters
+            .filter { $0.letterStatus == .available }
+            .min(by: { $0.openDate < $1.openDate })
     }
 }
 

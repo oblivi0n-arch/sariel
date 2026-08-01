@@ -114,6 +114,13 @@ extension SettingsView {
             .buttonStyle(.plain)
             .foregroundStyle(Theme.textMuted)
             
+            Button("Backdate sealed self-letters (make available)") {
+                backdateSealedLetters()
+            }
+            .font(Typography.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textMuted)
+            
             Button("Reset data (skip onboarding)") {
                 resetEverything(skipOnboarding: true)
             }
@@ -132,6 +139,18 @@ extension SettingsView {
             commitment.createdAt = Date().addingTimeInterval(-8 * 24 * 60 * 60)
         }
         try? modelContext.save()
+    }
+    
+    private func backdateSealedLetters() {
+        let descriptor = FetchDescriptor<SelfLetter>()
+        guard let letters = try? modelContext.fetch(descriptor) else { return }
+
+        for letter in letters where letter.letterStatus == .sealed {
+            letter.openDate = Date().addingTimeInterval(-60)
+        }
+        try? modelContext.save()
+
+        SelfLetterService.refreshAvailability(context: modelContext)
     }
 #endif
 }
