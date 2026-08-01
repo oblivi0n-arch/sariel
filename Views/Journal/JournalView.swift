@@ -132,6 +132,7 @@ struct JournalView: View {
                         ForEach(filteredEntries) { entry in
                             JournalEntryRow(
                                 entry: entry,
+                                searchText: searchText,      
                                 onSelect: {
                                     activeEntry = entry
                                     isEditingEntry = false

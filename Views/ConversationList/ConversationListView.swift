@@ -140,6 +140,7 @@ struct ConversationListView: View {
                             conversation: conversation,
                             isActive: conversation.id == activeConversation?.id,
                             isGenerating: chatService.generatingConversationIDs.contains(conversation.id),
+                            searchText: searchText,
                             onSelect: {
                                 activeConversation = conversation
                                 isConversationListOpen = false
@@ -171,6 +172,7 @@ struct ConversationListView: View {
                                 conversation: conversation,
                                 isActive: conversation.id == activeConversation?.id,
                                 isGenerating: false,
+                                searchText: searchText,
                                 onSelect: {
                                     activeConversation = conversation
                                     isConversationListOpen = false

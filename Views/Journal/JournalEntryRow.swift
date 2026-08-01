@@ -2,6 +2,7 @@ import SwiftUI
 
 struct JournalEntryRow: View {
     let entry: JournalEntry
+    let searchText: String
     let onSelect: () -> Void
     let onDelete: () -> Void
     let onTogglePin: () -> Void
@@ -27,9 +28,12 @@ struct JournalEntryRow: View {
                         .foregroundStyle(Theme.textFaint)
                 }
 
-                Text(entry.title)
-                    .font(Typography.title)
-                    .foregroundStyle(Theme.textPrimary)
+                HighlightedText(
+                    text: entry.title,
+                    searchText: searchText,
+                    font: Typography.title,
+                    baseColor: Theme.textPrimary
+                )
 
                 Spacer()
 
@@ -45,10 +49,13 @@ struct JournalEntryRow: View {
             }
 
             if !entry.content.isEmpty {
-                Text(entry.content)
-                    .font(Theme.uiFont)
-                    .foregroundStyle(Theme.textSecondary)
-                    .lineLimit(2)
+                HighlightedText(
+                    text: entry.content,
+                    searchText: searchText,
+                    font: Theme.uiFont,
+                    baseColor: Theme.textSecondary
+                )
+                .lineLimit(2)
             }
 
             if !entry.tags.isEmpty {

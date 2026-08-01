@@ -4,6 +4,7 @@ struct ConversationRow: View {
     let conversation: Conversation
     let isActive: Bool
     let isGenerating: Bool
+    let searchText: String
     let onSelect: () -> Void
     let onDelete: () -> Void
     let onRename: (String) -> Void
@@ -37,9 +38,12 @@ struct ConversationRow: View {
                             .font(.system(size: 11))
                             .foregroundStyle(Theme.textFaint)
                     }
-                    Text(conversation.title)
-                        .font(Theme.uiFont)
-                        .foregroundStyle(isActive ? Theme.textPrimary : Theme.textSecondary)
+                    HighlightedText(
+                        text: conversation.title,
+                        searchText: searchText,
+                        font: Theme.uiFont,
+                        baseColor: isActive ? Theme.textPrimary : Theme.textSecondary
+                    )
                     
                     Spacer(minLength: 0)
                     
