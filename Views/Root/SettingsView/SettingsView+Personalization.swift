@@ -26,15 +26,49 @@ extension SettingsView {
     }
     
     private var themeSwatchPicker: some View {
-        HStack(spacing: 14) {
-            themeSwatch(for: .dark, label: L10n.Settings.themeDark, fill: .black)
-            themeSwatch(for: .light, label: L10n.Settings.themeLight, fill: .white)
+        HStack(alignment: .top, spacing: 14) {
+            themeGroup(title: L10n.Settings.themeGroupOriginal) {
+                themeSwatch(for: .dark, label: L10n.Settings.themeDark, fill: .black)
+                themeSwatch(for: .light, label: L10n.Settings.themeLight, fill: .white, checkmarkColor: .black)
+            }
+
+            themeGroupDivider
+
+            themeGroup(title: L10n.Settings.themeGroupCustom) {
+                themeSwatch(for: .starlight, label: L10n.Settings.themeStarlight, fill: Color(hex: "05070D"))
+            }
         }
     }
+
+    private func themeGroup<Content: View>(
+        title: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+
+            HStack(spacing: 14) {
+                content()
+            }
+        }
+    }
+
+    private var themeGroupDivider: some View {
+        Rectangle()
+            .fill(Theme.border)
+            .frame(width: 1)
+    }
     
-    private func themeSwatch(for theme: AppTheme, label: String, fill: Color) -> some View {
+    private func themeSwatch(
+        for theme: AppTheme,
+        label: String,
+        fill: Color,
+        checkmarkColor: Color = .white
+    ) -> some View {
         let isSelected = themeManager.current == theme
-        
+
         return Button(action: { themeManager.current = theme }) {
             VStack(spacing: 6) {
                 Circle()
@@ -50,10 +84,10 @@ extension SettingsView {
                         if isSelected {
                             Image(systemName: "checkmark")
                                 .font(.system(size: 11, weight: .bold))
-                                .foregroundStyle(theme == .dark ? .white : .black)
+                                .foregroundStyle(checkmarkColor)
                         }
                     }
-                
+
                 Text(label)
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textMuted)
@@ -202,6 +236,20 @@ extension L10n.Settings {
         }
     }
     
+    static var themeGroupOriginal: String {
+        switch L10n.lang {
+        case .en: return "ORIGINAL"
+        case .pl: return "ORIGINAL"
+        }
+    }
+
+    static var themeGroupCustom: String {
+        switch L10n.lang {
+        case .en: return "CUSTOM"
+        case .pl: return "CUSTOM"
+        }
+    }
+    
     static var themeDark: String {
         switch L10n.lang {
         case .en: return "Dark"
@@ -213,6 +261,13 @@ extension L10n.Settings {
         switch L10n.lang {
         case .en: return "Light"
         case .pl: return "Jasny"
+        }
+    }
+    
+    static var themeStarlight: String {
+        switch L10n.lang {
+        case .en: return "Starlight"
+        case .pl: return "Starlight"
         }
     }
     
