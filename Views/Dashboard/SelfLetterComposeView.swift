@@ -18,7 +18,7 @@ struct SelfLetterComposeView: View {
     @State private var stage: ComposeStage = .writing
     @FocusState private var focusedField: ComposeField?
     @State private var draftContent: String = ""
-    @State private var selectedDelay: SelfLetterDelay = .oneWeek
+    @State private var selectedDelay: SelfLetterDelay = .oneMonth
     @State private var draftTitle: String = ""
 
     var body: some View {

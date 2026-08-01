@@ -52,13 +52,22 @@ struct SelfLetterRevealView: View {
                     }
 
                     ScrollView {
-                        RevealingText(
-                            fullText: letter.content,
-                            font: Theme.voiceFont,
-                            color: Theme.textPrimary,
-                            charsPerSecond: 60,
-                            onComplete: { stage = .revealed }
-                        )
+                        VStack(alignment: .leading, spacing: 16) {
+                            if let title = letter.title, !title.isEmpty {
+                                Text(title)
+                                    .font(Typography.sectionTitle)
+                                    .foregroundStyle(Theme.textPrimary)
+                            }
+
+                            RevealingText(
+                                fullText: letter.content,
+                                font: Theme.voiceFont,
+                                color: Theme.textPrimary,
+                                charsPerSecond: 60,
+                                onComplete: { stage = .revealed }
+                            )
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
 

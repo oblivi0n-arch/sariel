@@ -52,6 +52,12 @@ struct SelfLetterArchiveView: View {
     private func detail(for letter: SelfLetter) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                if let title = letter.title, !title.isEmpty {
+                    Text(title)
+                        .font(Typography.sectionTitle)
+                        .foregroundStyle(Theme.textPrimary)
+                }
+
                 Text(letter.content)
                     .font(Theme.voiceFont)
                     .foregroundStyle(Theme.textPrimary)

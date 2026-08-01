@@ -8,26 +8,29 @@ enum SelfLetterStatus: String {
 }
 
 enum SelfLetterDelay: String, CaseIterable {
-    case oneWeek
     case oneMonth
+    case twoMonths
     case threeMonths
+    case sixMonths
     case oneYear
-    
+
     func openDate(from now: Date = Date()) -> Date {
         let calendar = Calendar.current
         switch self {
-        case .oneWeek:     return calendar.date(byAdding: .day, value: 7, to: now)!
         case .oneMonth:    return calendar.date(byAdding: .month, value: 1, to: now)!
+        case .twoMonths:   return calendar.date(byAdding: .month, value: 2, to: now)!
         case .threeMonths: return calendar.date(byAdding: .month, value: 3, to: now)!
+        case .sixMonths:   return calendar.date(byAdding: .month, value: 6, to: now)!
         case .oneYear:     return calendar.date(byAdding: .year, value: 1, to: now)!
         }
     }
 
     var displayName: String {
         switch self {
-        case .oneWeek:     return L10n.lang == .pl ? "za tydzień" : "in a week"
         case .oneMonth:    return L10n.lang == .pl ? "za miesiąc" : "in a month"
+        case .twoMonths:   return L10n.lang == .pl ? "za 2 miesiące" : "in 2 months"
         case .threeMonths: return L10n.lang == .pl ? "za 3 miesiące" : "in 3 months"
+        case .sixMonths:   return L10n.lang == .pl ? "za pół roku" : "in 6 months"
         case .oneYear:     return L10n.lang == .pl ? "za rok" : "in a year"
         }
     }
