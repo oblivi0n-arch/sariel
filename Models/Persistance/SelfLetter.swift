@@ -2,6 +2,7 @@ import Foundation
 import SwiftData
 
 enum SelfLetterStatus: String {
+    case draft
     case sealed
     case available
     case opened
@@ -43,7 +44,7 @@ final class SelfLetter {
     var content: String
     var createdAt: Date
     var openDate: Date
-    var status: String = SelfLetterStatus.sealed.rawValue
+    var status: String = SelfLetterStatus.draft.rawValue
     var openedAt: Date?
     
     init(title: String? = nil, content: String, openDate: Date) {
