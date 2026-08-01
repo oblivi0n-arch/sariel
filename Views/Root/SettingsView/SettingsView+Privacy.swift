@@ -136,6 +136,31 @@ extension SettingsView {
             .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
         }
     }
+    
+    @ViewBuilder
+    var pinSetupOverlayContent: some View {
+        if isPinSetupShown {
+            Color.black.opacity(0.5)
+                .ignoresSafeArea()
+                .onTapGesture { isPinSetupShown = false }
+            
+            PinSetupView(
+                onComplete: {
+                    isPinSetupShown = false
+                    hasPinSet = true
+                },
+                onCancel: {
+                    isPinSetupShown = false
+                }
+            )
+            .padding(24)
+            .frame(width: 280)
+            .background(Theme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
+            .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
+        }
+    }
 }
 
 extension L10n.Settings {

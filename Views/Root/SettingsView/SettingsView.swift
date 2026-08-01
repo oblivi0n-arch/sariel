@@ -92,6 +92,7 @@ struct SettingsView: View {
         .background(Theme.background)
         .overlay { resetConfirmationOverlayContent }
         .overlay { pinVerificationOverlayContent }
+        .overlay { pinSetupOverlayContent }
         .task {
             draftUsername = username
             hasPinSet = PinKeychainStore.hasPinSet()
