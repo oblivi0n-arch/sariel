@@ -116,6 +116,13 @@ struct Theme {
         }
     }
     
+    static var tribunalAccent: Color {
+        switch mode {
+        case .dark, .light: return .red
+        case .starlight: return Color(hex: "5EEAF0")
+        }
+    }
+    
     static let voiceFont = Font.system(.body, design: .serif)
     static let uiFont = Font.system(.body, design: .default)
 }
