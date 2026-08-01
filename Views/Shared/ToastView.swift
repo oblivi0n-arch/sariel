@@ -12,24 +12,28 @@ struct ToastView: View {
         case .declarationLimitBlocked: return "hand.raised.fill"
         case .declarationRequiresNewMessage: return "hand.raised.fill"
         case .achievementUnlocked(let kind): return kind.symbolName
+        case .selfLetterAvailable: return "envelope"
         }
     }
-    
+
     private var title: String {
         switch toast.kind {
         case .journalEntrySaved(let entry): return entry.title
         case .declarationLimitBlocked: return L10n.Toast.declarationBlockedTitle
         case .declarationRequiresNewMessage: return L10n.Toast.declarationBlockedTitle
         case .achievementUnlocked(let kind): return kind.title
+        case .selfLetterAvailable(let letter):
+            return letter.title?.isEmpty == false ? letter.title! : L10n.SelfLetterArchive.untitled
         }
     }
-    
+
     private var subtitle: String {
         switch toast.kind {
         case .journalEntrySaved: return L10n.Toast.entrySaved
         case .declarationLimitBlocked: return L10n.Toast.resolveOneFirst
         case .declarationRequiresNewMessage: return L10n.Toast.editIntoNewMessage
         case .achievementUnlocked(let kind): return kind.unlockedDescription
+        case .selfLetterAvailable: return L10n.Toast.selfLetterReady
         }
     }
     
@@ -104,6 +108,13 @@ extension L10n {
             switch lang {
             case .en: return "edit into a new message instead"
             case .pl: return "zamiast tego edytuj jako nową wiadomość"
+            }
+        }
+        
+        static var selfLetterReady: String {
+            switch lang {
+            case .en: return "ready to open"
+            case .pl: return "gotowy do otwarcia"
             }
         }
     }

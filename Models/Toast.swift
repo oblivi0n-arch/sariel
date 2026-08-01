@@ -5,6 +5,7 @@ enum ToastKind {
     case declarationLimitBlocked
     case declarationRequiresNewMessage
     case achievementUnlocked(AchievementKind)
+    case selfLetterAvailable(SelfLetter)
 }
 
 struct Toast: Identifiable {

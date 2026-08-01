@@ -164,6 +164,8 @@ struct ContentView: View {
                                     break
                                 case .achievementUnlocked:
                                     selectedSection = .dashboard
+                                case .selfLetterAvailable:
+                                    selectedSection = .dashboard
                                 }
                                 toastManager.dismiss(toast)
                             }

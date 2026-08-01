@@ -173,7 +173,10 @@ struct DashboardView: View {
         .onAppear {
             updateGreetingIfNeeded()
             _ = achievementService.allUnlocks(modelContext: modelContext)
-            SelfLetterService.refreshAvailability(context: modelContext)
+            let newlyAvailableLetters = SelfLetterService.refreshAvailability(context: modelContext)
+            for letter in newlyAvailableLetters {
+                toastManager.showSelfLetterAvailable(letter)
+            }
         }
         .onChange(of: languageManager.current) { _, _ in
             updateGreetingIfNeeded()

@@ -34,4 +34,8 @@ final class ToastManager: ObservableObject {
     func showAchievementUnlocked(_ kind: AchievementKind) {
         show(kind: .achievementUnlocked(kind))
     }
+    
+    func showSelfLetterAvailable(_ letter: SelfLetter) {
+        show(kind: .selfLetterAvailable(letter))
+    }
 }
