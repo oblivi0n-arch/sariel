@@ -36,6 +36,9 @@ enum AppResetService {
 
         UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
         UserDefaults.standard.set(true, forKey: "isPostReset")
+        
+        UserDefaults.standard.removeObject(forKey: "appTheme")
+        UserDefaults.standard.set(false, forKey: "appThemeFollowsSystem")
     }
 
     private static func deleteAll<T: PersistentModel>(_ type: T.Type, in context: ModelContext) {

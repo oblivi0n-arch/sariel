@@ -65,4 +65,17 @@ struct AppResetServiceTests {
         #expect(try context.fetch(FetchDescriptor<AchievementUnlock>()).isEmpty)
         #expect(try context.fetch(FetchDescriptor<SelfLetter>()).isEmpty)
     }
+    
+    @Test @MainActor
+    func wipeAllDataResetsThemeToDefault() throws {
+        let context = try makeInMemoryContext()
+
+        UserDefaults.standard.set(AppTheme.witness.rawValue, forKey: "appTheme")
+        UserDefaults.standard.set(true, forKey: "appThemeFollowsSystem")
+
+        AppResetService.wipeAllData(context: context)
+
+        #expect(UserDefaults.standard.string(forKey: "appTheme") == nil)
+        #expect(UserDefaults.standard.bool(forKey: "appThemeFollowsSystem") == false)
+    }
 }
