@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SelfLetterArchiveRow: View {
     let letter: SelfLetter
+    let searchText: String
     let onSelect: () -> Void
 
     @State private var isHovering = false
@@ -9,9 +10,12 @@ struct SelfLetterArchiveRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(letter.title?.isEmpty == false ? letter.title! : L10n.SelfLetterArchive.untitled)
-                    .font(Typography.title)
-                    .foregroundStyle(Theme.textPrimary)
+                HighlightedText(
+                    text: letter.title?.isEmpty == false ? letter.title! : L10n.SelfLetterArchive.untitled,
+                    searchText: searchText,
+                    font: Typography.title,
+                    baseColor: Theme.textPrimary
+                )
 
                 Spacer()
 
@@ -22,10 +26,13 @@ struct SelfLetterArchiveRow: View {
                 }
             }
 
-            Text(letter.content)
-                .font(Theme.uiFont)
-                .foregroundStyle(Theme.textSecondary)
-                .lineLimit(2)
+            HighlightedText(
+                text: letter.content,
+                searchText: searchText,
+                font: Theme.uiFont,
+                baseColor: Theme.textSecondary
+            )
+            .lineLimit(2)
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)

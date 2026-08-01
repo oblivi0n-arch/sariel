@@ -6,9 +6,21 @@ struct SelfLetterArchiveView: View {
     let onBack: () -> Void
 
     @State private var activeLetter: SelfLetter?
+    @State private var searchText: String = ""
+    @State private var isSearchExpanded = false
+    @State private var isSearchHovering = false
+    @FocusState private var isSearchFocused: Bool
 
     private var sortedLetters: [SelfLetter] {
         letters.sorted { ($0.openedAt ?? .distantPast) > ($1.openedAt ?? .distantPast) }
+    }
+
+    private var filteredLetters: [SelfLetter] {
+        guard !searchText.isEmpty else { return sortedLetters }
+        return sortedLetters.filter {
+            ($0.title ?? "").localizedCaseInsensitiveContains(searchText) ||
+            $0.content.localizedCaseInsensitiveContains(searchText)
+        }
     }
 
     var body: some View {
@@ -23,8 +35,8 @@ struct SelfLetterArchiveView: View {
                 } else {
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 10) {
-                            ForEach(sortedLetters) { letter in
-                                SelfLetterArchiveRow(letter: letter, onSelect: { activeLetter = letter })
+                            ForEach(filteredLetters) { letter in
+                                SelfLetterArchiveRow(letter: letter, searchText: searchText, onSelect: { activeLetter = letter })
                             }
                         }
                     }
@@ -43,10 +55,68 @@ struct SelfLetterArchiveView: View {
             }
             .buttonStyle(.plain)
 
-            Text(L10n.SelfLetterArchive.title)
-                .font(Typography.title)
-                .foregroundStyle(Theme.textPrimary)
+            if activeLetter == nil, isSearchExpanded {
+                HStack(spacing: 6) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.textFaint)
+
+                    TextField(L10n.SelfLetterArchive.searchPlaceholder, text: $searchText)
+                        .textFieldStyle(.plain)
+                        .font(Typography.label)
+                        .foregroundStyle(Theme.textSecondary)
+                        .focused($isSearchFocused)
+
+                    Button(action: collapseSearch) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(Theme.textMuted)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Theme.fieldBackground)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
+            } else {
+                Text(L10n.SelfLetterArchive.title)
+                    .font(Typography.title)
+                    .foregroundStyle(Theme.textPrimary)
+
+                Spacer()
+
+                if activeLetter == nil {
+                    Button(action: expandSearch) {
+                        Image(systemName: "magnifyingglass")
+                            .font(Typography.iconButton)
+                            .foregroundStyle(Theme.textMuted)
+                            .frame(width: 24, height: 24)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(isSearchHovering ? Theme.border : .clear, lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .onHover { hovering in
+                        isSearchHovering = hovering
+                    }
+                }
+            }
         }
+        .animation(.easeInOut(duration: 0.2), value: isSearchExpanded)
+    }
+
+    private func expandSearch() {
+        isSearchExpanded = true
+        isSearchFocused = true
+    }
+
+    private func collapseSearch() {
+        searchText = ""
+        isSearchExpanded = false
+        isSearchFocused = false
     }
 
     private func detail(for letter: SelfLetter) -> some View {
@@ -106,6 +176,13 @@ extension L10n {
             switch lang {
             case .en: return "view sealed letters"
             case .pl: return "zobacz zapieczętowane listy"
+            }
+        }
+
+        static var searchPlaceholder: String {
+            switch lang {
+            case .en: return "Search letters"
+            case .pl: return "Szukaj listów"
             }
         }
     }
