@@ -20,6 +20,7 @@ struct DashboardView: View {
     @State private var isWritingLetter = false
     @State private var letterBeingRead: SelfLetter?
     @Query private var selfLetters: [SelfLetter]
+    @State private var isArchiveShown = false
     
     private var currentStreak: Int {
         let calendar = Calendar.current
@@ -122,6 +123,14 @@ struct DashboardView: View {
                     onOpenTapped: { letterBeingRead = oldestAvailableLetter() }
                 )
                 
+                if selfLetters.contains(where: { $0.letterStatus == .opened }) {
+                    Text(L10n.SelfLetterArchive.entryPointLabel)
+                        .font(Typography.caption)
+                        .foregroundStyle(Theme.textFaint)
+                        .contentShape(Rectangle())
+                        .onTapGesture { isArchiveShown = true }
+                }
+                
                 DashboardAchievementsSection(
                     unlocks: sortedAchievementUnlocks,
                     onTapIcon: { unlock in selectedUnlock = unlock },
@@ -151,6 +160,13 @@ struct DashboardView: View {
                 SelfLetterRevealView(
                     letter: letterBeingRead,
                     onDismiss: { self.letterBeingRead = nil }
+                )
+            }
+            
+            if isArchiveShown {
+                SelfLetterArchiveView(
+                    letters: selfLetters.filter { $0.letterStatus == .opened },
+                    onBack: { isArchiveShown = false }
                 )
             }
         }

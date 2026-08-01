@@ -6,13 +6,20 @@ private enum ComposeStage {
     case sealing
 }
 
+private enum ComposeField {
+    case title
+    case content
+}
+
 struct SelfLetterComposeView: View {
     @Environment(\.modelContext) private var modelContext
     let onDismiss: () -> Void
 
     @State private var stage: ComposeStage = .writing
+    @FocusState private var focusedField: ComposeField?
     @State private var draftContent: String = ""
     @State private var selectedDelay: SelfLetterDelay = .oneWeek
+    @State private var draftTitle: String = ""
 
     var body: some View {
         ZStack {
@@ -32,6 +39,15 @@ struct SelfLetterComposeView: View {
                         Spacer()
                     }
                     .padding(20)
+                    
+                    TextField(L10n.SelfLetterCompose.titlePlaceholder, text: $draftTitle)
+                        .textFieldStyle(.plain)
+                        .font(Typography.title)
+                        .foregroundStyle(Theme.textPrimary)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 8)
+                        .focused($focusedField, equals: .title)
+                        .onSubmit { focusedField = .content }
 
                     ZStack(alignment: .topLeading) {
                         if draftContent.isEmpty {
@@ -49,6 +65,7 @@ struct SelfLetterComposeView: View {
                             .scrollContentBackground(.hidden)
                             .padding(.horizontal, 9)
                             .padding(.top, 10)
+                            .focused($focusedField, equals: .content)
                     }
                     .padding(.horizontal, 16)
 
@@ -66,6 +83,7 @@ struct SelfLetterComposeView: View {
                         .disabled(draftContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                     .padding(20)
+                    .onAppear { focusedField = .title }
                 }
             case .sealing:
                 VStack(alignment: .leading, spacing: 0) {
@@ -130,7 +148,10 @@ struct SelfLetterComposeView: View {
     }
 
     private func sealLetter() {
+        let trimmedTitle = draftTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+
         let letter = SelfLetter(
+            title: trimmedTitle.isEmpty ? nil : trimmedTitle,
             content: draftContent,
             openDate: selectedDelay.openDate()
         )
@@ -167,6 +188,13 @@ extension L10n {
             switch lang {
             case .en: return "Seal it"
             case .pl: return "Zapieczętuj"
+            }
+        }
+        
+        static var titlePlaceholder: String {
+            switch lang {
+            case .en: return "Title (optional)"
+            case .pl: return "Tytuł (opcjonalnie)"
             }
         }
     }
