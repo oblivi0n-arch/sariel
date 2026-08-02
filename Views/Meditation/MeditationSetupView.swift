@@ -10,7 +10,7 @@ struct MeditationSetupView: View {
     
     var body: some View {
         ZStack {
-            backgroundRings
+            AmbientRingsView()
             
             VStack(spacing: 0) {
                 HStack {
