@@ -88,6 +88,10 @@ struct ChatView: View {
     private var isEndingConversation: Bool { chatService.endingConversationIDs.contains(conversation.id) }
 
     private var endConversationError: String? { chatService.endConversationErrors[conversation.id] }
+    
+    private var isShowingProgressBar: Bool {
+        isEndingConversation || chatService.isGeneratingVerdicts.contains(conversation.id)
+    }
 
     var isInputLocked: Bool {
         conversation.isArchived || isGenerating || isEndingConversation || isRevealFinishing || chatService.isGeneratingVerdicts.contains(conversation.id)
@@ -135,7 +139,7 @@ struct ChatView: View {
             .overlay { tribunalVerdictOverlayContent }
             .overlay { sealCenterOverlayContent }
             .animation(.easeInOut(duration: 0.2), value: isMoodPromptShown)
-            .animation(.easeInOut(duration: 0.2), value: isEndingConversation)
+            .animation(.easeInOut(duration: 0.2), value: isShowingProgressBar)
     }
 
     @ViewBuilder
@@ -164,7 +168,7 @@ struct ChatView: View {
                 onBackToTribunal: onBackToTribunal
             )
             
-            if isEndingConversation {
+            if isShowingProgressBar {
                 PulsingLoadingBar()
                     .frame(maxWidth: .infinity)
                     .transition(.opacity)
