@@ -24,7 +24,7 @@ struct MeditationSetupView: View {
                     .buttonStyle(.plain)
                 }
                 .padding(20)
-
+                
                 if isHistoryExpanded {
                     historyPanel
                         .padding(.horizontal, 20)
@@ -111,7 +111,7 @@ struct MeditationSetupView: View {
                 .foregroundStyle(Theme.textFaint)
                 .textCase(.uppercase)
                 .kerning(0.5)
-
+            
             if sessions.isEmpty {
                 Text(L10n.MeditationHistory.emptyStateTitle)
                     .font(Typography.label)
@@ -130,8 +130,8 @@ struct MeditationSetupView: View {
             }
         }
         .padding(16)
-        .background(Theme.fieldBackground)
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
+        .background(Theme.background)
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.borderStrong, lineWidth: 1))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -176,7 +176,7 @@ extension L10n {
             }
         }
     }
-
+    
     enum MeditationHistory {
         static var title: String {
             switch lang {
@@ -184,14 +184,14 @@ extension L10n {
             case .pl: return "historia"
             }
         }
-
+        
         static var emptyStateTitle: String {
             switch lang {
             case .en: return "No sessions yet"
             case .pl: return "Brak sesji"
             }
         }
-
+        
         static var noIntention: String {
             switch lang {
             case .en: return "(no intention)"

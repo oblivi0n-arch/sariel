@@ -28,8 +28,8 @@ struct MeditationSessionRow: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.fieldBackground)
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
+        .background(Theme.background)
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.borderStrong, lineWidth: 1))
         .overlay(alignment: .leading) {
             Rectangle()
                 .fill(Theme.textPrimary.opacity(session.wasInterrupted ? 0.3 : 1.0))
