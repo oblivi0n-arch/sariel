@@ -129,6 +129,7 @@ enum DataExportService {
             commitments: commitments,
             achievementUnlocks: achievementUnlocks,
             selfLetters: selfLetters,
+            meditationSessions: meditationSessions,
             aboutMe: aboutMe,
             hasCompletedAcquaintance: hasCompletedAcquaintance,
             hasStartedAcquaintance: hasStartedAcquaintance,
