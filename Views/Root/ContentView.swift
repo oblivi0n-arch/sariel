@@ -6,6 +6,7 @@ struct ContentView: View {
     @Environment(\.colorScheme) private var systemColorScheme
     @Environment(\.modelContext) private var modelContext
     
+    @AppStorage("selectedSection") private var selectedSection: AppSection = .chat
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @AppStorage("isPostReset") private var isPostReset: Bool = false
     @AppStorage("lastActiveConversationID") private var lastActiveConversationIDString: String = ""
@@ -34,7 +35,6 @@ struct ContentView: View {
     @State private var activeConversation: Conversation?
     @State private var isConversationListOpen = false
     @State private var isSettingsOpen = false
-    @State private var selectedSection: AppSection = .chat
     @State private var activeEntry: JournalEntry?
     @State private var showSplash = true
     @State private var isGateShown = false
