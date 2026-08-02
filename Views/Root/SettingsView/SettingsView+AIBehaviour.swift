@@ -15,9 +15,10 @@ extension SettingsView {
             .toggleStyle(.switch)
             .tint(Theme.textPrimary)
             
-            Text(L10n.Settings.autoStartOllamaDescription)
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textFaint)
+            ExpandableDescription(
+                short: L10n.Settings.autoStartOllamaShortDescription,
+                detail: L10n.Settings.autoStartOllamaDescription
+      )
             
             manualOllamaPathDisclosure
             
@@ -91,10 +92,11 @@ extension SettingsView {
                 .tint(Theme.textPrimary)
             }
             
-            Text(L10n.Settings.modelRecommendationText)
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textFaint)
-                .padding(.top, 2)
+            ExpandableDescription(
+                            short: L10n.Settings.modelRecommendationShortText,
+                            detail: L10n.Settings.modelRecommendationText
+                        )
+                        .padding(.top, 2)
         }
     }
     
@@ -205,9 +207,10 @@ extension SettingsView {
             .toggleStyle(.switch)
             .tint(Theme.textPrimary)
             
-            Text(L10n.Settings.journalContextDescription(count: PromptBuilder.journalContextEntryCount))
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textFaint)
+            ExpandableDescription(
+            short: L10n.Settings.journalContextShortDescription(count: PromptBuilder.journalContextEntryCount),
+                            detail: L10n.Settings.journalContextDescription(count: PromptBuilder.journalContextEntryCount)
+                        )
         }
     }
     
@@ -225,9 +228,10 @@ extension SettingsView {
             .toggleStyle(.switch)
             .tint(Theme.textPrimary)
             
-            Text(L10n.Settings.credibilityDescription(minimum: CredibilityBand.sampleMinimum))
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textFaint)
+            ExpandableDescription(
+                          short: L10n.Settings.credibilityShortDescription,
+                           detail: L10n.Settings.credibilityDescription(minimum: CredibilityBand.sampleMinimum)
+                        )
         }
     }
     
@@ -455,6 +459,34 @@ extension L10n.Settings {
         switch L10n.lang {
         case .en: return "When enabled, Sariel sees which of your declared commitments were fulfilled or broken from past Tribunal sessions, and adjusts its tone toward you accordingly. Requires at least \(minimum) resolved declarations."
         case .pl: return "Po włączeniu tej opcji, Sariel widzi które z Twoich zadeklarowanych zobowiązań zostały spełnione lub złamane podczas poprzednich sesji Trybunału, i dostosowuje do tego swój ton. Wymaga co najmniej \(minimum) rozstrzygniętych deklaracji."
+        }
+    }
+    
+    static var autoStartOllamaShortDescription: String {
+        switch L10n.lang {
+        case .en: return "Starts and stops the Ollama server automatically."
+        case .pl: return "Automatycznie uruchamia i zatrzymuje serwer Ollamy."
+        }
+    }
+
+    static var modelRecommendationShortText: String {
+        switch L10n.lang {
+        case .en: return "Recommended: gemma4:e4b"
+        case .pl: return "Zalecany: gemma4:e4b"
+        }
+    }
+
+    static func journalContextShortDescription(count: Int) -> String {
+        switch L10n.lang {
+        case .en: return "Sariel sees your last \(count) journal entries."
+        case .pl: return "Sariel widzi Twoje ostatnie \(count) wpisy."
+        }
+    }
+
+    static var credibilityShortDescription: String {
+        switch L10n.lang {
+        case .en: return "Sariel adjusts its tone based on your track record."
+        case .pl: return "Sariel dostosowuje ton na podstawie Twojej historii."
         }
     }
 }
