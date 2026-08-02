@@ -16,6 +16,7 @@ struct ContentView: View {
     @AppStorage(ShortcutAction.chat.storageKey) private var chatShortcut = ShortcutAction.chat.defaultShortcut
     @AppStorage(ShortcutAction.journal.storageKey) private var journalShortcut = ShortcutAction.journal.defaultShortcut
     @AppStorage(ShortcutAction.tribunal.storageKey) private var tribunalShortcut = ShortcutAction.tribunal.defaultShortcut
+    @AppStorage(ShortcutAction.meditation.storageKey) private var meditationShortcut = ShortcutAction.meditation.defaultShortcut
     
     @Query(
         filter: #Predicate<Conversation> { !$0.isTribunal },
@@ -151,6 +152,9 @@ struct ContentView: View {
                         .hidden()
                     Button("") { switchSection(to: .tribunal) }
                         .keyboardShortcut(tribunalShortcut.keyEquivalent, modifiers: tribunalShortcut.eventModifiers)
+                        .hidden()
+                    Button("") { switchSection(to: .meditation) }
+                        .keyboardShortcut(meditationShortcut.keyEquivalent, modifiers: meditationShortcut.eventModifiers)
                         .hidden()
                 }
                 .overlay(alignment: .topTrailing) {
@@ -385,16 +389,25 @@ extension L10n {
             case .pl: return "Czat"
             }
         }
+        
         static var journal: String {
             switch lang {
             case .en: return "Journal"
             case .pl: return "Dziennik"
             }
         }
+        
         static var tribunal: String {
             switch lang {
             case .en: return "Tribunal"
             case .pl: return "Trybunał"
+            }
+        }
+        
+        static var meditation: String {
+            switch lang {
+            case .en: return "Meditation"
+            case .pl: return "Medytacja"
             }
         }
     }

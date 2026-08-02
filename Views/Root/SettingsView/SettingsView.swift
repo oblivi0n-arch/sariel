@@ -29,6 +29,7 @@ struct SettingsView: View {
     @AppStorage(ShortcutAction.chat.storageKey) var chatShortcut = ShortcutAction.chat.defaultShortcut
     @AppStorage(ShortcutAction.journal.storageKey) var journalShortcut = ShortcutAction.journal.defaultShortcut
     @AppStorage(ShortcutAction.tribunal.storageKey) var tribunalShortcut = ShortcutAction.tribunal.defaultShortcut
+    @AppStorage(ShortcutAction.meditation.storageKey) var meditationShortcut = ShortcutAction.meditation.defaultShortcut
     
     @State private var selectedCategory: SettingsCategory = .personalization
     @State private var hoveredCategory: SettingsCategory?

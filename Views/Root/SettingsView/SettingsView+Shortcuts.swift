@@ -12,6 +12,7 @@ extension SettingsView {
                 shortcutRow(label: L10n.Sections.chat, shortcut: $chatShortcut)
                 shortcutRow(label: L10n.Sections.journal, shortcut: $journalShortcut)
                 shortcutRow(label: L10n.Sections.tribunal, shortcut: $tribunalShortcut)
+                shortcutRow(label: L10n.Sections.meditation, shortcut: $meditationShortcut)
             }
         }
     }

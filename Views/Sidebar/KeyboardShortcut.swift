@@ -38,7 +38,7 @@ extension AppKeyboardShortcut: RawRepresentable {
 }
 
 enum ShortcutAction: String, CaseIterable {
-    case dashboard, chat, journal, tribunal
+    case dashboard, chat, journal, tribunal, meditation
 
     var storageKey: String { "shortcut.\(rawValue)" }
 
@@ -48,6 +48,7 @@ enum ShortcutAction: String, CaseIterable {
         case .chat:      return AppKeyboardShortcut(key: "2", modifiers: EventModifiers.command.rawValue)
         case .journal:   return AppKeyboardShortcut(key: "3", modifiers: EventModifiers.command.rawValue)
         case .tribunal:  return AppKeyboardShortcut(key: "4", modifiers: EventModifiers.command.rawValue)
+        case .meditation: return AppKeyboardShortcut(key: "5", modifiers: EventModifiers.command.rawValue)
         }
     }
 }
