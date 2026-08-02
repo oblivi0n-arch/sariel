@@ -3,7 +3,7 @@ import SwiftUI
 struct MeditationTimerView: View {
     let plannedDuration: TimeInterval
     let onComplete: (TimeInterval) -> Void
-
+    
     @State private var totalSeconds: TimeInterval
     @State private var remainingAtCheckpoint: TimeInterval
     @State private var runStartDate: Date?
@@ -14,7 +14,7 @@ struct MeditationTimerView: View {
     @State private var extendFeedback: String?
     @State private var extendFeedbackTask: Task<Void, Never>?
     @State private var hasInteractedWithCircle = false
-
+    
     init(plannedDuration: TimeInterval, onComplete: @escaping (TimeInterval) -> Void) {
         self.plannedDuration = plannedDuration
         self.onComplete = onComplete
@@ -23,12 +23,12 @@ struct MeditationTimerView: View {
         _runStartDate = State(initialValue: Date())
         _remainingSeconds = State(initialValue: plannedDuration)
     }
-
+    
     private var progress: Double {
         guard totalSeconds > 0 else { return 0 }
         return 1 - (remainingSeconds / totalSeconds)
     }
-
+    
     private func currentRemaining() -> TimeInterval {
         guard let runStartDate, !isPaused else { return remainingAtCheckpoint }
         let elapsed = Date().timeIntervalSince(runStartDate)
@@ -49,11 +49,11 @@ struct MeditationTimerView: View {
                 
                 ZStack {
                     Circle()
-                        .stroke(Theme.border, lineWidth: 2)
+                        .stroke(Theme.border, lineWidth: 4)
                     
                     Circle()
                         .trim(from: 0, to: progress)
-                        .stroke(Theme.textPrimary, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                        .stroke(Theme.textPrimary, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                         .animation(.linear(duration: 0.2), value: progress)
                     
@@ -70,7 +70,7 @@ struct MeditationTimerView: View {
                         isMenuShown.toggle()
                     }
                 }
-
+                
                 if !isMenuShown && !hasInteractedWithCircle {
                     Text(L10n.MeditationTimer.tapHint)
                         .font(Typography.caption)
@@ -80,7 +80,7 @@ struct MeditationTimerView: View {
                         .padding(.top, 16)
                         .transition(.opacity)
                 }
-
+                
                 if let extendFeedback {
                     Text(extendFeedback)
                         .font(Typography.caption)
@@ -139,10 +139,10 @@ struct MeditationTimerView: View {
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 200_000_000)
                 guard !Task.isCancelled else { return }
-
+                
                 let remaining = currentRemaining()
                 remainingSeconds = remaining
-
+                
                 if !isPaused && remaining <= 0 {
                     onComplete(totalSeconds)
                     return
@@ -150,7 +150,7 @@ struct MeditationTimerView: View {
             }
         }
     }
-
+    
     private func togglePause() {
         if isPaused {
             runStartDate = Date()
@@ -160,7 +160,7 @@ struct MeditationTimerView: View {
             isPaused = true
         }
     }
-
+    
     private func extend(by seconds: TimeInterval = 300) {
         if isPaused {
             remainingAtCheckpoint += seconds
@@ -172,12 +172,12 @@ struct MeditationTimerView: View {
         remainingSeconds = currentRemaining()
         showExtendFeedback()
     }
-
+    
     private func endNow() {
         tickTask?.cancel()
         onComplete(totalSeconds - currentRemaining())
     }
-
+    
     private func showExtendFeedback() {
         extendFeedbackTask?.cancel()
         withAnimation(.easeOut(duration: 0.15)) {
@@ -221,14 +221,14 @@ extension L10n {
             case .pl: return "Zakończ"
             }
         }
-
+        
         static var extendedFeedback: String {
             switch lang {
             case .en: return "+5 min added"
             case .pl: return "Dodano +5 min"
             }
         }
-
+        
         static var tapHint: String {
             switch lang {
             case .en: return "Tap to pause"
