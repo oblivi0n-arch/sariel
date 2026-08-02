@@ -3,8 +3,8 @@ import SwiftUI
 struct SplashView: View {
     let onFinished: () -> Void
 
-    @State private var ringScale: [CGFloat] = [0.3, 0.3, 0.3]
-    @State private var ringOpacity: [Double] = [0.5, 0.5, 0.5]
+    @State private var ringScale: [CGFloat] = [0.15, 0.15, 0.15]
+    @State private var ringOpacity: [Double] = [0, 0, 0]
     @State private var textOpacity: Double = 0
     @State private var isVisible = true
 
@@ -42,17 +42,23 @@ struct SplashView: View {
                 let targetScale = targetScale(for: geo.size)
 
                 for i in 0..<3 {
-                    withAnimation(.easeOut(duration: 1.2).delay(Double(i) * 0.25)) {
+                    withAnimation(.easeOut(duration: 0.5).delay(Double(i) * 0.1)) {
+                        ringOpacity[i] = 0.5
+                    }
+                }
+                withAnimation(.easeIn(duration: 0.5)) {
+                    textOpacity = 1
+                }
+
+                for i in 0..<3 {
+                    withAnimation(.easeOut(duration: 1.2).delay(0.4 + Double(i) * 0.25)) {
                         ringScale[i] = targetScale
                         ringOpacity[i] = 0
                     }
                 }
-                withAnimation(.easeIn(duration: 0.6).delay(0.15)) {
-                    textOpacity = 1
-                }
 
                 Task {
-                    try? await Task.sleep(nanoseconds: 2_000_000_000)
+                    try? await Task.sleep(nanoseconds: 2_200_000_000)
                     withAnimation(.easeInOut(duration: 0.4)) {
                         isVisible = false
                     }
