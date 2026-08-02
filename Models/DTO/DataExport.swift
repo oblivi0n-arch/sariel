@@ -161,6 +161,7 @@ struct SarielExport: Codable {
     let chatShortcut: String
     let journalShortcut: String
     let tribunalShortcut: String
+    let meditationShortcut: String
     let hasBeenPoorCredibility: Bool
     let lastActiveConversationID: String
 }
@@ -191,6 +192,7 @@ extension SarielExport {
         chatShortcut: String,
         journalShortcut: String,
         tribunalShortcut: String,
+        meditationShortcut: String,
         hasBeenPoorCredibility: Bool,
         lastActiveConversationID: String
     ) {
@@ -219,6 +221,7 @@ extension SarielExport {
         self.chatShortcut = chatShortcut
         self.journalShortcut = journalShortcut
         self.tribunalShortcut = tribunalShortcut
+        self.meditationShortcut = meditationShortcut
         self.hasBeenPoorCredibility = hasBeenPoorCredibility
         self.lastActiveConversationID = lastActiveConversationID
     }
@@ -229,7 +232,7 @@ extension SarielExport {
         case aboutMe, hasCompletedAcquaintance, hasStartedAcquaintance, username
         case appTheme, appThemeFollowsSystem, appLanguage, journalStyle
         case useJournalContext, useCredibilityContext
-        case dashboardShortcut, chatShortcut, journalShortcut, tribunalShortcut
+        case dashboardShortcut, chatShortcut, journalShortcut, tribunalShortcut, meditationShortcut
         case hasBeenPoorCredibility, lastActiveConversationID
     }
     
@@ -260,6 +263,7 @@ extension SarielExport {
         chatShortcut = try container.decodeIfPresent(String.self, forKey: .chatShortcut) ?? ShortcutAction.chat.defaultShortcut.rawValue
         journalShortcut = try container.decodeIfPresent(String.self, forKey: .journalShortcut) ?? ShortcutAction.journal.defaultShortcut.rawValue
         tribunalShortcut = try container.decodeIfPresent(String.self, forKey: .tribunalShortcut) ?? ShortcutAction.tribunal.defaultShortcut.rawValue
+        meditationShortcut = try container.decodeIfPresent(String.self, forKey: .meditationShortcut) ?? ShortcutAction.meditation.defaultShortcut.rawValue
         hasBeenPoorCredibility = try container.decodeIfPresent(Bool.self, forKey: .hasBeenPoorCredibility) ?? false
         lastActiveConversationID = try container.decodeIfPresent(String.self, forKey: .lastActiveConversationID) ?? ""
     }

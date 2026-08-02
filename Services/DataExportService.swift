@@ -118,6 +118,7 @@ enum DataExportService {
         let chatShortcut = UserDefaults.standard.string(forKey: ShortcutAction.chat.storageKey) ?? ShortcutAction.chat.defaultShortcut.rawValue
         let journalShortcut = UserDefaults.standard.string(forKey: ShortcutAction.journal.storageKey) ?? ShortcutAction.journal.defaultShortcut.rawValue
         let tribunalShortcut = UserDefaults.standard.string(forKey: ShortcutAction.tribunal.storageKey) ?? ShortcutAction.tribunal.defaultShortcut.rawValue
+        let meditationShortcut = UserDefaults.standard.string(forKey: ShortcutAction.meditation.storageKey) ?? ShortcutAction.meditation.defaultShortcut.rawValue
         let hasBeenPoorCredibility = UserDefaults.standard.bool(forKey: "achievement_hasBeenPoorCredibility")
         let lastActiveConversationID = UserDefaults.standard.string(forKey: "lastActiveConversationID") ?? ""
         
@@ -144,6 +145,7 @@ enum DataExportService {
             chatShortcut: chatShortcut,
             journalShortcut: journalShortcut,
             tribunalShortcut: tribunalShortcut,
+            meditationShortcut: meditationShortcut,
             hasBeenPoorCredibility: hasBeenPoorCredibility,
             lastActiveConversationID: lastActiveConversationID
         )
@@ -328,6 +330,7 @@ extension DataExportService {
         UserDefaults.standard.set(export.chatShortcut, forKey: ShortcutAction.chat.storageKey)
         UserDefaults.standard.set(export.journalShortcut, forKey: ShortcutAction.journal.storageKey)
         UserDefaults.standard.set(export.tribunalShortcut, forKey: ShortcutAction.tribunal.storageKey)
+        UserDefaults.standard.set(export.meditationShortcut, forKey: ShortcutAction.meditation.storageKey)
         UserDefaults.standard.set(export.hasBeenPoorCredibility, forKey: "achievement_hasBeenPoorCredibility")
         UserDefaults.standard.set(export.lastActiveConversationID, forKey: "lastActiveConversationID")
         
