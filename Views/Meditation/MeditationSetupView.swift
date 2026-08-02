@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MeditationSetupView: View {
     let onStart: (String, MeditationDuration) -> Void
+    let onShowHistory: () -> Void
 
     @State private var intention: String = ""
     @State private var selectedDuration: MeditationDuration = .tenMinutes
@@ -9,6 +10,17 @@ struct MeditationSetupView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Button(action: onShowHistory) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(Typography.iconButton)
+                        .foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(20)
+
             Spacer()
 
             VStack(alignment: .leading, spacing: 0) {
