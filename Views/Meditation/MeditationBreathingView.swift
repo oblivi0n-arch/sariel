@@ -6,17 +6,28 @@ struct MeditationBreathingView: View {
     private let cycleCount = 3
     private let phaseDuration: TimeInterval = 4
 
-    @State private var isInhaling = true
+    @State private var isInhaling = false
     @State private var breathTask: Task<Void, Never>?
 
     var body: some View {
         VStack {
             Spacer()
 
-            Text(isInhaling ? L10n.MeditationBreathing.inhale : L10n.MeditationBreathing.exhale)
-                .font(Typography.title)
-                .foregroundStyle(Theme.textPrimary)
-                .animation(.easeInOut(duration: phaseDuration), value: isInhaling)
+            ZStack {
+                Circle()
+                    .stroke(Theme.border, lineWidth: 2)
+                    .frame(width: 260, height: 260)
+
+                Circle()
+                    .fill(Theme.textPrimary.opacity(0.08))
+                    .frame(width: 260, height: 260)
+                    .scaleEffect(isInhaling ? 1.0 : 0.55)
+                    .animation(.easeInOut(duration: phaseDuration), value: isInhaling)
+
+                Text(isInhaling ? L10n.MeditationBreathing.inhale : L10n.MeditationBreathing.exhale)
+                    .font(Typography.title)
+                    .foregroundStyle(Theme.textPrimary)
+            }
 
             Spacer()
 
