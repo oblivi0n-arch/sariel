@@ -20,8 +20,6 @@ struct ChatHeaderView: View {
     let onDeliverVerdicts: () -> Void
     let onBackToTribunal: () -> Void
     
-    @State private var isHoveringSavedPill = false
-    
     var body: some View {
         ZStack {
             Text(title)
@@ -63,16 +61,13 @@ struct ChatHeaderView: View {
                 statusPill(icon: "arrow.uturn.backward", text: L10n.ChatHeader.backToTribunal)
             }
             .buttonStyle(.plain)
+            .hoverBorder()
         } else if isEnded {
             Button(action: onOpenSavedEntry) {
-                statusPill(
-                    icon: "checkmark.circle",
-                    text: L10n.ChatHeader.savedTapToView,
-                    color: isHoveringSavedPill ? Theme.textPrimary : Theme.textSecondary
-                )
+                statusPill(icon: "checkmark.circle", text: L10n.ChatHeader.savedTapToView)
             }
             .buttonStyle(.plain)
-            .onHover { hovering in isHoveringSavedPill = hovering }
+            .hoverBorder()
         } else if !isConnected {
             statusPill(icon: "wifi.slash", text: L10n.ChatHeader.offline, color: Theme.textMuted)
         } else if isTribunal {
@@ -84,6 +79,7 @@ struct ChatHeaderView: View {
                     statusPill(icon: "exclamationmark.triangle.fill", text: L10n.ChatHeader.tapToRetry, color: Theme.textPrimary)
                 }
                 .buttonStyle(.plain)
+                .hoverBorder()
                 .help(verdictError)
             } else {
                 Button(action: onDeliverVerdicts) {
@@ -93,6 +89,7 @@ struct ChatHeaderView: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .hoverBorder()
                 .disabled(isGeneratingVerdicts || isInputLocked || !canDeliverVerdicts)
                 .opacity(canDeliverVerdicts ? 1 : 0.4)
                 .help(canDeliverVerdicts ? "" : L10n.ChatHeader.keepGoingDeclarations)
@@ -105,6 +102,7 @@ struct ChatHeaderView: View {
                 statusPill(icon: "exclamationmark.triangle.fill", text: L10n.ChatHeader.tapToRetry, color: Theme.textPrimary)
             }
             .buttonStyle(.plain)
+            .hoverBorder()
             .help(error)
         } else {
             Button(action: {
@@ -114,6 +112,7 @@ struct ChatHeaderView: View {
                 statusPill(icon: "book.closed", text: L10n.ChatHeader.endConversation)
             }
             .buttonStyle(.plain)
+            .hoverBorder()
             .opacity(!isInputLocked && canEndConversation ? 1 : 0.4)
             .help(canEndConversation ? "" : L10n.ChatHeader.keepGoingNothingToMirror)
         }
