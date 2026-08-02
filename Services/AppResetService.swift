@@ -20,12 +20,16 @@ enum AppResetService {
         UserDefaults.standard.set(false, forKey: "useCredibilityContext")
         UserDefaults.standard.set(false, forKey: "autoStartOllama")
         UserDefaults.standard.set("", forKey: "ollamaExecutablePath")
+        UserDefaults.standard.set(JournalStyle.conciseFactual.rawValue, forKey: "journalStyle")
+        UserDefaults.standard.set("", forKey: "lastActiveConversationID")
 
         UserDefaults.standard.set(ShortcutAction.dashboard.defaultShortcut.rawValue, forKey: ShortcutAction.dashboard.storageKey)
         UserDefaults.standard.set(ShortcutAction.chat.defaultShortcut.rawValue, forKey: ShortcutAction.chat.storageKey)
         UserDefaults.standard.set(ShortcutAction.journal.defaultShortcut.rawValue, forKey: ShortcutAction.journal.storageKey)
         UserDefaults.standard.set(ShortcutAction.tribunal.defaultShortcut.rawValue, forKey: ShortcutAction.tribunal.storageKey)
+        UserDefaults.standard.set(ShortcutAction.meditation.defaultShortcut.rawValue, forKey: ShortcutAction.meditation.storageKey)
 
+        UserDefaults.standard.removeObject(forKey: "appLanguage")
         UserDefaults.standard.removeObject(forKey: "username")
         UserDefaults.standard.removeObject(forKey: "aboutMe")
         UserDefaults.standard.removeObject(forKey: "hasCompletedAcquaintance")
