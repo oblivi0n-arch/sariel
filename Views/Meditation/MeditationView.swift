@@ -5,7 +5,6 @@ private enum MeditationStage {
     case setup
     case breathing(intention: String, duration: MeditationDuration)
     case active(intention: String, duration: MeditationDuration)
-    case history
 }
 
 struct MeditationView: View {
@@ -17,10 +16,10 @@ struct MeditationView: View {
         switch stage {
         case .setup:
             MeditationSetupView(
+                sessions: sessions,
                 onStart: { intention, duration in
                     stage = .breathing(intention: intention, duration: duration)
-                },
-                onShowHistory: { stage = .history }
+                }
             )
         case .breathing(let intention, let duration):
             MeditationBreathingView {
@@ -31,8 +30,6 @@ struct MeditationView: View {
                 saveSession(intention: intention, plannedDuration: duration.seconds, actualDuration: actualDuration)
                 stage = .setup
             }
-        case .history:
-            MeditationHistoryView(sessions: sessions, onBack: { stage = .setup })
         }
     }
 

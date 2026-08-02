@@ -1,11 +1,12 @@
 import SwiftUI
 
 struct MeditationSetupView: View {
+    let sessions: [MeditationSession]
     let onStart: (String, MeditationDuration) -> Void
-    let onShowHistory: () -> Void
     
     @State private var intention: String = ""
     @State private var selectedDuration: MeditationDuration = .tenMinutes
+    @State private var isHistoryExpanded = false
     @FocusState private var isIntentionFocused: Bool
     
     var body: some View {
@@ -15,14 +16,21 @@ struct MeditationSetupView: View {
             VStack(spacing: 0) {
                 HStack {
                     Spacer()
-                    Button(action: onShowHistory) {
+                    Button(action: toggleHistory) {
                         Image(systemName: "clock.arrow.circlepath")
                             .font(Typography.iconButton)
-                            .foregroundStyle(Theme.textMuted)
+                            .foregroundStyle(isHistoryExpanded ? Theme.textPrimary : Theme.textMuted)
                     }
                     .buttonStyle(.plain)
                 }
                 .padding(20)
+
+                if isHistoryExpanded {
+                    historyPanel
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 12)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
                 
                 Spacer()
                 
@@ -96,6 +104,43 @@ struct MeditationSetupView: View {
             .onTapGesture { selectedDuration = duration }
     }
     
+    private var historyPanel: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(L10n.MeditationHistory.title)
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+                .textCase(.uppercase)
+                .kerning(0.5)
+
+            if sessions.isEmpty {
+                Text(L10n.MeditationHistory.emptyStateTitle)
+                    .font(Typography.label)
+                    .foregroundStyle(Theme.textMuted)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 12)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 8) {
+                        ForEach(sessions) { session in
+                            MeditationSessionRow(session: session)
+                        }
+                    }
+                }
+                .frame(maxHeight: 260)
+            }
+        }
+        .padding(16)
+        .background(Theme.fieldBackground)
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
+    private func toggleHistory() {
+        withAnimation(.easeInOut(duration: 0.25)) {
+            isHistoryExpanded.toggle()
+        }
+    }
+    
     private func startSession() {
         onStart(intention.trimmingCharacters(in: .whitespacesAndNewlines), selectedDuration)
     }
@@ -128,6 +173,29 @@ extension L10n {
             switch lang {
             case .en: return "Sit with it"
             case .pl: return "Usiądź z tym"
+            }
+        }
+    }
+
+    enum MeditationHistory {
+        static var title: String {
+            switch lang {
+            case .en: return "history"
+            case .pl: return "historia"
+            }
+        }
+
+        static var emptyStateTitle: String {
+            switch lang {
+            case .en: return "No sessions yet"
+            case .pl: return "Brak sesji"
+            }
+        }
+
+        static var noIntention: String {
+            switch lang {
+            case .en: return "(no intention)"
+            case .pl: return "(brak intencji)"
             }
         }
     }
