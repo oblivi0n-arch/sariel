@@ -106,10 +106,6 @@ struct ChatHeaderView: View {
             }
             .buttonStyle(.plain)
             .help(error)
-        } else if isEndingConversation {
-            PulsingLoadingBar()
-                .frame(width: 120)
-                .clipShape(Capsule())
         } else {
             Button(action: {
                 guard !isInputLocked && canEndConversation else { return }
