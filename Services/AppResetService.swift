@@ -9,6 +9,7 @@ enum AppResetService {
         deleteAll(Commitment.self, in: context)
         deleteAll(AchievementUnlock.self, in: context)
         deleteAll(SelfLetter.self, in: context)
+        deleteAll(MeditationSession.self, in: context)
         try? context.save()
 
         PinKeychainStore.removePin()
