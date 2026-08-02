@@ -73,8 +73,8 @@ extension L10n {
     enum Splash {
         static var tagline: String {
             switch lang {
-            case .en: return "mirror to your own thoughts"
-            case .pl: return "lustro dla Twoich myśli"
+            case .en: return "to become the star, you must burn"
+            case .pl: return "żeby stać się gwiazdą, musisz spłonąć"
             }
         }
     }

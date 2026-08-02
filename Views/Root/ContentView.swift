@@ -37,6 +37,7 @@ struct ContentView: View {
     @State private var isSettingsOpen = false
     @State private var activeEntry: JournalEntry?
     @State private var showSplash = true
+    @State private var hasEnteredApp = false
     @State private var isGateShown = false
     @State private var hasEvaluatedGate = false
     @State private var isDimmed = false
@@ -177,6 +178,8 @@ struct ContentView: View {
                 }
             }
             .frame(minWidth: 760, minHeight: 660)
+            .opacity(hasEnteredApp ? 1 : 0)
+            .scaleEffect(hasEnteredApp ? 1 : 0.97)
             .background(Theme.background.ignoresSafeArea())
             .onAppear {
                 themeManager.updateSystemColorScheme(systemColorScheme)
@@ -217,8 +220,9 @@ struct ContentView: View {
             
             if showSplash {
                 SplashView {
-                    withAnimation(.easeInOut(duration: 0.5)) {
+                    withAnimation(.easeOut(duration: 0.6)) {
                         showSplash = false
+                        hasEnteredApp = true
                     }
                 }
                 .transition(.opacity)
