@@ -135,6 +135,7 @@ struct ChatView: View {
             .overlay { tribunalVerdictOverlayContent }
             .overlay { sealCenterOverlayContent }
             .animation(.easeInOut(duration: 0.2), value: isMoodPromptShown)
+            .animation(.easeInOut(duration: 0.2), value: isEndingConversation)
     }
 
     @ViewBuilder
@@ -162,6 +163,12 @@ struct ChatView: View {
                 onDeliverVerdicts: deliverVerdicts,
                 onBackToTribunal: onBackToTribunal
             )
+            
+            if isEndingConversation {
+                PulsingLoadingBar()
+                    .frame(maxWidth: .infinity)
+                    .transition(.opacity)
+            }
 
             ScrollViewReader { proxy in
                 ScrollView {
