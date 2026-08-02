@@ -10,6 +10,7 @@ private enum RevealStage {
 struct SelfLetterRevealView: View {
     @Bindable var letter: SelfLetter
     let onDismiss: () -> Void
+    let achievementService: AchievementService
 
     @Environment(\.modelContext) private var modelContext
     @State private var stage: RevealStage = .sealed
@@ -89,6 +90,8 @@ struct SelfLetterRevealView: View {
         letter.letterStatus = .opened
         letter.openedAt = Date()
         try? modelContext.save()
+        
+        achievementService.checkSelfLetterFirstOpened(modelContext: modelContext)
 
         withAnimation(.easeOut(duration: 0.3)) {
             stage = .revealing

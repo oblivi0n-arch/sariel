@@ -15,6 +15,7 @@ struct SelfLetterComposeView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var letter: SelfLetter
     let onDismiss: () -> Void
+    let achievementService: AchievementService
 
     @State private var stage: ComposeStage = .writing
     @FocusState private var focusedField: ComposeField?
@@ -188,6 +189,8 @@ struct SelfLetterComposeView: View {
         letter.openDate = selectedDelay.openDate()
         letter.letterStatus = .sealed
         try? modelContext.save()
+        achievementService.checkSelfLetterFirstSealed(modelContext: modelContext)
+        achievementService.checkSelfLetterLongestDelay(modelContext: modelContext)
         onDismiss()
     }
 }

@@ -115,7 +115,7 @@ struct ContentView: View {
                                 onOpenConversation: openConversation
                             )
                         case .meditation:
-                            MeditationView()
+                            MeditationView(achievementService: achievementService)
                         }
                     }
                     Theme.background

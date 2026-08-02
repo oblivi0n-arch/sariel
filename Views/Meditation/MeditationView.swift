@@ -11,6 +11,8 @@ struct MeditationView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \MeditationSession.createdAt, order: .reverse) private var sessions: [MeditationSession]
     @State private var stage: MeditationStage = .setup
+    
+    let achievementService: AchievementService
 
     var body: some View {
         switch stage {
@@ -41,5 +43,9 @@ struct MeditationView: View {
         )
         modelContext.insert(session)
         try? modelContext.save()
+        
+        achievementService.checkMeditationConsistency(modelContext: modelContext)
+        achievementService.checkMeditationAbandonedPattern(modelContext: modelContext)
+        achievementService.checkMeditationFirstFullSession(modelContext: modelContext)
     }
 }

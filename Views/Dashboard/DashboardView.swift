@@ -26,13 +26,13 @@ struct DashboardView: View {
         let calendar = Calendar.current
         let uniqueDays = Set(journalEntries.map { calendar.startOfDay(for: $0.createdAt) })
         guard !uniqueDays.isEmpty else { return 0 }
-
+        
         let today = calendar.startOfDay(for: Date())
         let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
-
+        
         var dayToCheck = uniqueDays.contains(today) ? today : yesterday
         guard uniqueDays.contains(dayToCheck) else { return 0 }
-
+        
         var streak = 0
         while uniqueDays.contains(dayToCheck) {
             streak += 1
@@ -55,11 +55,11 @@ struct DashboardView: View {
     private var entriesLast7Days: [DailyEntryCount] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-
+        
         let countsByDay = Dictionary(grouping: journalEntries) { entry in
             calendar.startOfDay(for: entry.createdAt)
         }.mapValues(\.count)
-
+        
         return (0..<7).reversed().map { offset in
             let day = calendar.date(byAdding: .day, value: -offset, to: today)!
             return DailyEntryCount(day: day, count: countsByDay[day] ?? 0)
@@ -69,11 +69,11 @@ struct DashboardView: View {
     private var sortedAchievementUnlocks: [AchievementUnlock] {
         achievementUnlocks.sorted { ($0.achievementKind?.rawValue ?? "") < ($1.achievementKind?.rawValue ?? "") }
     }
-
+    
     var body: some View {
         ZStack {
             Theme.background.ignoresSafeArea()
-
+            
             VStack(alignment: .leading, spacing: 24) {
                 RevealingText(
                     fullText: greetingText,
@@ -153,13 +153,14 @@ struct DashboardView: View {
             }
             
             if let activeDraft {
-                SelfLetterComposeView(letter: activeDraft, onDismiss: { self.activeDraft = nil })
+                SelfLetterComposeView(letter: activeDraft, onDismiss: { self.activeDraft = nil }, achievementService: achievementService)
             }
             
             if let letterBeingRead {
                 SelfLetterRevealView(
                     letter: letterBeingRead,
-                    onDismiss: { self.letterBeingRead = nil }
+                    onDismiss: { self.letterBeingRead = nil },
+                    achievementService: achievementService
                 )
             }
             
@@ -185,15 +186,15 @@ struct DashboardView: View {
             updateGreetingIfNeeded()
         }
     }
-
+    
     private func updateGreetingIfNeeded() {
         let todayString = Date().dayKey
-
+        
         if greetingDateString != todayString {
             greetingIndex = L10n.Dashboard.greetings.indices.randomElement() ?? 0
             greetingDateString = todayString
         }
-
+        
         let name = username.isEmpty ? L10n.Dashboard.fallbackName : username
         greetingText = L10n.Dashboard.greetings[greetingIndex]
             .replacingOccurrences(of: "{name}", with: name)
@@ -253,7 +254,7 @@ extension L10n {
                 ]
             }
         }
-
+        
         static var fallbackName: String {
             switch lang {
             case .pl: return "nieznajomy"
@@ -267,14 +268,14 @@ extension L10n {
             case .en: return "LAST ACTIVITY"
             }
         }
-
+        
         static var streakLabel: String {
             switch lang {
             case .pl: return "PASSA"
             case .en: return "STREAK"
             }
         }
-
+        
         static var journalEntriesLabel: String {
             switch lang {
             case .pl: return "WPISY W DZIENNIKU"
@@ -288,7 +289,7 @@ extension L10n {
             case .pl: return days == 1 ? "1 dzień" : "\(days) dni"
             }
         }
-
+        
         static var noActivityYet: String {
             switch lang {
             case .en: return "No activity yet"
