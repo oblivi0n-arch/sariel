@@ -124,8 +124,8 @@ extension L10n {
         
         static var intentionPlaceholder: String {
             switch lang {
-            case .en: return "What are you sitting with today? (optional)"
-            case .pl: return "Z czym dziś siadasz? (opcjonalnie)"
+            case .en: return "What are you avoiding right now?"
+            case .pl: return "Czego teraz unikasz?"
             }
         }
         
@@ -138,8 +138,8 @@ extension L10n {
         
         static var startButton: String {
             switch lang {
-            case .en: return "Start"
-            case .pl: return "Zacznij"
+            case .en: return "Sit with it"
+            case .pl: return "Usiądź z tym"
             }
         }
     }
