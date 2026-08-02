@@ -26,18 +26,20 @@ struct MeditationSetupView: View {
                 
                 Spacer()
                 
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .center, spacing: 0) {
                     Text(L10n.MeditationSetup.intentionLabel)
                         .font(Typography.caption)
                         .foregroundStyle(Theme.textFaint)
                         .textCase(.uppercase)
                         .kerning(0.5)
+                        .multilineTextAlignment(.center)
                     
                     PlaceholderTextField(
                         placeholder: L10n.MeditationSetup.intentionPlaceholder,
                         text: $intention,
                         font: Typography.title,
-                        textColor: Theme.textPrimary
+                        textColor: Theme.textPrimary,
+                        textAlignment: .center
                     )
                     .padding(.top, 8)
                     .padding(.bottom, 24)
@@ -48,6 +50,7 @@ struct MeditationSetupView: View {
                         .foregroundStyle(Theme.textFaint)
                         .textCase(.uppercase)
                         .kerning(0.5)
+                        .multilineTextAlignment(.center)
                     
                     HStack(spacing: 8) {
                         ForEach(MeditationDuration.allCases, id: \.self) { duration in
