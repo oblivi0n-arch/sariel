@@ -21,3 +21,22 @@ final class MeditationSession {
         actualDuration < plannedDuration
     }
 }
+
+enum MeditationDuration: Int, CaseIterable {
+    case fiveMinutes = 5
+    case tenMinutes = 10
+    case fifteenMinutes = 15
+    case twentyMinutes = 20
+    case thirtyMinutes = 30
+
+    var seconds: TimeInterval {
+        TimeInterval(rawValue * 60)
+    }
+
+    var displayName: String {
+        switch L10n.lang {
+        case .en: return "\(rawValue) min"
+        case .pl: return "\(rawValue) min"
+        }
+    }
+}

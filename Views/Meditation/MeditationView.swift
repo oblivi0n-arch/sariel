@@ -1,26 +1,29 @@
 import SwiftUI
 
-struct MeditationView: View {
-    var body: some View {
-        VStack {
-            Spacer()
-            Text(L10n.Meditation.placeholderTitle)
-                .font(Typography.title)
-                .foregroundStyle(Theme.textFaint)
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Theme.background)
-    }
+private enum MeditationStage {
+    case setup
+    case active(intention: String, duration: MeditationDuration)
 }
 
-extension L10n {
-    enum Meditation {
-        static var placeholderTitle: String {
-            switch lang {
-            case .en: return "Meditation — coming soon"
-            case .pl: return "Medytacja — wkrótce"
+struct MeditationView: View {
+    @State private var stage: MeditationStage = .setup
+
+    var body: some View {
+        switch stage {
+        case .setup:
+            MeditationSetupView { intention, duration in
+                stage = .active(intention: intention, duration: duration)
             }
+        case .active(let intention, let duration):
+            VStack(spacing: 8) {
+                Text("Timer — wkrótce")
+                    .font(Typography.title)
+                Text("Intencja: \(intention.isEmpty ? "—" : intention)")
+                Text("Czas: \(duration.displayName)")
+            }
+            .foregroundStyle(Theme.textFaint)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Theme.background)
         }
     }
 }
