@@ -36,6 +36,7 @@ extension SettingsView {
                 commitments: dataCounts.commitments,
                 unlockedAchievements: dataCounts.unlockedAchievements,
                 selfLetters: dataCounts.selfLetters,
+                meditationSessions: dataCounts.meditationSessions,
                 onConfirm: {
                     showResetConfirmation = false
                     resetEverything()
@@ -47,7 +48,7 @@ extension SettingsView {
         }
     }
     
-    private var dataCounts: (conversations: Int, journalEntries: Int, commitments: Int, unlockedAchievements: Int, selfLetters: Int) {
+    private var dataCounts: (conversations: Int, journalEntries: Int, commitments: Int, unlockedAchievements: Int, selfLetters: Int, meditationSessions: Int) {
         let conversations = (try? modelContext.fetchCount(FetchDescriptor<Conversation>())) ?? 0
         let journalEntries = (try? modelContext.fetchCount(FetchDescriptor<JournalEntry>())) ?? 0
         let commitments = (try? modelContext.fetchCount(FetchDescriptor<Commitment>())) ?? 0
@@ -55,7 +56,8 @@ extension SettingsView {
             FetchDescriptor<AchievementUnlock>(predicate: #Predicate { $0.unlockedAt != nil })
         )) ?? 0
         let selfLetters = (try? modelContext.fetchCount(FetchDescriptor<SelfLetter>())) ?? 0
-        return (conversations, journalEntries, commitments, unlockedAchievements, selfLetters)
+        let meditationSessions = (try? modelContext.fetchCount(FetchDescriptor<MeditationSession>())) ?? 0
+        return (conversations, journalEntries, commitments, unlockedAchievements, selfLetters, meditationSessions)
     }
     
     func resetEverything(skipOnboarding: Bool = false) {
@@ -132,12 +134,12 @@ extension L10n.Settings {
         }
     }
     
-    static func resetConfirmMessage(conversations: Int, journalEntries: Int, commitments: Int, unlockedAchievements: Int, selfLetters: Int) -> String {
+    static func resetConfirmMessage(conversations: Int, journalEntries: Int, commitments: Int, unlockedAchievements: Int, selfLetters: Int, meditationSessions: Int) -> String {
         switch L10n.lang {
         case .en:
-            return "This permanently deletes \(conversations) conversations, \(journalEntries) journal entries, \(commitments) commitments, \(unlockedAchievements) unlocked achievements, and \(selfLetters) letters to yourself, then restarts the app. This cannot be undone."
+            return "This permanently deletes \(conversations) conversations, \(journalEntries) journal entries, \(commitments) commitments, \(unlockedAchievements) unlocked achievements, \(selfLetters) letters to yourself, and \(meditationSessions) meditation sessions, then restarts the app. This cannot be undone."
         case .pl:
-            return "Usuniesz bezpowrotnie \(conversations) rozmów, \(journalEntries) wpisów w dzienniku, \(commitments) zobowiązań, \(unlockedAchievements) odblokowanych osiągnięć i \(selfLetters) listów do siebie, a aplikacja zostanie zrestartowana. Tej operacji nie da się cofnąć."
+            return "Usuniesz bezpowrotnie \(conversations) rozmów, \(journalEntries) wpisów w dzienniku, \(commitments) zobowiązań, \(unlockedAchievements) odblokowanych osiągnięć, \(selfLetters) listów do siebie i \(meditationSessions) sesji medytacji, a aplikacja zostanie zrestartowana. Tej operacji nie da się cofnąć."
         }
     }
     
