@@ -39,9 +39,10 @@ extension SettingsView {
                 .buttonStyle(.plain)
             }
 
-            Text(L10n.Settings.dataTransferDescription)
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textFaint)
+            ExpandableDescription(
+                short: L10n.Settings.dataTransferShortDescription,
+                detail: L10n.Settings.dataTransferDescription
+            )
         }
         .confirmationDialog(
             L10n.Settings.importConfirmTitle,
@@ -132,10 +133,17 @@ extension L10n.Settings {
         }
     }
 
+    static var dataTransferShortDescription: String {
+        switch L10n.lang {
+        case .en: return "View for details"
+        case .pl: return "Zobacz szczegóły"
+        }
+    }
+
     static var dataTransferDescription: String {
         switch L10n.lang {
-        case .en: return "Export all your data to a JSON file, or import a previously exported file. Importing replaces everything currently in the app."
-        case .pl: return "Wyeksportuj wszystkie swoje dane do pliku JSON albo zaimportuj wcześniej wyeksportowany plik. Import zastępuje wszystkie dane obecnie znajdujące się w aplikacji."
+        case .en: return "Export includes everything: conversations and messages, journal entries and tags, declarations and Tribunal verdicts, unlocked achievements, self letters, meditation sessions, and settings (theme, language, username, journal style, keyboard shortcuts). Saved as a single JSON file.\n\nNOTICE: IMPORTING REPLACES EVERYTHING IN THE APP."
+        case .pl: return "Eksport obejmuje wszystko: rozmowy i wiadomości, wpisy w dzienniku i tagi, deklaracje oraz werdykty Trybunału, odblokowane osiągnięcia, listy do siebie, sesje medytacji oraz ustawienia (motyw, język, nazwa użytkownika, styl dziennika, skróty klawiszowe). Zapisywane jako pojedynczy plik JSON.\n\nUWAGA: IMPORT ZASTĘPUJE WSZYSTKO W APLIKACJI."
         }
     }
 
