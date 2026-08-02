@@ -58,7 +58,7 @@ extension SettingsView {
         return (conversations, journalEntries, commitments, unlockedAchievements, selfLetters)
     }
     
-    private func resetEverything(skipOnboarding: Bool = false) {
+    func resetEverything(skipOnboarding: Bool = false) {
         AppResetService.wipeAllData(context: modelContext)
 
         if skipOnboarding {
@@ -87,74 +87,6 @@ extension SettingsView {
             }
         }
     }
-    
-#if DEBUG
-    var debugOnboardingSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            sectionHeader(icon: "ladybug", title: "DEBUG") {
-                EmptyView()
-            }
-            
-            HStack(spacing: 10) {
-                Button("Force onboarding") {
-                    isPostReset = false
-                    hasCompletedOnboarding = false
-                }
-                Button("Force onboarding (post-reset)") {
-                    isPostReset = true
-                    hasCompletedOnboarding = false
-                }
-            }
-            .font(Typography.caption)
-            .buttonStyle(.plain)
-            .foregroundStyle(Theme.textMuted)
-            
-            Button("Backdate pending commitments (unlock Tribunal)") {
-                backdatePendingCommitments()
-            }
-            .font(Typography.caption)
-            .buttonStyle(.plain)
-            .foregroundStyle(Theme.textMuted)
-            
-            Button("Backdate sealed self-letters (make available)") {
-                backdateSealedLetters()
-            }
-            .font(Typography.caption)
-            .buttonStyle(.plain)
-            .foregroundStyle(Theme.textMuted)
-            
-            Button("Reset data (skip onboarding)") {
-                resetEverything(skipOnboarding: true)
-            }
-            .font(Typography.caption)
-            .buttonStyle(.plain)
-            .foregroundStyle(Theme.textMuted)
-        }
-    }
-    
-    private func backdatePendingCommitments() {
-        let descriptor = FetchDescriptor<Commitment>(
-            predicate: #Predicate<Commitment> { $0.status == "pending" }
-        )
-        guard let pending = try? modelContext.fetch(descriptor) else { return }
-        for commitment in pending {
-            commitment.createdAt = Date().addingTimeInterval(-8 * 24 * 60 * 60)
-        }
-        try? modelContext.save()
-    }
-    
-    private func backdateSealedLetters() {
-        let descriptor = FetchDescriptor<SelfLetter>()
-        guard let letters = try? modelContext.fetch(descriptor) else { return }
-
-        for letter in letters where letter.letterStatus == .sealed {
-            letter.openDate = Date().addingTimeInterval(-60)
-        }
-        try? modelContext.save()
-
-        SelfLetterService.refreshAvailability(context: modelContext)
-    }
-#endif
 }
 
 extension L10n.Settings {

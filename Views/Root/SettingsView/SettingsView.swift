@@ -30,6 +30,8 @@ struct SettingsView: View {
     @AppStorage(ShortcutAction.journal.storageKey) var journalShortcut = ShortcutAction.journal.defaultShortcut
     @AppStorage(ShortcutAction.tribunal.storageKey) var tribunalShortcut = ShortcutAction.tribunal.defaultShortcut
     
+    @State private var selectedCategory: SettingsCategory = .personalization
+    @State private var hoveredCategory: SettingsCategory?
     @State var isManualPathShown = false
     @State var availableModels: [String] = []
     @State var isLoadingModels = false
@@ -50,41 +52,15 @@ struct SettingsView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            header
+            categoryTabBar
             
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    identitySection
-                    aboutMeSection
-                    appearanceSection
-                    languageSection
-                    
-                    Divider().overlay(Theme.border)
-                    
-                    ollamaSection
-                    contextSection
-                    credibilitySection
-                    journalStyleSection
-                    
-                    Divider().overlay(Theme.border)
-                    
-                    keyboardShortcutsSection
-                    
-                    Divider().overlay(Theme.border)
-                    
-                    privacySection
-
-                    Divider().overlay(Theme.border)
-
-                    dataTransferSection
-                    dangerZone
-#if DEBUG
-                    if isDevModeUnlocked {
-                        debugOnboardingSection
-                    }
-#endif
+                    categoryContent
                 }
                 .padding(20)
+                .id(selectedCategory)
+                .transition(.opacity)
             }
             
             versionFooter
@@ -100,15 +76,46 @@ struct SettingsView: View {
         }
     }
     
-    private var header: some View {
-        HStack {
+    @ViewBuilder
+    private var categoryContent: some View {
+        switch selectedCategory {
+        case .personalization:
+            identitySection
+            aboutMeSection
+            appearanceSection
+            languageSection
+            keyboardShortcutsSection
+        case .aiOllama:
+            ollamaSection
+            contextSection
+            credibilitySection
+            journalStyleSection
+        case .privacy:
+            privacySection
+        case .data:
+            dataTransferSection
+            dangerZone
+        case .debug:
+#if DEBUG
+            debugOnboardingSection
+#else
+            EmptyView()
+#endif
+        }
+    }
+    
+    private var categoryTabBar: some View {
+        HStack(spacing: 4) {
             Image(systemName: "gearshape.fill")
                 .font(Typography.icon)
                 .foregroundStyle(Theme.textMuted)
+                .padding(.trailing, 6)
             
-            Text(L10n.Settings.title)
-                .font(Typography.title)
-                .foregroundStyle(Theme.textPrimary)
+            Spacer()
+            
+            ForEach(visibleCategories, id: \.self) { category in
+                categoryTabButton(category)
+            }
             
             Spacer()
             
@@ -123,14 +130,73 @@ struct SettingsView: View {
             .buttonStyle(.plain)
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 16)
+        .padding(.vertical, 14)
         .overlay(alignment: .bottom) {
             Rectangle().fill(Theme.border).frame(height: 0.5)
         }
     }
     
+    private func categoryTabButton(_ category: SettingsCategory) -> some View {
+        let isSelected = selectedCategory == category
+        let isHovering = hoveredCategory == category
+        
+        return Button(action: {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                selectedCategory = category
+            }
+        }) {
+            HStack(spacing: 6) {
+                Image(systemName: category.icon)
+                    .font(.system(size: 12))
+                Text(category.title)
+                    .font(Typography.label)
+            }
+            .foregroundStyle(tabForegroundColor(isSelected: isSelected, isHovering: isHovering))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(tabBackgroundColor(isSelected: isSelected, isHovering: isHovering))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(tabBorderColor(isSelected: isSelected, isHovering: isHovering), lineWidth: 0.5)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            hoveredCategory = hovering ? category : nil
+        }
+    }
+    
+    private func tabForegroundColor(isSelected: Bool, isHovering: Bool) -> Color {
+        if isSelected { return Theme.textPrimary }
+        if isHovering { return Theme.textMuted }
+        return Theme.textFaint
+    }
+    
+    private func tabBackgroundColor(isSelected: Bool, isHovering: Bool) -> Color {
+        if isSelected { return Theme.fieldBackground }
+        if isHovering { return Theme.fieldBackground.opacity(0.5) }
+        return .clear
+    }
+    
+    private func tabBorderColor(isSelected: Bool, isHovering: Bool) -> Color {
+        if isSelected { return Theme.border }
+        return .clear
+    }
+    
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+    }
+    
+    private var visibleCategories: [SettingsCategory] {
+        var categories = SettingsCategory.allCases.filter { $0 != .debug }
+#if DEBUG
+        if isDevModeUnlocked {
+            categories.append(.debug)
+        }
+#endif
+        return categories
     }
     
     private var versionFooter: some View {
@@ -143,7 +209,10 @@ struct SettingsView: View {
             .onTapGesture {
                 devTapCount += 1
                 if devTapCount == 5 {
-                    isDevModeUnlocked = true
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isDevModeUnlocked = true
+                        selectedCategory = .debug
+                    }
                 }
             }
 #endif
@@ -177,7 +246,76 @@ struct SettingsView: View {
         isPresented = false
         onStartAcquaintance()
     }
+    
+#if DEBUG
+    var debugOnboardingSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(icon: "ant", title: "DEBUG") {
+                EmptyView()
+            }
+            
+            HStack(spacing: 10) {
+                Button("Force onboarding") {
+                    isPostReset = false
+                    hasCompletedOnboarding = false
+                }
+                Button("Force onboarding (post-reset)") {
+                    isPostReset = true
+                    hasCompletedOnboarding = false
+                }
+            }
+            .font(Typography.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textMuted)
+            
+            Button("Backdate pending commitments (unlock Tribunal)") {
+                backdatePendingCommitments()
+            }
+            .font(Typography.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textMuted)
+            
+            Button("Backdate sealed self-letters (make available)") {
+                backdateSealedLetters()
+            }
+            .font(Typography.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textMuted)
+            
+            Button("Reset data (skip onboarding)") {
+                resetEverything(skipOnboarding: true)
+            }
+            .font(Typography.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textMuted)
+        }
+    }
+    
+    private func backdatePendingCommitments() {
+        let descriptor = FetchDescriptor<Commitment>(
+            predicate: #Predicate<Commitment> { $0.status == "pending" }
+        )
+        guard let pending = try? modelContext.fetch(descriptor) else { return }
+        for commitment in pending {
+            commitment.createdAt = Date().addingTimeInterval(-8 * 24 * 60 * 60)
+        }
+        try? modelContext.save()
+    }
+    
+    private func backdateSealedLetters() {
+        let descriptor = FetchDescriptor<SelfLetter>()
+        guard let letters = try? modelContext.fetch(descriptor) else { return }
+        
+        for letter in letters where letter.letterStatus == .sealed {
+            letter.openDate = Date().addingTimeInterval(-60)
+        }
+        try? modelContext.save()
+        
+        SelfLetterService.refreshAvailability(context: modelContext)
+    }
+#endif
 }
+
 
 extension L10n {
     enum Settings {
@@ -193,6 +331,38 @@ extension L10n {
             case .en: return "v\(version) · built by \(handle)"
             case .pl: return "v\(version) · stworzone przez \(handle)"
             }
+        }
+        
+        static var categoryPersonalization: String {
+            switch lang {
+            case .en: return "personalization"
+            case .pl: return "personalizacja"
+            }
+        }
+        
+        static var categoryAIOllama: String {
+            switch lang {
+            case .en: return "AI"
+            case .pl: return "AI"
+            }
+        }
+        
+        static var categoryPrivacy: String {
+            switch lang {
+            case .en: return "privacy"
+            case .pl: return "prywatność"
+            }
+        }
+        
+        static var categoryData: String {
+            switch lang {
+            case .en: return "data"
+            case .pl: return "dane"
+            }
+        }
+        
+        static var categoryDebug: String {
+            "debug"
         }
     }
 }
