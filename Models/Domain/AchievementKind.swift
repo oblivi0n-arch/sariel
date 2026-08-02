@@ -19,6 +19,16 @@ enum AchievementKind: String, CaseIterable {
 
     // MARK: - Thematic patterns
     case recurringTag          // same tag keeps reappearing across entries
+    
+    // MARK: - Self Letters
+    case selfLetterFirstSealed     // first letter sealed to future self
+    case selfLetterFirstOpened     // first letter opened
+    case selfLetterLongestDelay    // sealed a letter with the 1-year delay
+
+    // MARK: - Meditation
+    case meditationConsistency      // meditation sessions X days in a row
+    case meditationAbandonedPattern // sessions interrupted X times in a row
+    case meditationFirstFullSession // first session completed without interruption
 
     var symbolName: String {
         switch self {
@@ -33,6 +43,12 @@ enum AchievementKind: String, CaseIterable {
         case .tribunalFaced: "building.columns"
         case .tribunalVerdictsAccepted: "checkmark.shield"
         case .recurringTag: "repeat"
+        case .selfLetterFirstSealed: "envelope"
+        case .selfLetterFirstOpened: "envelope.open"
+        case .selfLetterLongestDelay: "hourglass"
+        case .meditationConsistency: "leaf"
+        case .meditationAbandonedPattern: "wind"
+        case .meditationFirstFullSession: "checkmark.circle"
         }
     }
 
@@ -49,6 +65,12 @@ enum AchievementKind: String, CaseIterable {
         case .tribunalFaced: false
         case .tribunalVerdictsAccepted: true
         case .recurringTag: true
+        case .selfLetterFirstSealed: false
+        case .selfLetterFirstOpened: false
+        case .selfLetterLongestDelay: false
+        case .meditationConsistency: true
+        case .meditationAbandonedPattern: true
+        case .meditationFirstFullSession: false
         }
     }
 
@@ -65,6 +87,12 @@ enum AchievementKind: String, CaseIterable {
         case .tribunalFaced: nil
         case .tribunalVerdictsAccepted: 5
         case .recurringTag: 5
+        case .selfLetterFirstSealed: nil
+        case .selfLetterFirstOpened: nil
+        case .selfLetterLongestDelay: nil
+        case .meditationConsistency: 7
+        case .meditationAbandonedPattern: 3
+        case .meditationFirstFullSession: nil
         }
     }
 }
@@ -94,6 +122,18 @@ extension AchievementKind {
         case (.tribunalVerdictsAccepted, .en): return "No Escape"
         case (.recurringTag, .pl): return "Powtórka"
         case (.recurringTag, .en): return "Recurring"
+        case (.selfLetterFirstSealed, .pl): return "Do przyszłości"
+        case (.selfLetterFirstSealed, .en): return "To the Future"
+        case (.selfLetterFirstOpened, .pl): return "Konfrontacja z przeszłością"
+        case (.selfLetterFirstOpened, .en): return "Facing the Past"
+        case (.selfLetterLongestDelay, .pl): return "Rok ciszy"
+        case (.selfLetterLongestDelay, .en): return "A Year of Silence"
+        case (.meditationConsistency, .pl): return "Cisza jako nawyk"
+        case (.meditationConsistency, .en): return "Silence as Habit"
+        case (.meditationAbandonedPattern, .pl): return "Ucieczka od ciszy"
+        case (.meditationAbandonedPattern, .en): return "Fleeing the Silence"
+        case (.meditationFirstFullSession, .pl): return "Dosiedziałeś"
+        case (.meditationFirstFullSession, .en): return "Sat It Out"
         }
     }
 
@@ -121,6 +161,18 @@ extension AchievementKind {
         case (.tribunalVerdictsAccepted, .en): return "5 uncomfortable verdicts accepted without escaping."
         case (.recurringTag, .pl): return "Ten sam temat wraca. Piąty raz."
         case (.recurringTag, .en): return "The same topic keeps coming back. Fifth time now."
+        case (.selfLetterFirstSealed, .pl): return "Zapieczętowałeś list do siebie z przyszłości. Zobaczymy, czy dotrzymasz obietnic."
+        case (.selfLetterFirstSealed, .en): return "You sealed a letter to your future self. Let's see if you keep the promises."
+        case (.selfLetterFirstOpened, .pl): return "Otworzyłeś list od siebie sprzed miesięcy. Czas skonfrontować się z tym, kim byłeś."
+        case (.selfLetterFirstOpened, .en): return "You opened a letter from your past self. Time to face who you were."
+        case (.selfLetterLongestDelay, .pl): return "Zapieczętowałeś list na rok. Ufasz, że to przeczytasz — czy liczysz, że o tym zapomnisz?"
+        case (.selfLetterLongestDelay, .en): return "You sealed a letter for a year from now. Do you trust you'll read it — or hope you'll forget?"
+        case (.meditationConsistency, .pl): return "7 dni medytacji z rzędu. Sprawdź, czy to spokój, czy kolejny nawyk do wypełnienia czasu."
+        case (.meditationConsistency, .en): return "7 days of meditation in a row. Check whether that's calm, or another habit filling time."
+        case (.meditationAbandonedPattern, .pl): return "3 przerwane sesje z rzędu. Uciekasz przed ciszą, czy przed tym, co w niej wychodzi na wierzch?"
+        case (.meditationAbandonedPattern, .en): return "3 interrupted sessions in a row. Are you fleeing the silence, or what surfaces in it?"
+        case (.meditationFirstFullSession, .pl): return "Pierwszy raz dosiedziałeś do końca. Bez przerywania, bez wymówki."
+        case (.meditationFirstFullSession, .en): return "First time you sat it out to the end. No interrupting, no excuse."
         }
     }
 
@@ -148,6 +200,18 @@ extension AchievementKind {
         case (.tribunalVerdictsAccepted, .en): return "Something about accepting a verdict."
         case (.recurringTag, .pl): return "Coś związanego z tematami, które wracają."
         case (.recurringTag, .en): return "Something about topics that keep returning."
+        case (.selfLetterFirstSealed, .pl): return "Coś związanego z pisaniem do siebie z przyszłości."
+        case (.selfLetterFirstSealed, .en): return "Something about writing to your future self."
+        case (.selfLetterFirstOpened, .pl): return "Coś związanego z otwieraniem listu od siebie."
+        case (.selfLetterFirstOpened, .en): return "Something about opening a letter from yourself."
+        case (.selfLetterLongestDelay, .pl): return "Coś związanego z tym, jak długo czekasz na odpowiedź od siebie."
+        case (.selfLetterLongestDelay, .en): return "Something about how long you wait to hear from yourself."
+        case (.meditationConsistency, .pl): return "Coś związanego z regularnością Twoich medytacji."
+        case (.meditationConsistency, .en): return "Something about how regularly you meditate."
+        case (.meditationAbandonedPattern, .pl): return "Coś związanego z przerywaniem sesji medytacji."
+        case (.meditationAbandonedPattern, .en): return "Something about interrupting meditation sessions."
+        case (.meditationFirstFullSession, .pl): return "Coś związanego z dosiedzeniem sesji do końca."
+        case (.meditationFirstFullSession, .en): return "Something about sitting a session out to the end."
         }
     }
 }
