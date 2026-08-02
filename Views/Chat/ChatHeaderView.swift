@@ -5,23 +5,23 @@ struct ChatHeaderView: View {
     @Binding var isConversationListOpen: Bool
     let isConnected: Bool
     let isInputLocked: Bool
-
+    
     let isEnded: Bool
     let isEndingConversation: Bool
     let endConversationError: String?
     let canEndConversation: Bool
     let onOpenSavedEntry: () -> Void
     let onRequestEndConversation: () -> Void
-
+    
     let isTribunal: Bool
     let isGeneratingVerdicts: Bool
     let canDeliverVerdicts: Bool
     let verdictError: String?
     let onDeliverVerdicts: () -> Void
     let onBackToTribunal: () -> Void
-
+    
     @State private var isHoveringSavedPill = false
-
+    
     var body: some View {
         ZStack {
             Text(title)
@@ -29,7 +29,7 @@ struct ChatHeaderView: View {
                 .foregroundStyle(Theme.textSecondary)
                 .lineLimit(1)
                 .frame(maxWidth: 220)
-
+            
             HStack {
                 if isTribunal {
                     Color.clear.frame(width: 16, height: 16)
@@ -43,9 +43,9 @@ struct ChatHeaderView: View {
                     .opacity(isConversationListOpen ? 0 : 1)
                     .disabled(isConversationListOpen)
                 }
-
+                
                 Spacer()
-
+                
                 trailingContent
             }
         }
@@ -118,7 +118,7 @@ struct ChatHeaderView: View {
             .help(canEndConversation ? "" : L10n.ChatHeader.keepGoingNothingToMirror)
         }
     }
-
+    
     private func statusPill(icon: String, text: String, color: Color = Theme.textSecondary) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
@@ -129,9 +129,7 @@ struct ChatHeaderView: View {
         .foregroundStyle(color)
         .padding(.horizontal, 12)
         .padding(.vertical, 7)
-        .background(Theme.fieldBackground)
-        .clipShape(Capsule())
-        .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
     }
 }
 
@@ -143,56 +141,56 @@ extension L10n {
             case .pl: return "Powrót do Trybunału"
             }
         }
-
+        
         static var savedTapToView: String {
             switch lang {
             case .en: return "Saved — tap to view"
             case .pl: return "Zapisano — dotknij, by zobaczyć"
             }
         }
-
+        
         static var offline: String {
             switch lang {
             case .en: return "Offline"
             case .pl: return "Offline"
             }
         }
-
+        
         static var tapToRetry: String {
             switch lang {
             case .en: return "Tap to retry"
             case .pl: return "Dotknij, by spróbować ponownie"
             }
         }
-
+        
         static var judging: String {
             switch lang {
             case .en: return "judging..."
             case .pl: return "osądzanie..."
             }
         }
-
+        
         static var deliverVerdicts: String {
             switch lang {
             case .en: return "deliver verdicts"
             case .pl: return "wydaj wyroki"
             }
         }
-
+        
         static var keepGoingDeclarations: String {
             switch lang {
             case .en: return "keep going – each declaration deserves its own accounting."
             case .pl: return "mów dalej – każda deklaracja zasługuje na własne rozliczenie."
             }
         }
-
+        
         static var endConversation: String {
             switch lang {
             case .en: return "End conversation"
             case .pl: return "Zakończ rozmowę"
             }
         }
-
+        
         static var keepGoingNothingToMirror: String {
             switch lang {
             case .en: return "keep going – nothing to mirror yet."
