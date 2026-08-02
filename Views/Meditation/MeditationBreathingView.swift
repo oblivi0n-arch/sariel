@@ -15,18 +15,18 @@ struct MeditationBreathingView: View {
 
             ZStack {
                 Circle()
-                    .stroke(Theme.border, lineWidth: 2)
-                    .frame(width: 260, height: 260)
+                    .stroke(Theme.textPrimary, lineWidth: 3)
+                    .frame(width: 280, height: 280)
 
                 Circle()
-                    .fill(Theme.textPrimary.opacity(0.08))
+                    .fill(Theme.textPrimary)
                     .frame(width: 260, height: 260)
                     .scaleEffect(isInhaling ? 1.0 : 0.55)
                     .animation(.easeInOut(duration: phaseDuration), value: isInhaling)
 
                 Text(isInhaling ? L10n.MeditationBreathing.inhale : L10n.MeditationBreathing.exhale)
                     .font(Typography.title)
-                    .foregroundStyle(Theme.textPrimary)
+                    .foregroundStyle(Theme.background)
             }
 
             Spacer()
@@ -35,6 +35,8 @@ struct MeditationBreathingView: View {
                 Text(L10n.MeditationBreathing.skip)
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textMuted)
+                    .textCase(.uppercase)
+                    .kerning(0.5)
             }
             .buttonStyle(.plain)
             .padding(.bottom, 32)
