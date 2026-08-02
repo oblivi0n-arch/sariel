@@ -99,21 +99,6 @@ struct MeditationSetupView: View {
     private func startSession() {
         onStart(intention.trimmingCharacters(in: .whitespacesAndNewlines), selectedDuration)
     }
-    
-    private var backgroundRings: some View {
-        ZStack {
-            ring(radius: 90)
-            ring(radius: 150)
-            ring(radius: 210)
-        }
-        .allowsHitTesting(false)
-    }
-    
-    private func ring(radius: CGFloat) -> some View {
-        Circle()
-            .stroke(Theme.textPrimary.opacity(0.05), lineWidth: 1)
-            .frame(width: radius * 2, height: radius * 2)
-    }
 }
 
 extension L10n {
