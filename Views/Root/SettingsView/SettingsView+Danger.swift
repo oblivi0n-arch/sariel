@@ -35,6 +35,7 @@ extension SettingsView {
                 journalEntries: dataCounts.journalEntries,
                 commitments: dataCounts.commitments,
                 unlockedAchievements: dataCounts.unlockedAchievements,
+                selfLetters: dataCounts.selfLetters,
                 onConfirm: {
                     showResetConfirmation = false
                     resetEverything()
@@ -46,14 +47,15 @@ extension SettingsView {
         }
     }
     
-    private var dataCounts: (conversations: Int, journalEntries: Int, commitments: Int, unlockedAchievements: Int) {
+    private var dataCounts: (conversations: Int, journalEntries: Int, commitments: Int, unlockedAchievements: Int, selfLetters: Int) {
         let conversations = (try? modelContext.fetchCount(FetchDescriptor<Conversation>())) ?? 0
         let journalEntries = (try? modelContext.fetchCount(FetchDescriptor<JournalEntry>())) ?? 0
         let commitments = (try? modelContext.fetchCount(FetchDescriptor<Commitment>())) ?? 0
         let unlockedAchievements = (try? modelContext.fetchCount(
             FetchDescriptor<AchievementUnlock>(predicate: #Predicate { $0.unlockedAt != nil })
         )) ?? 0
-        return (conversations, journalEntries, commitments, unlockedAchievements)
+        let selfLetters = (try? modelContext.fetchCount(FetchDescriptor<SelfLetter>())) ?? 0
+        return (conversations, journalEntries, commitments, unlockedAchievements, selfLetters)
     }
     
     private func resetEverything(skipOnboarding: Bool = false) {
@@ -198,12 +200,12 @@ extension L10n.Settings {
         }
     }
     
-    static func resetConfirmMessage(conversations: Int, journalEntries: Int, commitments: Int, unlockedAchievements: Int) -> String {
+    static func resetConfirmMessage(conversations: Int, journalEntries: Int, commitments: Int, unlockedAchievements: Int, selfLetters: Int) -> String {
         switch L10n.lang {
         case .en:
-            return "This permanently deletes \(conversations) conversations, \(journalEntries) journal entries, \(commitments) commitments, and \(unlockedAchievements) unlocked achievements, then restarts the app. This cannot be undone."
+            return "This permanently deletes \(conversations) conversations, \(journalEntries) journal entries, \(commitments) commitments, \(unlockedAchievements) unlocked achievements, and \(selfLetters) letters to yourself, then restarts the app. This cannot be undone."
         case .pl:
-            return "Usuniesz bezpowrotnie \(conversations) rozmów, \(journalEntries) wpisów w dzienniku, \(commitments) zobowiązań i \(unlockedAchievements) odblokowanych osiągnięć, a aplikacja zostanie zrestartowana. Tej operacji nie da się cofnąć."
+            return "Usuniesz bezpowrotnie \(conversations) rozmów, \(journalEntries) wpisów w dzienniku, \(commitments) zobowiązań, \(unlockedAchievements) odblokowanych osiągnięć i \(selfLetters) listów do siebie, a aplikacja zostanie zrestartowana. Tej operacji nie da się cofnąć."
         }
     }
     

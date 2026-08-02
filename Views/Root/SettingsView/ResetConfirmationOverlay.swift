@@ -5,6 +5,7 @@ struct ResetConfirmationOverlay: View {
     let journalEntries: Int
     let commitments: Int
     let unlockedAchievements: Int
+    let selfLetters: Int
     let onConfirm: () -> Void
     let onCancel: () -> Void
 
@@ -31,7 +32,8 @@ struct ResetConfirmationOverlay: View {
                     conversations: conversations,
                     journalEntries: journalEntries,
                     commitments: commitments,
-                    unlockedAchievements: unlockedAchievements
+                    unlockedAchievements: unlockedAchievements,
+                    selfLetters: selfLetters
                 ))
                 .font(Theme.uiFont)
                 .foregroundStyle(Theme.textMuted)
