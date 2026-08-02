@@ -141,10 +141,7 @@ extension SettingsView {
                 .font(Typography.label)
                 .foregroundStyle(Theme.textMuted)
             
-            TextField(title, text: text)
-                .textFieldStyle(.plain)
-                .font(Theme.uiFont)
-                .foregroundStyle(Theme.textPrimary)
+            PlaceholderTextField(placeholder: title, text: text)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(Theme.fieldBackground)

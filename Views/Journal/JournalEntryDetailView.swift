@@ -96,7 +96,7 @@ struct JournalEntryReader: View {
                 HStack(spacing: 6) {
                     ForEach(entry.tags.sorted(by: { $0.name < $1.name })) { tag in
                         Text("#\(tag.name)")
-                            .font(.system(size: 11))
+                            .font(Typography.caption)
                             .foregroundStyle(Theme.textMuted)
                     }
                 }
@@ -110,7 +110,7 @@ struct JournalEntryReader: View {
                         Image(systemName: "arrow.up.right")
                         Text(L10n.JournalDetail.viewConversation)
                     }
-                    .font(.system(size: 12))
+                    .font(Typography.label)
                     .foregroundStyle(Theme.textMuted)
                 }
                 .buttonStyle(.plain)

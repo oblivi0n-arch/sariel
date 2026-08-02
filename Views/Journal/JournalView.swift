@@ -75,10 +75,12 @@ struct JournalView: View {
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(Theme.textFaint)
 
-                            TextField(L10n.Journal.searchPlaceholder, text: $searchText)
-                                .textFieldStyle(.plain)
-                                .font(Typography.label)
-                                .foregroundStyle(Theme.textSecondary)
+                            PlaceholderTextField(
+                                placeholder: L10n.Journal.searchPlaceholder,
+                                text: $searchText,
+                                font: Typography.label,
+                                textColor: Theme.textSecondary
+                            )
                                 .focused($isSearchFocused)
 
                             Button {

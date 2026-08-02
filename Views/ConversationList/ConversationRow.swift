@@ -20,10 +20,7 @@ struct ConversationRow: View {
     var body: some View {
         Group {
             if isEditing {
-                TextField(L10n.ConversationRow.titlePlaceholder, text: $editedTitle)
-                    .textFieldStyle(.plain)
-                    .font(Theme.uiFont)
-                    .foregroundStyle(Theme.textPrimary)
+                PlaceholderTextField(placeholder: L10n.ConversationRow.titlePlaceholder, text: $editedTitle)
                     .focused($isFocused)
                     .onChange(of: isFocused) { oldValue, newValue in
                         if !newValue {

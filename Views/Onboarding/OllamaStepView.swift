@@ -37,10 +37,7 @@ struct OllamaStepView: View {
                     .font(Typography.label)
                     .foregroundStyle(Theme.textMuted)
 
-                TextField(L10n.Settings.hostFieldLabel, text: $host)
-                    .textFieldStyle(.plain)
-                    .font(Theme.uiFont)
-                    .foregroundStyle(Theme.textPrimary)
+                PlaceholderTextField(placeholder: L10n.Settings.hostFieldLabel, text: $host)
                     .padding(10)
                     .background(Theme.fieldBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8))

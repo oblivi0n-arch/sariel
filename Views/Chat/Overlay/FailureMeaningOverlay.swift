@@ -31,10 +31,7 @@ struct FailureMeaningOverlay: View {
                     .font(Typography.label)
                     .foregroundStyle(Theme.textMuted)
 
-                TextField(L10n.FailureMeaning.placeholder, text: $answer, axis: .vertical)
-                    .textFieldStyle(.plain)
-                    .font(Theme.uiFont)
-                    .foregroundStyle(Theme.textPrimary)
+                PlaceholderTextField(placeholder: L10n.FailureMeaning.placeholder, text: $answer, axis: .vertical)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
                     .background(Theme.tribunalAccent.opacity(0.12))

@@ -47,10 +47,12 @@ struct SelfLetterComposeView: View {
                     }
                     .padding(20)
 
-                    TextField(L10n.SelfLetterCompose.titlePlaceholder, text: titleBinding)
-                        .textFieldStyle(.plain)
-                        .font(Typography.title)
-                        .foregroundStyle(Theme.textPrimary)
+                    PlaceholderTextField(
+                        placeholder: L10n.SelfLetterCompose.titlePlaceholder,
+                        text: titleBinding,
+                        font: Typography.title,
+                        textColor: Theme.textPrimary
+                    )
                         .padding(.horizontal, 20)
                         .padding(.bottom, 8)
                         .focused($focusedField, equals: .title)

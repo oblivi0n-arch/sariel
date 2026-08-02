@@ -42,15 +42,12 @@ struct ResetConfirmationOverlay: View {
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)
 
-                TextField(L10n.Settings.resetConfirmPhrase, text: $typedText)
-                    .textFieldStyle(.plain)
-                    .font(Theme.uiFont)
-                    .foregroundStyle(Theme.textPrimary)
+                PlaceholderTextField(placeholder: L10n.Settings.resetConfirmPhrase, text: $typedText)
                     .padding(10)
                     .background(Theme.fieldBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
-
+                
                 HStack(spacing: 12) {
                     Button(action: onCancel) {
                         Text(L10n.Settings.cancelButton)

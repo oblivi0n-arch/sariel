@@ -29,10 +29,7 @@ struct NicknameStepView: View {
                     .foregroundStyle(Theme.textFaint)
             }
 
-            TextField(L10n.Settings.usernamePlaceholder, text: $username)
-                .textFieldStyle(.plain)
-                .font(Theme.uiFont)
-                .foregroundStyle(Theme.textPrimary)
+            PlaceholderTextField(placeholder: L10n.Settings.usernamePlaceholder, text: $username)
                 .multilineTextAlignment(.center)
                 .padding(10)
                 .background(Theme.fieldBackground)

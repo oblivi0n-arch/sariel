@@ -43,10 +43,7 @@ struct ChatInputBar: View {
             }
         }
         HStack(alignment: .bottom, spacing: 10) {
-            TextField(L10n.ChatInput.messagePlaceholder, text: $draft, axis: .vertical)
-                .textFieldStyle(.plain)
-                .font(Theme.uiFont)
-                .foregroundStyle(Theme.textPrimary)
+            PlaceholderTextField(placeholder: L10n.ChatInput.messagePlaceholder, text: $draft, axis: .vertical)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background((isDeclaration || isTribunal) ? Theme.tribunalAccent.opacity(0.12) : Theme.fieldBackground)
@@ -61,7 +58,7 @@ struct ChatInputBar: View {
                 .onSubmit { if canSend { handleSend() } }
                 .disabled(isLocked)
                 .focused(isFocused)
-
+            
             Button(action: handleSend) {
                 Image(systemName: isDeclaration ? "seal.fill" : "arrow.up")
                     .font(.system(size: 14, weight: .semibold))

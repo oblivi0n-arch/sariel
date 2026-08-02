@@ -21,17 +21,18 @@ struct JournalEntryEditor: View {
 
             section(label: L10n.JournalEditor.entrySectionLabel) {
                 VStack(alignment: .leading, spacing: 0) {
-                    TextField(L10n.JournalEditor.titlePlaceholder, text: $entry.title)
-                        .textFieldStyle(.plain)
-                        .font(Typography.title)
-                        .foregroundStyle(Theme.textPrimary)
+                    PlaceholderTextField(
+                        placeholder: L10n.JournalEditor.titlePlaceholder,
+                        text: $entry.title,
+                        font: Typography.title,
+                        textColor: Theme.textPrimary
+                    )
                         .padding(.horizontal, 14)
                         .padding(.top, 12)
                         .padding(.bottom, 10)
                         .focused($focusedField, equals: .title)
                         .onSubmit { focusedField = .content }
                         .onChange(of: entry.title) { scheduleSave() }
-
                     Rectangle().fill(Theme.border).frame(height: 0.5)
 
                     ZStack(alignment: .topLeading) {
@@ -98,10 +99,12 @@ struct JournalEntryEditor: View {
                         }
                     }
 
-                    TextField(L10n.JournalEditor.addTagPlaceholder, text: $newTagText)
-                        .textFieldStyle(.plain)
-                        .font(Typography.label)
-                        .foregroundStyle(Theme.textSecondary)
+                    PlaceholderTextField(
+                        placeholder: L10n.JournalEditor.addTagPlaceholder,
+                        text: $newTagText,
+                        font: Typography.label,
+                        textColor: Theme.textSecondary
+                    )
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .overlay(dashedBorder(cornerRadius: 8))
