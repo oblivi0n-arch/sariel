@@ -4,7 +4,8 @@ struct MeditationBreathingView: View {
     let onComplete: () -> Void
 
     private let cycleCount = 3
-    private let phaseDuration: TimeInterval = 4
+    private let inhaleDuration: TimeInterval = 4
+    private let exhaleDuration: TimeInterval = 6
 
     @State private var isInhaling = false
     @State private var breathTask: Task<Void, Never>?
@@ -22,7 +23,6 @@ struct MeditationBreathingView: View {
                     .fill(Theme.textPrimary)
                     .frame(width: 260, height: 260)
                     .scaleEffect(isInhaling ? 1.0 : 0.55)
-                    .animation(.easeInOut(duration: phaseDuration), value: isInhaling)
 
                 Text(isInhaling ? L10n.MeditationBreathing.inhale : L10n.MeditationBreathing.exhale)
                     .font(Typography.title)
@@ -51,12 +51,16 @@ struct MeditationBreathingView: View {
         breathTask = Task {
             for _ in 0..<cycleCount {
                 guard !Task.isCancelled else { return }
-                isInhaling = true
-                try? await Task.sleep(nanoseconds: UInt64(phaseDuration * 1_000_000_000))
+                withAnimation(.easeInOut(duration: inhaleDuration)) {
+                    isInhaling = true
+                }
+                try? await Task.sleep(nanoseconds: UInt64(inhaleDuration * 1_000_000_000))
 
                 guard !Task.isCancelled else { return }
-                isInhaling = false
-                try? await Task.sleep(nanoseconds: UInt64(phaseDuration * 1_000_000_000))
+                withAnimation(.easeInOut(duration: exhaleDuration)) {
+                    isInhaling = false
+                }
+                try? await Task.sleep(nanoseconds: UInt64(exhaleDuration * 1_000_000_000))
             }
             guard !Task.isCancelled else { return }
             onComplete()
