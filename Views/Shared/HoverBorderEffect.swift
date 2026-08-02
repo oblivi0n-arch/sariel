@@ -1,14 +1,14 @@
 import SwiftUI
 import AppKit
 
-private struct HoverBorderEffect: ViewModifier {
+private struct HoverBorderEffect<S: Shape>: ViewModifier {
     @State private var isHovering = false
-    var cornerRadius: CGFloat
+    var shape: S
 
     func body(content: Content) -> some View {
         content
             .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
+                shape
                     .stroke(Theme.borderStrong, lineWidth: 0.5)
                     .opacity(isHovering ? 1 : 0)
             )
@@ -25,7 +25,11 @@ private struct HoverBorderEffect: ViewModifier {
 }
 
 extension View {
+    func hoverBorder<S: Shape>(_ shape: S) -> some View {
+        modifier(HoverBorderEffect(shape: shape))
+    }
+
     func hoverBorder(cornerRadius: CGFloat = 8) -> some View {
-        modifier(HoverBorderEffect(cornerRadius: cornerRadius))
+        hoverBorder(RoundedRectangle(cornerRadius: cornerRadius))
     }
 }
