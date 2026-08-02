@@ -47,6 +47,14 @@ struct ExportedSelfLetter: Codable {
     let openedAt: Date?
 }
 
+struct ExportedMeditationSession: Codable {
+    let id: UUID
+    let intention: String
+    let plannedDuration: TimeInterval
+    let actualDuration: TimeInterval
+    let createdAt: Date
+}
+
 struct ExportedChatMessage: Codable {
     let id: UUID
     let role: String
@@ -138,6 +146,7 @@ struct SarielExport: Codable {
     let commitments: [ExportedCommitment]
     let achievementUnlocks: [ExportedAchievementUnlock]
     let selfLetters: [ExportedSelfLetter]
+    let meditationSessions: [ExportedMeditationSession]
     let aboutMe: String
     let hasCompletedAcquaintance: Bool
     let hasStartedAcquaintance: Bool
@@ -167,6 +176,7 @@ extension SarielExport {
         commitments: [ExportedCommitment],
         achievementUnlocks: [ExportedAchievementUnlock],
         selfLetters: [ExportedSelfLetter] = [],
+        meditationSessions: [ExportedMeditationSession] = [],
         aboutMe: String,
         hasCompletedAcquaintance: Bool,
         hasStartedAcquaintance: Bool,
@@ -194,6 +204,7 @@ extension SarielExport {
         self.commitments = commitments
         self.achievementUnlocks = achievementUnlocks
         self.selfLetters = selfLetters
+        self.meditationSessions = meditationSessions
         self.aboutMe = aboutMe
         self.hasCompletedAcquaintance = hasCompletedAcquaintance
         self.hasStartedAcquaintance = hasStartedAcquaintance
@@ -214,7 +225,7 @@ extension SarielExport {
     
     enum CodingKeys: String, CodingKey {
         case schemaVersion, appVersion, exportedAt
-        case conversations, chatMessages, journalEntries, journalEntryTags, commitments, achievementUnlocks, selfLetters
+        case conversations, chatMessages, journalEntries, journalEntryTags, commitments, achievementUnlocks, selfLetters, meditationSessions
         case aboutMe, hasCompletedAcquaintance, hasStartedAcquaintance, username
         case appTheme, appThemeFollowsSystem, appLanguage, journalStyle
         case useJournalContext, useCredibilityContext
@@ -234,6 +245,7 @@ extension SarielExport {
         commitments = try container.decode([ExportedCommitment].self, forKey: .commitments)
         achievementUnlocks = try container.decode([ExportedAchievementUnlock].self, forKey: .achievementUnlocks)
         selfLetters = try container.decodeIfPresent([ExportedSelfLetter].self, forKey: .selfLetters) ?? []
+        meditationSessions = try container.decodeIfPresent([ExportedMeditationSession].self, forKey: .meditationSessions) ?? []
         aboutMe = try container.decodeIfPresent(String.self, forKey: .aboutMe) ?? ""
         hasCompletedAcquaintance = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedAcquaintance) ?? false
         hasStartedAcquaintance = try container.decodeIfPresent(Bool.self, forKey: .hasStartedAcquaintance) ?? false

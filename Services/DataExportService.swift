@@ -93,6 +93,17 @@ enum DataExportService {
                 )
             }
         
+        let meditationSessions = try modelContext.fetch(FetchDescriptor<MeditationSession>())
+            .map { session in
+                ExportedMeditationSession(
+                    id: session.id,
+                    intention: session.intention,
+                    plannedDuration: session.plannedDuration,
+                    actualDuration: session.actualDuration,
+                    createdAt: session.createdAt
+                )
+            }
+        
         let aboutMe = UserDefaults.standard.string(forKey: "aboutMe") ?? ""
         let hasCompletedAcquaintance = UserDefaults.standard.bool(forKey: "hasCompletedAcquaintance")
         let hasStartedAcquaintance = UserDefaults.standard.bool(forKey: "hasStartedAcquaintance")
@@ -185,6 +196,7 @@ extension DataExportService {
         deleteAll(Commitment.self, modelContext: modelContext)
         deleteAll(AchievementUnlock.self, modelContext: modelContext)
         deleteAll(SelfLetter.self, modelContext: modelContext)
+        deleteAll(MeditationSession.self, modelContext: modelContext)
         
         var conversationsByID: [UUID: Conversation] = [:]
         for exported in export.conversations {
@@ -286,6 +298,17 @@ extension DataExportService {
             letter.status = exported.status
             letter.openedAt = exported.openedAt
             modelContext.insert(letter)
+        }
+        
+        for exported in export.meditationSessions {
+            let session = MeditationSession(
+                intention: exported.intention,
+                plannedDuration: exported.plannedDuration,
+                actualDuration: exported.actualDuration
+            )
+            session.id = exported.id
+            session.createdAt = exported.createdAt
+            modelContext.insert(session)
         }
         
         UserDefaults.standard.set(export.aboutMe, forKey: "aboutMe")
