@@ -6,7 +6,6 @@ struct SplashView: View {
     @State private var ringScale: [CGFloat] = [0.15, 0.15, 0.15]
     @State private var ringOpacity: [Double] = [0, 0, 0]
     @State private var textOpacity: Double = 0
-    @State private var isVisible = true
 
     private let baseRingSize: CGFloat = 60
 
@@ -35,7 +34,6 @@ struct SplashView: View {
                     }
                     .opacity(textOpacity)
                 }
-                .opacity(isVisible ? 1 : 0)
             }
             .frame(width: geo.size.width, height: geo.size.height)
             .onAppear {
@@ -59,10 +57,6 @@ struct SplashView: View {
 
                 Task {
                     try? await Task.sleep(nanoseconds: 2_200_000_000)
-                    withAnimation(.easeInOut(duration: 0.4)) {
-                        isVisible = false
-                    }
-                    try? await Task.sleep(nanoseconds: 400_000_000)
                     onFinished()
                 }
             }

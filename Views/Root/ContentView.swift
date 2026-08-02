@@ -217,8 +217,11 @@ struct ContentView: View {
             
             if showSplash {
                 SplashView {
-                    showSplash = false
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        showSplash = false
+                    }
                 }
+                .transition(.opacity)
             } else if appLockEnabled && !isUnlocked {
                 PinUnlockView {
                     isUnlocked = true
