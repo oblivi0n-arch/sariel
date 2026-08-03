@@ -10,6 +10,11 @@ struct MeditationSetupView: View {
     @State private var isHoveringHistory = false
     @FocusState private var isIntentionFocused: Bool
     
+    @ObservedObject private var languageManager = LanguageManager.shared
+    @AppStorage("meditationPlaceholderIndex") private var placeholderIndex: Int = 0
+    @AppStorage("meditationPlaceholderDate") private var placeholderDateString: String = ""
+    @State private var intentionPlaceholderText: String = ""
+    
     var body: some View {
         ZStack {
             AmbientRingsView()
@@ -51,7 +56,7 @@ struct MeditationSetupView: View {
                         .multilineTextAlignment(.center)
                     
                     PlaceholderTextField(
-                        placeholder: L10n.MeditationSetup.intentionPlaceholder,
+                        placeholder: intentionPlaceholderText,
                         text: $intention,
                         font: Typography.title,
                         textColor: Theme.textPrimary,
@@ -102,7 +107,13 @@ struct MeditationSetupView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.background)
-        .onAppear { isIntentionFocused = true }
+        .onAppear {
+            isIntentionFocused = true
+            updatePlaceholderIfNeeded()
+        }
+        .onChange(of: languageManager.current) { _, _ in
+            updatePlaceholderIfNeeded()
+        }
     }
     
     private var historyPanel: some View {
@@ -145,6 +156,19 @@ struct MeditationSetupView: View {
     private func startSession() {
         onStart(intention.trimmingCharacters(in: .whitespacesAndNewlines), selectedDuration)
     }
+    
+    private func updatePlaceholderIfNeeded() {
+        let todayString = Date().dayKey
+        let placeholders = L10n.MeditationSetup.intentionPlaceholders
+
+        if placeholderDateString != todayString {
+            placeholderIndex = placeholders.indices.randomElement() ?? 0
+            placeholderDateString = todayString
+        }
+
+        let safeIndex = min(placeholderIndex, placeholders.count - 1)
+        intentionPlaceholderText = placeholders[safeIndex]
+    }
 }
 
 private struct DurationOptionView: View {
@@ -174,10 +198,24 @@ extension L10n {
             }
         }
         
-        static var intentionPlaceholder: String {
+        static var intentionPlaceholders: [String] {
             switch lang {
-            case .en: return "What are you avoiding right now?"
-            case .pl: return "Czego teraz unikasz?"
+            case .en:
+                return [
+                    "What are you avoiding right now?",
+                    "What are you putting off so you don't have to think about it?",
+                    "What truth are you making easier for yourself today?",
+                    "What do you know but pretend you don't?",
+                    "What are you lying to yourself about right now?"
+                ]
+            case .pl:
+                return [
+                    "Czego teraz unikasz?",
+                    "Co odkładasz, żeby o tym nie myśleć?",
+                    "Jaką prawdę sobie dziś ułatwiasz?",
+                    "Co wiesz, ale udajesz, że nie wiesz?",
+                    "Nad czym się teraz oszukujesz?"
+                ]
             }
         }
         
