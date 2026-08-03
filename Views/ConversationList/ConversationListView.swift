@@ -87,8 +87,6 @@ struct ConversationListView: View {
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
-                    .background(Theme.fieldBackground)
-                    .clipShape(Capsule())
                     .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
                 } else {
                     Text(L10n.ConversationList.title)
@@ -109,9 +107,7 @@ struct ConversationListView: View {
                             )
                     }
                     .buttonStyle(.plain)
-                    .onHover { hovering in
-                        isSearchHovering = hovering
-                    }
+                    .trackHover($isSearchHovering)
 
                     Button(action: createNewConversation) {
                         Image(systemName: "plus")
@@ -125,9 +121,7 @@ struct ConversationListView: View {
                             )
                     }
                     .buttonStyle(.plain)
-                    .onHover { hovering in
-                        isPlusHovering = hovering
-                    }
+                    .trackHover($isPlusHovering)
                 }
             }
             .animation(.easeInOut(duration: 0.2), value: isSearchExpanded)
@@ -254,8 +248,8 @@ extension L10n {
     enum ConversationList {
         static var searchPlaceholder: String {
             switch lang {
-            case .en: return "Search conversations"
-            case .pl: return "Szukaj rozmów"
+            case .en: return "Search"
+            case .pl: return "Szukaj"
             }
         }
 

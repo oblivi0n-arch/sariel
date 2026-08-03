@@ -73,7 +73,6 @@ struct SelfLetterArchiveView: View {
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(Theme.fieldBackground)
                 .clipShape(Capsule())
                 .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
             } else {
@@ -96,9 +95,7 @@ struct SelfLetterArchiveView: View {
                             )
                     }
                     .buttonStyle(.plain)
-                    .onHover { hovering in
-                        isSearchHovering = hovering
-                    }
+                    .trackHover($isSearchHovering)
                 }
             }
         }

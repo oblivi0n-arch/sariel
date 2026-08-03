@@ -29,7 +29,7 @@ struct LanguageStepView: View {
                 .font(Typography.label)
                 .foregroundStyle(isButtonHovering ? Theme.textPrimary : Theme.textMuted)
                 .onTapGesture(perform: onNext)
-                .onHover { hovering in isButtonHovering = hovering }
+                .trackHover($isButtonHovering)
                 .padding(.top, 24)
         }
         .frame(maxWidth: 420)

@@ -100,7 +100,7 @@ struct OnboardingView: View {
                     .font(Typography.label)
                     .foregroundStyle(isButtonHovering ? Theme.textPrimary : Theme.textMuted)
                     .onTapGesture(perform: advance)
-                    .onHover { hovering in isButtonHovering = hovering }
+                    .trackHover($isButtonHovering)
                     .allowsHitTesting(isRevealComplete)
                     .opacity(isRevealComplete ? 1 : 0)
                     .animation(.easeInOut(duration: 0.4), value: isRevealComplete)

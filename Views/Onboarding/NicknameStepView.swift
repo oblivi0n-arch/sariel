@@ -51,13 +51,13 @@ struct NicknameStepView: View {
                     .font(Typography.label)
                     .foregroundStyle(isBackHovering ? Theme.textPrimary : Theme.textMuted)
                     .onTapGesture(perform: onBack)
-                    .onHover { hovering in isBackHovering = hovering }
+                    .trackHover($isBackHovering)
 
                 Text(nextLabel)
                     .font(Typography.label)
                     .foregroundStyle(isNextHovering ? Theme.textPrimary : Theme.textMuted)
                     .onTapGesture(perform: onNext)
-                    .onHover { hovering in isNextHovering = hovering }
+                    .trackHover($isNextHovering)
             }
             .padding(.top, 24)
         }

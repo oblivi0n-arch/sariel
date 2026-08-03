@@ -32,7 +32,6 @@ struct SettingsView: View {
     @AppStorage(ShortcutAction.meditation.storageKey) var meditationShortcut = ShortcutAction.meditation.defaultShortcut
     
     @State private var selectedCategory: SettingsCategory = .personalization
-    @State private var hoveredCategory: SettingsCategory?
     @State var isManualPathShown = false
     @State var availableModels: [String] = []
     @State var isLoadingModels = false
@@ -115,7 +114,15 @@ struct SettingsView: View {
             Spacer()
             
             ForEach(visibleCategories, id: \.self) { category in
-                categoryTabButton(category)
+                SettingsCategoryTabButton(
+                    category: category,
+                    isSelected: selectedCategory == category,
+                    action: {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedCategory = category
+                        }
+                    }
+                )
             }
             
             Spacer()
@@ -135,54 +142,6 @@ struct SettingsView: View {
         .overlay(alignment: .bottom) {
             Rectangle().fill(Theme.border).frame(height: 0.5)
         }
-    }
-    
-    private func categoryTabButton(_ category: SettingsCategory) -> some View {
-        let isSelected = selectedCategory == category
-        let isHovering = hoveredCategory == category
-        
-        return Button(action: {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                selectedCategory = category
-            }
-        }) {
-            HStack(spacing: 6) {
-                Image(systemName: category.icon)
-                    .font(.system(size: 12))
-                Text(category.title)
-                    .font(Typography.label)
-            }
-            .foregroundStyle(tabForegroundColor(isSelected: isSelected, isHovering: isHovering))
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(tabBackgroundColor(isSelected: isSelected, isHovering: isHovering))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(tabBorderColor(isSelected: isSelected, isHovering: isHovering), lineWidth: 0.5)
-            )
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .onHover { hovering in
-            hoveredCategory = hovering ? category : nil
-        }
-    }
-    
-    private func tabForegroundColor(isSelected: Bool, isHovering: Bool) -> Color {
-        if isSelected { return Theme.textPrimary }
-        if isHovering { return Theme.textMuted }
-        return Theme.textFaint
-    }
-    
-    private func tabBackgroundColor(isSelected: Bool, isHovering: Bool) -> Color {
-        .clear
-    }
-
-    private func tabBorderColor(isSelected: Bool, isHovering: Bool) -> Color {
-        if isSelected { return Theme.borderStrong }
-        if isHovering { return Theme.border }
-        return .clear
     }
     
     private var appVersion: String {
@@ -314,6 +273,47 @@ struct SettingsView: View {
         SelfLetterService.refreshAvailability(context: modelContext)
     }
 #endif
+}
+
+private struct SettingsCategoryTabButton: View {
+    let category: SettingsCategory
+    let isSelected: Bool
+    let action: () -> Void
+    @State private var isHovering = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: category.icon)
+                    .font(.system(size: 12))
+                Text(category.title)
+                    .font(Typography.label)
+            }
+            .foregroundStyle(foregroundColor)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(borderColor, lineWidth: 0.5)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .trackHover($isHovering)
+    }
+
+    private var foregroundColor: Color {
+        if isSelected { return Theme.textPrimary }
+        if isHovering { return Theme.textMuted }
+        return Theme.textFaint
+    }
+
+    private var borderColor: Color {
+        if isSelected { return Theme.borderStrong }
+        if isHovering { return Theme.border }
+        return .clear
+    }
 }
 
 

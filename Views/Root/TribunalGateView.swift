@@ -64,7 +64,7 @@ struct TribunalGateView: View {
                         .font(Typography.label)
                         .foregroundStyle(isDismissHovering ? Theme.textPrimary : Theme.textMuted)
                         .onTapGesture(perform: onDismiss)
-                        .onHover { hovering in isDismissHovering = hovering }
+                        .trackHover($isDismissHovering)
                 }
                 .opacity(isRestVisible ? 1 : 0)
             }
