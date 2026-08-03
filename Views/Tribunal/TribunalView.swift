@@ -15,7 +15,10 @@ struct TribunalView: View {
     @State private var now: Date = Date()
     @State private var tickTask: Task<Void, Never>?
     @State private var activeTribunalConversation: Conversation?
-    @State private var emptyStateText: String = L10n.Tribunal.emptyStateTexts.randomElement()!
+    @State private var emptyStateText: String = ""
+    @ObservedObject private var languageManager = LanguageManager.shared
+    @AppStorage("tribunalEmptyStateIndex") private var emptyStateIndex: Int = 0
+    @AppStorage("tribunalEmptyStateDate") private var emptyStateDateString: String = ""
     @State private var isHoveringInfo = false
     @State private var isHoveringStart = false
     @State private var isHoveringHistory = false
@@ -68,7 +71,11 @@ struct TribunalView: View {
             }
         }
         .onAppear {
-            restoreInProgressTribunalIfNeeded()
+            startTicking()
+            updateEmptyStateIfNeeded()
+        }
+        .onChange(of: languageManager.current) { _, _ in
+            updateEmptyStateIfNeeded()
         }
     }
     
@@ -399,6 +406,19 @@ struct TribunalView: View {
                 try? await Task.sleep(nanoseconds: 30_000_000_000) // 30s
             }
         }
+    }
+    
+    private func updateEmptyStateIfNeeded() {
+        let todayString = Date().dayKey
+        let texts = L10n.Tribunal.emptyStateTexts
+
+        if emptyStateDateString != todayString {
+            emptyStateIndex = texts.indices.randomElement() ?? 0
+            emptyStateDateString = todayString
+        }
+
+        let safeIndex = min(emptyStateIndex, texts.count - 1)
+        emptyStateText = texts[safeIndex]
     }
 }
 
