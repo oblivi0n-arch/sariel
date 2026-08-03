@@ -8,6 +8,8 @@ struct MeditationSetupView: View {
     @State private var selectedDuration: MeditationDuration = .tenMinutes
     @State private var isHistoryExpanded = false
     @State private var isHoveringHistory = false
+    @State private var isInfoShown = false
+    @State private var isHoveringInfo = false
     @FocusState private var isIntentionFocused: Bool
     
     @ObservedObject private var languageManager = LanguageManager.shared
@@ -22,8 +24,22 @@ struct MeditationSetupView: View {
             VStack(spacing: 0) {
                 HStack {
                     Spacer()
+                    Button(action: { isInfoShown = true }) {
+                        Image(systemName: "info.circle")
+                            .font(Typography.iconButton)
+                            .foregroundStyle(isHoveringInfo ? Theme.textPrimary : Theme.textMuted)
+                            .frame(width: 28, height: 28)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(isHoveringInfo ? Theme.border : .clear, lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .trackHover($isHoveringInfo)
+                    
                     Button(action: toggleHistory) {
-                        Image(systemName: "clock.arrow.circlepath")
+                        Image(systemName: "list.bullet.clipboard")
                             .font(Typography.iconButton)
                             .foregroundStyle(isHistoryExpanded ? Theme.textPrimary : Theme.textMuted)
                             .frame(width: 28, height: 28)
@@ -107,6 +123,12 @@ struct MeditationSetupView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.background)
+        .overlay {
+            if isInfoShown {
+                infoOverlay
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isInfoShown)
         .onAppear {
             isIntentionFocused = true
             updatePlaceholderIfNeeded()
@@ -145,6 +167,78 @@ struct MeditationSetupView: View {
         .background(Theme.background)
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.borderStrong, lineWidth: 1))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
+    private var infoOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.5)
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture { isInfoShown = false }
+
+            VStack(alignment: .leading, spacing: 0) {
+                infoHeader
+
+                ScrollView {
+                    explanationSteps
+                        .padding(20)
+                }
+            }
+            .frame(maxWidth: 420, maxHeight: 420)
+            .background(Theme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
+            .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
+            .onTapGesture {}
+        }
+        .transition(.opacity.combined(with: .scale(scale: 0.96)))
+    }
+
+    private var infoHeader: some View {
+        HStack {
+            Image(systemName: "circle.dotted")
+                .font(Typography.icon)
+                .foregroundStyle(Theme.textMuted)
+
+            Text(L10n.MeditationSetup.infoTitle)
+                .font(Typography.title)
+                .foregroundStyle(Theme.textPrimary)
+
+            Spacer()
+
+            Button(action: { isInfoShown = false }) {
+                Image(systemName: "xmark")
+                    .font(Typography.iconButton)
+                    .foregroundStyle(Theme.textMuted)
+                    .frame(width: 24, height: 24)
+                    .clipShape(Circle())
+                    .hoverBorder(Circle())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Theme.border).frame(height: 0.5)
+        }
+    }
+
+    private var explanationSteps: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            ForEach(Array(L10n.MeditationSetup.steps.enumerated()), id: \.offset) { index, step in
+                HStack(alignment: .top, spacing: 12) {
+                    Text("\(index + 1)")
+                        .font(Typography.subsectionTitle)
+                        .foregroundStyle(Theme.textFaint)
+                        .frame(width: 20, alignment: .leading)
+
+                    Text(step)
+                        .font(Theme.uiFont)
+                        .foregroundStyle(Theme.textSecondary)
+                        .lineSpacing(3)
+                }
+            }
+        }
     }
     
     private func toggleHistory() {
@@ -230,6 +324,32 @@ extension L10n {
             switch lang {
             case .en: return "Sit with it"
             case .pl: return "Usiądź z tym"
+            }
+        }
+        
+        static var infoTitle: String {
+            switch lang {
+            case .en: return "meditation"
+            case .pl: return "medytacja"
+            }
+        }
+
+        static var steps: [String] {
+            switch lang {
+            case .en:
+                return [
+                    "Set an intention — what you're avoiding today — and pick a session length.",
+                    "During the session you can extend it by 5 minutes, pause it, or end it early.",
+                    "Each session is saved to your history along with its duration and whether it was interrupted.",
+                    "It's a pause between confrontations, not an escape from them."
+                ]
+            case .pl:
+                return [
+                    "Podaj intencję — czego dziś unikasz — i wybierz długość sesji.",
+                    "W trakcie możesz przedłużyć sesję o 5 minut, wstrzymać ją lub zakończyć wcześniej.",
+                    "Sesja zapisuje się w historii razem z czasem trwania i informacją, czy została przerwana.",
+                    "To pauza między konfrontacjami, nie ucieczka od nich."
+                ]
             }
         }
     }
