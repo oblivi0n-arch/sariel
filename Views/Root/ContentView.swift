@@ -224,7 +224,7 @@ struct ContentView: View {
             .animation(.easeInOut(duration: 0.25), value: isConversationListOpen)
             .animation(.easeInOut(duration: 0.25), value: isSettingsOpen)
             
-            if showSplash {
+            if showSplash && hasCompletedOnboarding {
                 SplashView {
                     withAnimation(.easeOut(duration: 0.6)) {
                         showSplash = false
@@ -245,6 +245,9 @@ struct ContentView: View {
                     SetupWizardView {
                         hasCompletedOnboarding = true
                         isPostReset = false
+                        withAnimation(.easeOut(duration: 0.6)) {
+                            hasEnteredApp = true
+                        }
                     }
                 }
             } else if isGateShown {
@@ -342,6 +345,7 @@ struct ContentView: View {
     }
     
     private func evaluateTribunalGateIfNeeded() {
+        guard hasCompletedOnboarding else { return }
         guard !hasEvaluatedGate else { return }
         hasEvaluatedGate = true
         
@@ -367,6 +371,7 @@ struct ContentView: View {
     }
     
     private func showDashboardOnNewDay() {
+        guard hasCompletedOnboarding else { return }
         let todayKey = Date().dayKey
         guard lastDashboardShownDateString != todayKey else { return }
         lastDashboardShownDateString = todayKey
