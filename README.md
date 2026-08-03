@@ -1,6 +1,6 @@
 # Sariel
 
-_Regarding v1.11.0_
+_Regarding v1.17.4_
 
 A local-first SwiftUI app for confronting your own rationalizations, powered by on-device AI (Ollama).
 
@@ -42,7 +42,7 @@ sariel/
                        # plus a Shared/ subfolder for UI components reused across more than one feature
 ```
 
-Prompt construction is split by conversation mode (`PromptBuilder+Provocation`, `PromptBuilder+Tribunal`, `PromptBuilder+Credibility`) rather than kept in one large file, to keep each system prompt independently readable and testable.
+Prompt construction is split by conversation mode (`PromptBuilder_Provocation`, `PromptBuilder_Tribunal`, `PromptBuilder_Credibility`, `PromptBuilder_Journal`, `PromptBuilder_Acquaintance`) rather than kept in one large file, to keep each system prompt independently readable and testable. `ChatService` follows the same pattern for its mode-specific orchestration logic (`ChatService_Provocation`, `ChatService_Acquaintance`, `ChatService_Tribunal`).
 
 ## Requirements
 
@@ -64,22 +64,31 @@ Prompt construction is split by conversation mode (`PromptBuilder+Provocation`, 
 
 ## Testing
 
-Sariel uses [Swift Testing](https://developer.apple.com/documentation/testing) (not XCTest) for unit tests, run against an in-memory SwiftData container so no real user data is touched. **79 automated test cases** across 11 test suites, plus a documented manual test protocol for anything that depends on real LLM output.
+Sariel uses [Swift Testing](https://developer.apple.com/documentation/testing) (not XCTest) for unit tests, run against an in-memory SwiftData container so no real user data is touched. **~140 automated test cases across 18 test suites**, plus a documented manual test protocol for anything that depends on real LLM output.
 
 **Automated coverage:**
 - `CommitmentTests` — declaration prefix detection (`isDeclaration`)
 - `CredibilityBandTests` — credibility threshold logic, including exact percentage boundaries
 - `DateDayKeyTests` — day-key formatting used for streak calculations
-- `TribunalVerdictParsingTests` — verdict response parsing, distinguishing a genuine BROKEN judgment from an unrecognized/malformed model response
-- `PromptBuilderTests` — structure of the message arrays sent to Ollama (section ordering, history window trimming, title-prompt generation)
-- `DataExportRoundTripTests` — full export/import round-trip, empty-database edge case, all achievement kinds, schema-version and corrupted-file error handling
-- `AchievementServiceTests` — every unlock condition (night-owl hour boundary, consistency streaks, silence/spiral thresholds, commitment streaks, credibility recovery)
+- `ChatServiceTribunalTests` — verdict response parsing (distinguishing a genuine BROKEN judgment from an unrecognized/malformed model response), in-progress/resolved tribunal lookup, session numbering, verdict application, and the guard clauses of `generateVerdicts`/`startTribunal` that return before any network call is made
+- `PromptBuilderTests` — structure of the core message arrays sent to Ollama (section ordering, history window trimming, title-prompt generation)
+- `PromptBuilderJournalTests` — journal message/prompt building, including per-style prompt distinctness
+- `PromptBuilderTribunalTests` — tribunal context text, pending-declaration/summary insertion, tribunal opening messages
+- `PromptBuilderAcquaintanceTests` — acquaintance opening question, "about me" profile message building (existing-profile merge, speaker-labeled transcript)
+- `PromptBuilderCredibilityTests` — credibility context text, including the insufficient-data guard
+- `PromptBuilderProvocationTests` — provocation opening question and title message building
+- `DataExportRoundTripTests` — full export/import round-trip (including self letters and meditation sessions), empty-database edge case, all achievement kinds, schema-version and corrupted-file error handling
+- `AchievementServiceTests` — every unlock condition, including night-owl hour boundary, consistency streaks, silence/spiral thresholds, commitment streaks, credibility recovery, self-letter sealing/opening/long-delay, and meditation consistency/abandonment/first-full-session
 - `ChatServiceTests` — declaration limit enforcement, commitment creation, message deletion and summary reconciliation
+- `SelfLetterServiceTests` — sealed→available availability transitions around the openDate boundary, and that other statuses (draft/available/opened) are left untouched
+- `MeditationSessionTests` — the `wasInterrupted` boundary (shorter/equal/longer than planned duration)
 - `AutoDeletePolicyTests` — inactivity-wipe threshold logic, including the exact-boundary case and a safe fallback when the threshold is misconfigured to zero
 - `PinKeychainStoreTests` — PIN hashing correctness (determinism, distinctness, format)
-- `AppResetServiceTests` — full data wipe correctness: all SwiftData model types are cleared, and the PIN/app-lock state is reset
+- `AppResetServiceTests` — full data wipe correctness: all SwiftData model types (including self letters and meditation sessions) are cleared, and the PIN/app-lock state is reset
 
 > **Note:** `AppResetServiceTests` touches the real macOS Keychain (there is currently no mocking layer for `PinKeychainStore`). It's safe on a dev machine with no PIN in daily use, but is a known limitation worth revisiting if that changes.
+>
+> **Note:** `generateVerdicts` and `startTribunal` (in `ChatService_Tribunal`) call the Ollama client over the network past their guard clauses. Only the guard-clause paths are covered by automated tests; the network-dependent behavior is validated manually, same as other LLM-output-dependent logic.
 
 **Not automated, by design:** AI response quality — prompt behavior, edge cases, and adherence to the crisis-safety boundary — is not something a unit test can meaningfully assert, since it depends on the LLM's output. These are validated manually against a documented test protocol instead. UI tests (XCUITest) are likewise out of scope for this release; see the project's test-plan documentation for the reasoning.
 
