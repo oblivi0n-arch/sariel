@@ -19,7 +19,9 @@ struct AppResetServiceTests {
             JournalEntry.self,
             JournalEntryTag.self,
             Commitment.self,
-            AchievementUnlock.self
+            AchievementUnlock.self,
+            SelfLetter.self,
+            MeditationSession.self
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: configuration)

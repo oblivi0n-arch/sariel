@@ -14,7 +14,8 @@ struct DataExportRoundTripTests {
             JournalEntryTag.self,
             Commitment.self,
             AchievementUnlock.self,
-            SelfLetter.self
+            SelfLetter.self,
+            MeditationSession.self
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: configuration)
@@ -148,6 +149,7 @@ struct DataExportRoundTripTests {
             commitments: [],
             achievementUnlocks: [],
             selfLetters: [],
+            meditationSessions: [],
             aboutMe: "",
             hasCompletedAcquaintance: false,
             hasStartedAcquaintance: false,
@@ -162,6 +164,7 @@ struct DataExportRoundTripTests {
             chatShortcut: ShortcutAction.chat.defaultShortcut.rawValue,
             journalShortcut: ShortcutAction.journal.defaultShortcut.rawValue,
             tribunalShortcut: ShortcutAction.tribunal.defaultShortcut.rawValue,
+            meditationShortcut: ShortcutAction.meditation.defaultShortcut.rawValue,
             hasBeenPoorCredibility: false,
             lastActiveConversationID: ""
         )
@@ -221,6 +224,7 @@ struct DataExportRoundTripTests {
             commitments: [commitment],
             achievementUnlocks: [],
             selfLetters: [],
+            meditationSessions: [],
             aboutMe: "",
             hasCompletedAcquaintance: false,
             hasStartedAcquaintance: false,
@@ -235,6 +239,7 @@ struct DataExportRoundTripTests {
             chatShortcut: ShortcutAction.chat.defaultShortcut.rawValue,
             journalShortcut: ShortcutAction.journal.defaultShortcut.rawValue,
             tribunalShortcut: ShortcutAction.tribunal.defaultShortcut.rawValue,
+            meditationShortcut: ShortcutAction.meditation.defaultShortcut.rawValue,
             hasBeenPoorCredibility: false,
             lastActiveConversationID: ""
         )
