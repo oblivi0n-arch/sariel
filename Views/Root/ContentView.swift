@@ -237,17 +237,23 @@ struct ContentView: View {
                     isUnlocked = true
                 }
             } else if !hasCompletedOnboarding {
-                if !hasFinishedNarrativeOnboarding {
-                    OnboardingView(isPostReset: isPostReset) {
-                        hasFinishedNarrativeOnboarding = true
-                    }
-                } else {
-                    SetupWizardView {
-                        hasCompletedOnboarding = true
-                        isPostReset = false
-                        withAnimation(.easeOut(duration: 0.6)) {
-                            hasEnteredApp = true
+                if !hasCompletedOnboarding {
+                    if !hasFinishedNarrativeOnboarding {
+                        OnboardingView(isPostReset: isPostReset) {
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                hasFinishedNarrativeOnboarding = true
+                            }
                         }
+                        .transition(.opacity)
+                    } else {
+                        SetupWizardView {
+                            hasCompletedOnboarding = true
+                            isPostReset = false
+                            withAnimation(.easeOut(duration: 0.6)) {
+                                hasEnteredApp = true
+                            }
+                        }
+                        .transition(.opacity)
                     }
                 }
             } else if isGateShown {

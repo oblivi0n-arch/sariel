@@ -37,7 +37,7 @@ struct OnboardingView: View {
                             RevealingText(
                                 fullText: currentScreen.text,
                                 font: Theme.voiceFont,
-                                color: Theme.textPrimary,
+                                color: currentScreen.isEmphasized ? Color.red.opacity(0.7) : Theme.textPrimary,
                                 onComplete: { isRevealComplete = true }
                             )
                             .id(currentScreen.id)
@@ -54,14 +54,6 @@ struct OnboardingView: View {
                                     .font(Theme.uiFont)
                                     .foregroundStyle(Theme.textPrimary)
                             }
-                        }
-
-                        if let footnote = currentScreen.footnote {
-                            Text(footnote)
-                                .font(Typography.caption)
-                                .foregroundStyle(Theme.textFaint)
-                                .italic()
-                                .multilineTextAlignment(.center)
                         }
                     }
                     .multilineTextAlignment(.center)

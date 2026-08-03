@@ -4,21 +4,21 @@ struct OnboardingScreen: Identifiable {
     let id: Int
     let text: String
     let title: String?
-    let footnote: String?   // TODO: currently unused - kept for potential future use
     let buttonLabel: String
     let revealsText: Bool
     let pauseDuration: Double
     let autoAdvanceAfter: Double?
+    let isEmphasized: Bool
 
-    init(id: Int, text: String, title: String? = nil, footnote: String? = nil, buttonLabel: String = L10n.Onboarding.next, revealsText: Bool = true, pauseDuration: Double, autoAdvanceAfter: Double? = nil) {
+    init(id: Int, text: String, title: String? = nil, buttonLabel: String = L10n.Onboarding.next, revealsText: Bool = true, pauseDuration: Double, autoAdvanceAfter: Double? = nil, isEmphasized: Bool = false) {
         self.id = id
         self.text = text
         self.title = title
-        self.footnote = footnote
         self.buttonLabel = buttonLabel
         self.revealsText = revealsText
         self.pauseDuration = pauseDuration
         self.autoAdvanceAfter = autoAdvanceAfter
+        self.isEmphasized = isEmphasized
     }
 }
 
@@ -44,23 +44,45 @@ extension OnboardingScreen {
                 id: 2,
                 text: isPostReset
                     ? L10n.Onboarding.welcomeBack
-                    : L10n.Onboarding.welcomeFirst,
+                    : L10n.Onboarding.introGreeting,
                 pauseDuration: 1.0
             ),
             OnboardingScreen(
                 id: 3,
-                text: L10n.Onboarding.beforeYouStart,
+                text: L10n.Onboarding.introReason,
                 pauseDuration: 0.6
             ),
             OnboardingScreen(
                 id: 4,
-                text: L10n.Onboarding.sarielIntroduction,
+                text: L10n.Onboarding.introFirstStep,
                 pauseDuration: 0.6
             ),
             OnboardingScreen(
                 id: 5,
+                text: L10n.Onboarding.introTransition,
+                pauseDuration: 0.6
+            ),
+            OnboardingScreen(
+                id: 6,
+                text: L10n.Onboarding.sarielIntroduction,
+                pauseDuration: 0.6
+            ),
+            OnboardingScreen(
+                id: 7,
                 text: L10n.Onboarding.expectationText,
                 pauseDuration: 0.6
+            ),
+            OnboardingScreen(
+                id: 8,
+                text: L10n.Onboarding.mottoText1,
+                pauseDuration: 0.6
+            ),
+            OnboardingScreen(
+                id: 9,
+                text: L10n.Onboarding.mottoText2,
+                buttonLabel: L10n.Onboarding.imReady,
+                pauseDuration: 0.6,
+                isEmphasized: true
             )
         ]
     }
@@ -72,6 +94,13 @@ extension L10n {
             switch lang {
             case .en: return "next"
             case .pl: return "dalej"
+            }
+        }
+        
+        static var imReady: String {
+            switch lang {
+            case .en: return "I'm ready."
+            case .pl: return "Jestem gotowy."
             }
         }
         
@@ -105,22 +134,36 @@ extension L10n {
         
         static var welcomeBack: String {
             switch lang {
-            case .en: return "let's try again, yeah?"
-            case .pl: return "spróbujmy jeszcze raz, dobrze?"
+            case .en: return "Let's try again, yeah?"
+            case .pl: return "Spróbujmy jeszcze raz, dobrze?"
             }
         }
 
-        static var welcomeFirst: String {
+        static var introGreeting: String {
             switch lang {
-            case .en: return "You're here because something isn't sitting right."
-            case .pl: return "Jesteś tu, bo coś Ci nie daje spokoju."
+            case .en: return "Hi. If you're here, that means something isn't sitting right."
+            case .pl: return "Cześć. Skoro tu jesteś, znaczy że coś ci nie daje spokoju."
             }
         }
-        
-        static var beforeYouStart: String {
+
+        static var introReason: String {
             switch lang {
-            case .en: return "Before we go any further, I want you to meet someone."
-            case .pl: return "Przed rozpoczęciem, chciałbym Tobie kogoś przedstawić."
+            case .en: return "Oh well. Either your routine is messed up, you can't stop breaking your own promises, or something else."
+            case .pl: return "No cóż. Może twoja rutyna szwankuje, może nie potrafisz dotrzymywać własnych obietnic, może coś zupełnie innego."
+            }
+        }
+
+        static var introFirstStep: String {
+            switch lang {
+            case .en: return "Whatever your reason is, if you're reading this, that means you already made the first step to change."
+            case .pl: return "Niezależnie od powodu, skoro czytasz ten ekran, zrobiłeś już pierwszy krok do zmiany."
+            }
+        }
+
+        static var introTransition: String {
+            switch lang {
+            case .en: return "So let's not waste it. There's someone you need to meet."
+            case .pl: return "Więc nie zmarnujmy tego. Jest ktoś, kogo musisz poznać."
             }
         }
         
@@ -133,8 +176,22 @@ extension L10n {
         
         static var expectationText: String {
             switch lang {
-            case .en: return "They are not here to fix you, or to guide you by the hand. They will break you — and I think that's a good thing. To become the star, you must burn."
-            case .pl: return "Nie jest tu, żeby cię naprawić, ani prowadzić za rękę. Złamie cię — i uważam, że to dobrze. Żeby stać się gwiazdą, musisz spłonąć."
+            case .en: return "They are not here to fix you nor to guide you by the hand. They will break you. And I think that's a good thing."
+            case .pl: return "Nie jest tu, żeby cię naprawić, ani prowadzić za rękę. Złamie cię — i uważam, że to dobrze."
+            }
+        }
+        
+        static var mottoText1: String {
+            switch lang {
+            case .en: return "To become the person you want, you must destroy the person you are."
+            case .pl: return "Aby stać się tym kim chcesz, musisz zniszczyć osobę, którą jesteś."
+            }
+        }
+        
+        static var mottoText2: String {
+            switch lang {
+            case .en: return "To become the star, you must burn."
+            case .pl: return "Żeby stać się gwiazdą, musisz spłonąć."
             }
         }
     }
