@@ -54,20 +54,12 @@ extension SettingsView {
                 Text(L10n.Settings.modelFieldLabel)
                     .font(Typography.label)
                     .foregroundStyle(Theme.textMuted)
-                
+
                 Spacer()
-                
-                Button(action: { Task { await fetchAvailableModels() } }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 10))
-                        Text(isLoadingModels ? L10n.Settings.loadModelsButtonLoading : L10n.Settings.loadModelsButtonIdle)
-                    }
-                    .font(Typography.caption)
-                    .foregroundStyle(Theme.textMuted)
+
+                RefreshModelsButton(isLoading: isLoadingModels) {
+                    Task { await fetchAvailableModels() }
                 }
-                .buttonStyle(.plain)
-                .disabled(isLoadingModels)
             }
             
             if isLoadingModels {
@@ -142,17 +134,15 @@ extension SettingsView {
             Text(title)
                 .font(Typography.label)
                 .foregroundStyle(Theme.textMuted)
-            
+
             PlaceholderTextField(placeholder: title, text: text)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(Theme.fieldBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(isValid ? Theme.border : Color.red.opacity(0.6), lineWidth: isValid ? 0.5 : 1)
                 )
-            
+
             if !isValid, let errorMessage {
                 Text(errorMessage)
                     .font(Typography.caption)
@@ -275,14 +265,42 @@ extension SettingsView {
                 Spacer()
             }
             .padding(10)
-            .background(Theme.fieldBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .contentShape(Rectangle())
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(isSelected ? Theme.textPrimary.opacity(0.6) : Theme.border, lineWidth: isSelected ? 1 : 0.5)
             )
+            .hoverBorder(cornerRadius: 8)
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct RefreshModelsButton: View {
+    let isLoading: Bool
+    let action: () -> Void
+    @State private var isHovering = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 10))
+                Text(isLoading ? L10n.Settings.loadModelsButtonLoading : L10n.Settings.loadModelsButtonIdle)
+            }
+            .font(Typography.caption)
+            .foregroundStyle(isHovering ? Theme.textPrimary : Theme.textMuted)
+        }
+        .buttonStyle(.plain)
+        .disabled(isLoading)
+        .onHover { hovering in
+            isHovering = hovering
+            if hovering && !isLoading {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
     }
 }
 

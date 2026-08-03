@@ -22,8 +22,12 @@ extension SettingsView {
                         .foregroundStyle(Theme.textPrimary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(Theme.fieldBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .contentShape(Rectangle())
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Theme.border, lineWidth: 0.5)
+                        )
+                        .hoverBorder(cornerRadius: 8)
                 }
                 .buttonStyle(.plain)
 
@@ -33,8 +37,12 @@ extension SettingsView {
                         .foregroundStyle(Theme.textPrimary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(Theme.fieldBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .contentShape(Rectangle())
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Theme.border, lineWidth: 0.5)
+                        )
+                        .hoverBorder(cornerRadius: 8)
                 }
                 .buttonStyle(.plain)
             }

@@ -13,12 +13,12 @@ struct ShortcutRecorderButton: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
                 .frame(minWidth: 44)
-                .background(Theme.fieldBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 5))
+                .contentShape(Rectangle())
                 .overlay(
                     RoundedRectangle(cornerRadius: 5)
                         .stroke(isRecording ? Theme.borderStrong : Theme.border, lineWidth: 0.5)
                 )
+                .hoverBorder(cornerRadius: 5)
         }
         .buttonStyle(.plain)
         .focusable()

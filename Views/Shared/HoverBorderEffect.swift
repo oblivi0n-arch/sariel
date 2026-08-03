@@ -9,7 +9,7 @@ private struct HoverBorderEffect<S: Shape>: ViewModifier {
         content
             .overlay(
                 shape
-                    .stroke(Theme.borderStrong, lineWidth: 0.5)
+                    .stroke(Theme.textPrimary.opacity(0.45), lineWidth: 1)
                     .opacity(isHovering ? 1 : 0)
             )
             .animation(.easeOut(duration: 0.15), value: isHovering)

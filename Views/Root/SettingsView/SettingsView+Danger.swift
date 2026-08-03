@@ -9,17 +9,9 @@ extension SettingsView {
                 EmptyView()
             }
             
-            Button(action: { showResetConfirmation = true }) {
-                Text(L10n.Settings.resetButton)
-                    .font(Typography.label)
-                    .foregroundStyle(Color.red.opacity(0.9))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(Color.red.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.4), lineWidth: 0.5))
+            DangerButton(title: L10n.Settings.resetButton) {
+                showResetConfirmation = true
             }
-            .buttonStyle(.plain)
             
             Text(L10n.Settings.resetDescription)
                 .font(Typography.caption)
@@ -87,6 +79,34 @@ extension SettingsView {
             DispatchQueue.main.async {
                 NSApp.terminate(nil)
             }
+        }
+    }
+}
+
+struct DangerButton: View {
+    let title: String
+    let action: () -> Void
+    @State private var isHovering = false
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(Typography.label)
+                .foregroundStyle(Color.red.opacity(0.9))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(Color.red.opacity(isHovering ? 0.18 : 0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.red.opacity(isHovering ? 0.7 : 0.4), lineWidth: 0.5)
+                )
+        }
+        .buttonStyle(.plain)
+        .animation(.easeOut(duration: 0.15), value: isHovering)
+        .onHover { hovering in
+            isHovering = hovering
+            if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
         }
     }
 }

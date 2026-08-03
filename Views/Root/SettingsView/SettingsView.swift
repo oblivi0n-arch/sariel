@@ -127,6 +127,7 @@ struct SettingsView: View {
                     .frame(width: 24, height: 24)
                     .background(Theme.fieldBackground)
                     .clipShape(Circle())
+                    .hoverBorder(Circle())
             }
             .buttonStyle(.plain)
         }
@@ -176,13 +177,12 @@ struct SettingsView: View {
     }
     
     private func tabBackgroundColor(isSelected: Bool, isHovering: Bool) -> Color {
-        if isSelected { return Theme.fieldBackground }
-        if isHovering { return Theme.fieldBackground.opacity(0.5) }
-        return .clear
+        .clear
     }
-    
+
     private func tabBorderColor(isSelected: Bool, isHovering: Bool) -> Color {
-        if isSelected { return Theme.border }
+        if isSelected { return Theme.borderStrong }
+        if isHovering { return Theme.border }
         return .clear
     }
     

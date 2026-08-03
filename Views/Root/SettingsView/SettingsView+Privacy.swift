@@ -55,22 +55,19 @@ extension SettingsView {
                         .foregroundStyle(Theme.textPrimary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
-                        .background(Theme.fieldBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .contentShape(Rectangle())
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Theme.border, lineWidth: 0.5)
+                        )
+                        .hoverBorder(cornerRadius: 8)
                 }
                 .buttonStyle(.plain)
                 
                 if hasPinSet {
-                    Button(action: { pendingPinAction = .remove }) {
-                        Text(L10n.Settings.removePinButton)
-                            .font(Typography.label)
-                            .foregroundStyle(Color.red.opacity(0.9))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                            .background(Color.red.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    DangerButton(title: L10n.Settings.removePinButton) {
+                        pendingPinAction = .remove
                     }
-                    .buttonStyle(.plain)
                 }
             }
             

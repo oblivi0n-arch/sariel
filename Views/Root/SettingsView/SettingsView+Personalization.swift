@@ -91,11 +91,13 @@ extension SettingsView {
                                 .foregroundStyle(checkmarkColor)
                         }
                     }
+                    .hoverBorder(Circle())
 
                 Text(label)
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textMuted)
             }
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -119,18 +121,18 @@ extension SettingsView {
     
     private func languageOption(_ language: AppLanguage, label: String) -> some View {
         let isSelected = languageManager.current == language
-        
+
         return Button(action: { languageManager.current = language }) {
             Text(label)
                 .font(Typography.label)
-                .foregroundStyle(isSelected ? Theme.background : Theme.textPrimary)
+                .foregroundStyle(isSelected ? Theme.textPrimary : Theme.textMuted)
                 .frame(width: 52, height: 32)
-                .background(isSelected ? Theme.textPrimary : Theme.fieldBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .contentShape(Rectangle())
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(isSelected ? Color.clear : Theme.border, lineWidth: 0.5)
+                        .stroke(isSelected ? Theme.borderStrong : Theme.border, lineWidth: isSelected ? 1 : 0.5)
                 )
+                .hoverBorder(cornerRadius: 8)
         }
         .buttonStyle(.plain)
     }
@@ -143,13 +145,9 @@ extension SettingsView {
             
             PlaceholderTextField(placeholder: L10n.Settings.usernamePlaceholder, text: $draftUsername)
                 .padding(10)
-                .background(Theme.fieldBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
                 .focused($isUsernameFieldFocused)
-                .onSubmit {
-                    commitUsername()
-                }
+                .onSubmit { commitUsername() }
                 .onChange(of: draftUsername) { _, newValue in
                     if newValue.count > AppLimits.maxUsernameLength {
                         draftUsername = String(newValue.prefix(AppLimits.maxUsernameLength))
@@ -182,7 +180,7 @@ extension SettingsView {
                         .padding(.vertical, 12)
                         .allowsHitTesting(false)
                 }
-                
+
                 TextEditor(text: $aboutMe)
                     .font(Theme.uiFont)
                     .foregroundStyle(Theme.textPrimary)
@@ -197,8 +195,6 @@ extension SettingsView {
                     }
             }
             .frame(height: 120)
-            .background(Theme.fieldBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
             
             Text("\(aboutMe.count)/\(AppLimits.maxAboutMeLength)")
