@@ -21,6 +21,7 @@ struct DashboardView: View {
     @State private var letterBeingRead: SelfLetter?
     @Query private var selfLetters: [SelfLetter]
     @State private var isArchiveShown = false
+    @State private var isHovering = false
     
     private var currentStreak: Int {
         let calendar = Calendar.current
@@ -126,9 +127,10 @@ struct DashboardView: View {
                 if selfLetters.contains(where: { $0.letterStatus == .opened }) {
                     Text(L10n.SelfLetterArchive.entryPointLabel)
                         .font(Typography.caption)
-                        .foregroundStyle(Theme.textFaint)
+                        .foregroundStyle(isHovering ? Theme.textMuted : Theme.textFaint)
                         .contentShape(Rectangle())
                         .onTapGesture { isArchiveShown = true }
+                        .trackHover($isHovering)
                 }
                 
                 DashboardAchievementsSection(

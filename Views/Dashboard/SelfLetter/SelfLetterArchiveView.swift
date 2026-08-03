@@ -168,8 +168,8 @@ extension L10n {
 
         static var entryPointLabel: String {
             switch lang {
-            case .en: return "view sealed letters"
-            case .pl: return "zobacz zapieczętowane listy"
+            case .en: return "View sealed letters"
+            case .pl: return "Zobacz zapieczętowane listy"
             }
         }
 
