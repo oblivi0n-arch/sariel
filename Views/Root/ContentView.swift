@@ -247,11 +247,12 @@ struct ContentView: View {
                         .transition(.opacity)
                     } else {
                         SetupWizardView {
-                            hasCompletedOnboarding = true
-                            isPostReset = false
                             withAnimation(.easeOut(duration: 0.6)) {
+                                hasCompletedOnboarding = true
                                 hasEnteredApp = true
                             }
+                            showSplash = false
+                            isPostReset = false
                         }
                         .transition(.opacity)
                     }

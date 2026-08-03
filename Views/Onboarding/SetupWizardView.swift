@@ -16,17 +16,22 @@ struct SetupWizardView: View {
 
             switch currentStep {
             case .language:
-                LanguageStepView(onNext: { currentStep = .nickname })
+                LanguageStepView(
+                    onNext: { withAnimation(.easeInOut(duration: 0.4)) { currentStep = .nickname }}
+                )
+                .transition(.opacity)
             case .nickname:
                 NicknameStepView(
-                    onNext: { currentStep = .ollama },
-                    onBack: { currentStep = .language }
+                    onNext: { withAnimation(.easeInOut(duration: 0.4)) { currentStep = .ollama }},
+                    onBack: { withAnimation(.easeInOut(duration: 0.4)) { currentStep = .language }}
                 )
+                .transition(.opacity)
             case .ollama:
                 OllamaStepView(
                     onFinish: onFinished,
-                    onBack: { currentStep = .nickname }
+                    onBack: { withAnimation(.easeInOut(duration: 0.4)) {currentStep = .nickname }}
                 )
+                .transition(.opacity)
             }
         }
     }
