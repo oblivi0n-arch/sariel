@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct MeditationSessionRow: View {
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     let session: MeditationSession
 
     private var durationText: String {

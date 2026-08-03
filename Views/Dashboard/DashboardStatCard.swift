@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct DashboardStatCard: View {
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     let label: String
     let value: String
     var icon: String? = nil
