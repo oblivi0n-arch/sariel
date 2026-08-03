@@ -197,9 +197,12 @@ struct DashboardView: View {
             greetingDateString = todayString
         }
         
-        let name = username.isEmpty ? L10n.Dashboard.fallbackName : username
-        greetingText = L10n.Dashboard.greetings[greetingIndex]
-            .replacingOccurrences(of: "{name}", with: name)
+        let greetings = L10n.Dashboard.greetings
+            let safeIndex = min(greetingIndex, greetings.count - 1)
+
+            let name = username.isEmpty ? L10n.Dashboard.fallbackName : username
+            greetingText = greetings[safeIndex]
+                .replacingOccurrences(of: "{name}", with: name)
     }
     
     private func weekdayLabel(for date: Date) -> String {
