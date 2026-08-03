@@ -87,7 +87,7 @@ struct JournalEntryRow: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .contentShape(Rectangle())
         .onTapGesture(perform: onSelect)
-        .onHover { isHovering = $0 }
+        .trackHover($isHovering)
         .contextMenu {
             Button(action: onTogglePin) {
                 Label(entry.isPinned ? L10n.JournalRow.unpin : L10n.JournalRow.pin, systemImage: entry.isPinned ? "pin.slash" : "pin")

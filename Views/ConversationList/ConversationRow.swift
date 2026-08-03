@@ -73,9 +73,7 @@ struct ConversationRow: View {
                 onSelect()
             }
         }
-        .onHover { hovering in
-            isHovering = hovering
-        }
+        .trackHover($isHovering)
         .contextMenu {
             Button {
                 startEditing()

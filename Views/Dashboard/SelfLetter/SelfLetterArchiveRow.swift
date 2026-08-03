@@ -41,6 +41,6 @@ struct SelfLetterArchiveRow: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .contentShape(Rectangle())
         .onTapGesture(perform: onSelect)
-        .onHover { isHovering = $0 }
+        .trackHover($isHovering)
     }
 }

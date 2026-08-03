@@ -25,7 +25,7 @@ struct MoodOptionView: View {
         )
         .contentShape(Rectangle())
         .onTapGesture(perform: onTap)
-        .onHover { hovering in isHovering = hovering }
+        .trackHover($isHovering)
     }
 
     private var foregroundColor: Color {

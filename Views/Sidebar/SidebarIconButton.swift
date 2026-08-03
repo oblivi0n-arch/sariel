@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct SidebarIconButton: View {
     let iconName: String
@@ -52,6 +53,11 @@ struct SidebarIconButton: View {
         .onHover { hovering in
             guard !effectivelyLocked else { return }
             isHovering = hovering
+            if hovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
         }
         .help(effectivelyLocked ? L10n.Sidebar.lockedTooltip : "")
         .focusEffectDisabled()

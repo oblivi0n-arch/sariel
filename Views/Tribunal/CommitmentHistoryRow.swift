@@ -62,7 +62,7 @@ struct CommitmentHistoryRow: View {
             guard isSelectable else { return }
             onSelect()
         }
-        .onHover { hovering in isHovering = hovering }
+        .trackHover($isHovering)
     }
 }
 
