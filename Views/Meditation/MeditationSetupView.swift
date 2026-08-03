@@ -7,6 +7,7 @@ struct MeditationSetupView: View {
     @State private var intention: String = ""
     @State private var selectedDuration: MeditationDuration = .tenMinutes
     @State private var isHistoryExpanded = false
+    @State private var isHoveringHistory = false
     @FocusState private var isIntentionFocused: Bool
     
     var body: some View {
@@ -20,8 +21,15 @@ struct MeditationSetupView: View {
                         Image(systemName: "clock.arrow.circlepath")
                             .font(Typography.iconButton)
                             .foregroundStyle(isHistoryExpanded ? Theme.textPrimary : Theme.textMuted)
+                            .frame(width: 28, height: 28)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(isHoveringHistory ? Theme.border : .clear, lineWidth: 1)
+                            )
                     }
                     .buttonStyle(.plain)
+                    .trackHover($isHoveringHistory)
                 }
                 .padding(20)
                 
@@ -62,7 +70,11 @@ struct MeditationSetupView: View {
                     
                     HStack(spacing: 8) {
                         ForEach(MeditationDuration.allCases, id: \.self) { duration in
-                            durationOption(duration)
+                            DurationOptionView(
+                                duration: duration,
+                                isSelected: selectedDuration == duration,
+                                onTap: { selectedDuration = duration }
+                            )
                         }
                     }
                     .padding(.top, 8)
@@ -83,6 +95,7 @@ struct MeditationSetupView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
+                    .hoverScale()
                 }
                 .padding(20)
             }
@@ -90,18 +103,6 @@ struct MeditationSetupView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.background)
         .onAppear { isIntentionFocused = true }
-    }
-    
-    private func durationOption(_ duration: MeditationDuration) -> some View {
-        let isSelected = selectedDuration == duration
-        return Text(duration.displayName)
-            .font(Typography.label)
-            .foregroundStyle(isSelected ? Theme.textPrimary : Theme.textMuted)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(isSelected ? Theme.borderStrong : Theme.border, lineWidth: 0.5))
-            .contentShape(Rectangle())
-            .onTapGesture { selectedDuration = duration }
     }
     
     private var historyPanel: some View {
@@ -143,6 +144,24 @@ struct MeditationSetupView: View {
     
     private func startSession() {
         onStart(intention.trimmingCharacters(in: .whitespacesAndNewlines), selectedDuration)
+    }
+}
+
+private struct DurationOptionView: View {
+    let duration: MeditationDuration
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Text(duration.displayName)
+            .font(Typography.label)
+            .foregroundStyle(isSelected ? Theme.textPrimary : Theme.textMuted)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(isSelected ? Theme.borderStrong : Theme.border, lineWidth: 0.5))
+            .hoverBorder(cornerRadius: 8)
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onTap)
     }
 }
 

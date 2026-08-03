@@ -7,6 +7,7 @@ struct PinUnlockView: View {
     @AppStorage("appLockUseBiometrics") private var useBiometrics: Bool = true
     @State private var errorMessage: String?
     @State private var isAttemptingBiometrics = false
+    @State private var isHoveringTouchID = false
 
     var body: some View {
         ZStack {
@@ -27,9 +28,10 @@ struct PinUnlockView: View {
                     Button(action: attemptBiometrics) {
                         Label(L10n.Privacy.useTouchID, systemImage: "touchid")
                             .font(Typography.label)
-                            .foregroundStyle(Theme.textMuted)
+                            .foregroundStyle(isHoveringTouchID ? Theme.textSecondary : Theme.textMuted)
                     }
                     .buttonStyle(.plain)
+                    .trackHover($isHoveringTouchID)
                 }
             }
         }

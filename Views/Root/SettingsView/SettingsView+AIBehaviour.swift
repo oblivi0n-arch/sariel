@@ -98,22 +98,8 @@ extension SettingsView {
     
     private var manualOllamaPathDisclosure: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    isManualPathShown.toggle()
-                }
-            }) {
-                HStack(spacing: 4) {
-                    Text(L10n.Settings.cantFindOllama)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 9, weight: .medium))
-                        .rotationEffect(.degrees(isManualPathShown ? 90 : 0))
-                }
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textMuted)
-            }
-            .buttonStyle(.plain)
-            
+            DisclosureLinkButton(title: L10n.Settings.cantFindOllama, isExpanded: $isManualPathShown)
+
             if isManualPathShown {
                 labeledField(
                     title: L10n.Settings.manualPathLabel,
@@ -121,7 +107,7 @@ extension SettingsView {
                     isValid: isManualPathValid,
                     errorMessage: L10n.Settings.manualPathError
                 )
-                
+
                 Text(L10n.Settings.manualPathHint)
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)

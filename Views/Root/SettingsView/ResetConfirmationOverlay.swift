@@ -46,8 +46,6 @@ struct ResetConfirmationOverlay: View {
 
                 PlaceholderTextField(placeholder: L10n.Settings.resetConfirmPhrase, text: $typedText)
                     .padding(10)
-                    .background(Theme.fieldBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
                     .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
                 
                 HStack(spacing: 12) {
@@ -57,24 +55,15 @@ struct ResetConfirmationOverlay: View {
                             .foregroundStyle(Theme.textMuted)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
-                            .background(Theme.fieldBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .contentShape(Rectangle())
+                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
+                            .hoverBorder(cornerRadius: 8)
                     }
                     .buttonStyle(.plain)
 
-                    Button(action: onConfirm) {
-                        Text(L10n.Settings.resetConfirmButton)
-                            .font(Typography.label)
-                            .foregroundStyle(Color.red.opacity(0.9))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .background(Color.red.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.4), lineWidth: 0.5))
+                    DangerButton(title: L10n.Settings.resetConfirmButton, isEnabled: isConfirmEnabled) {
+                        onConfirm()
                     }
-                    .buttonStyle(.plain)
-                    .disabled(!isConfirmEnabled)
-                    .opacity(isConfirmEnabled ? 1 : 0.4)
                 }
             }
             .padding(24)

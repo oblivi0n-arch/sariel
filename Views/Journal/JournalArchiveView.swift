@@ -12,12 +12,7 @@ struct JournalArchiveView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Button(action: onBack) {
-                    Image(systemName: "chevron.left")
-                        .font(Typography.iconButton)
-                        .foregroundStyle(Theme.textMuted)
-                }
-                .buttonStyle(.plain)
+                BackButton(action: onBack)
 
                 Text(L10n.JournalArchive.title)
                     .font(Typography.sectionTitle)

@@ -14,6 +14,7 @@ struct MeditationTimerView: View {
     @State private var extendFeedback: String?
     @State private var extendFeedbackTask: Task<Void, Never>?
     @State private var hasInteractedWithCircle = false
+    @State private var isHoveringCircle = false
     
     init(plannedDuration: TimeInterval, onComplete: @escaping (TimeInterval) -> Void) {
         self.plannedDuration = plannedDuration
@@ -70,6 +71,7 @@ struct MeditationTimerView: View {
                         isMenuShown.toggle()
                     }
                 }
+                .trackHover($isHoveringCircle)
                 
                 if !isMenuShown && !hasInteractedWithCircle {
                     Text(L10n.MeditationTimer.tapHint)
@@ -108,29 +110,15 @@ struct MeditationTimerView: View {
     
     private var timerMenu: some View {
         HStack(spacing: 24) {
-            menuButton(icon: "plus", label: L10n.MeditationTimer.extend, action: { extend() })
-            menuButton(
+            TimerMenuButton(icon: "plus", label: L10n.MeditationTimer.extend, action: { extend() })
+            TimerMenuButton(
                 icon: isPaused ? "play.fill" : "pause.fill",
                 label: isPaused ? L10n.MeditationTimer.resume : L10n.MeditationTimer.pause,
                 action: togglePause
             )
-            menuButton(icon: "xmark", label: L10n.MeditationTimer.end, action: endNow)
+            TimerMenuButton(icon: "xmark", label: L10n.MeditationTimer.end, action: endNow)
         }
         .padding(.bottom, 48)
-    }
-    
-    private func menuButton(icon: String, label: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(Typography.icon)
-                Text(label)
-                    .font(Typography.caption)
-            }
-            .foregroundStyle(Theme.textMuted)
-            .frame(width: 64)
-        }
-        .buttonStyle(.plain)
     }
     
     private func startTicking() {
@@ -192,6 +180,29 @@ struct MeditationTimerView: View {
         }
     }
 }
+
+private struct TimerMenuButton: View {
+    let icon: String
+    let label: String
+    let action: () -> Void
+    @State private var isHovering = false
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(Typography.icon)
+                Text(label)
+                    .font(Typography.caption)
+            }
+            .foregroundStyle(isHovering ? Theme.textPrimary : Theme.textMuted)
+            .frame(width: 64)
+        }
+        .buttonStyle(.plain)
+        .trackHover($isHovering)
+    }
+}
+
 extension L10n {
     enum MeditationTimer {
         static var extend: String {

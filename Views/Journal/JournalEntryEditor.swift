@@ -82,19 +82,7 @@ struct JournalEntryEditor: View {
                     if !entry.tags.isEmpty {
                         HStack {
                             ForEach(entry.tags.sorted(by: { $0.name < $1.name })) { tag in
-                                HStack(spacing: 4) {
-                                    Text("#\(tag.name)")
-                                    Button(action: { removeTag(tag) }) {
-                                        Image(systemName: "xmark")
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                                .font(Typography.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Theme.fieldBackground)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                                .foregroundStyle(Theme.textMuted)
+                                JournalTagChip(tag: tag, onRemove: { removeTag(tag) })
                             }
                         }
                     }
@@ -192,6 +180,27 @@ struct MoodPicker: View {
                 )
             }
         }
+    }
+}
+
+private struct JournalTagChip: View {
+    let tag: JournalEntryTag
+    let onRemove: () -> Void
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text("#\(tag.name)")
+            Button(action: onRemove) {
+                Image(systemName: "xmark")
+            }
+            .buttonStyle(.plain)
+        }
+        .font(Typography.caption)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .foregroundStyle(Theme.textMuted)
+        .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
+        .hoverBorder(Capsule())
     }
 }
 

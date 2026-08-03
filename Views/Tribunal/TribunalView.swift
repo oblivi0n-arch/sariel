@@ -16,6 +16,9 @@ struct TribunalView: View {
     @State private var tickTask: Task<Void, Never>?
     @State private var activeTribunalConversation: Conversation?
     @State private var emptyStateText: String = L10n.Tribunal.emptyStateTexts.randomElement()!
+    @State private var isHoveringInfo = false
+    @State private var isHoveringStart = false
+    @State private var isHoveringHistory = false
     
     @Query(filter: #Predicate<Commitment> { $0.status == "pending" }, sort: \Commitment.createdAt)
     private var pendingCommitments: [Commitment]
@@ -119,9 +122,12 @@ struct TribunalView: View {
                 Button(action: { isInfoShown = true }) {
                     Image(systemName: "info.circle")
                         .font(Typography.icon)
-                        .foregroundStyle(Theme.textMuted)
+                        .foregroundStyle(isHoveringInfo ? Theme.textPrimary : Theme.textMuted)
+                        .frame(width: 28, height: 28)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .trackHover($isHoveringInfo)
             }
             .padding(.bottom, 20)
             
@@ -196,8 +202,8 @@ struct TribunalView: View {
                     .font(Typography.iconButton)
                     .foregroundStyle(Theme.textMuted)
                     .frame(width: 24, height: 24)
-                    .background(Theme.fieldBackground)
                     .clipShape(Circle())
+                    .hoverBorder(Circle())
             }
             .buttonStyle(.plain)
         }
@@ -280,13 +286,14 @@ struct TribunalView: View {
                 .foregroundStyle(Theme.tribunalAccent.opacity(0.9))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
-                .background(Theme.tribunalAccent.opacity(0.12))
+                .background(Theme.tribunalAccent.opacity(isHoveringStart ? 0.18 : 0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.tribunalAccent.opacity(0.4), lineWidth: 0.5))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.tribunalAccent.opacity(isHoveringStart ? 0.6 : 0.4), lineWidth: 0.5))
         }
         .buttonStyle(.plain)
         .disabled(isStarting)
         .opacity(isStarting ? 0.6 : 1)
+        .trackHover($isHoveringStart)
     }
     
     private func startTribunal() {
@@ -311,18 +318,20 @@ struct TribunalView: View {
                 HStack(spacing: 6) {
                     Text(L10n.Tribunal.historyLabel)
                         .font(Typography.caption)
-                        .foregroundStyle(Theme.textFaint)
+                        .foregroundStyle(isHoveringHistory ? Theme.textMuted : Theme.textFaint)
                         .kerning(0.5)
-                    
+
                     Image(systemName: "chevron.right")
                         .font(.system(size: 9, weight: .medium))
-                        .foregroundStyle(Theme.textFaint)
+                        .foregroundStyle(isHoveringHistory ? Theme.textMuted : Theme.textFaint)
                         .rotationEffect(.degrees(isHistoryExpanded ? 90 : 0))
-                    
+
                     Spacer()
                 }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .trackHover($isHoveringHistory)
             
             if isHistoryExpanded {
                 VStack(spacing: 8) {

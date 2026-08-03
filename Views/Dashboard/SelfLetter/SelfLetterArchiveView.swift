@@ -48,12 +48,7 @@ struct SelfLetterArchiveView: View {
 
     private var header: some View {
         HStack(spacing: 10) {
-            Button(action: activeLetter == nil ? onBack : { activeLetter = nil }) {
-                Image(systemName: "chevron.left")
-                    .font(Typography.iconButton)
-                    .foregroundStyle(Theme.textMuted)
-            }
-            .buttonStyle(.plain)
+            BackButton(action: activeLetter == nil ? onBack : { activeLetter = nil })
 
             if activeLetter == nil, isSearchExpanded {
                 HStack(spacing: 6) {

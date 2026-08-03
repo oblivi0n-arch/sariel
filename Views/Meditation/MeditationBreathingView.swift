@@ -39,6 +39,10 @@ struct MeditationBreathingView: View {
                     .foregroundStyle(Theme.textMuted)
                     .textCase(.uppercase)
                     .kerning(0.5)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
+                    .hoverBorder(Capsule())
             }
             .buttonStyle(.plain)
             .padding(.bottom, 32)

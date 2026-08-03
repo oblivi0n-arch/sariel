@@ -31,6 +31,7 @@ struct AchievementIconView: View {
             .frame(width: 44, height: 44)
             .background(Theme.background)
             .clipShape(RoundedRectangle(cornerRadius: 10))
+            .hoverBorder(Circle())
         }
         .buttonStyle(.plain)
     }

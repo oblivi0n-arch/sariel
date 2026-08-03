@@ -74,7 +74,6 @@ struct JournalEntryRow: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.fieldBackground)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(isHovering ? Theme.borderStrong : Theme.border, lineWidth: 0.5)

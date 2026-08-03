@@ -6,7 +6,7 @@ struct JournalEntryDetailView: View {
     @Binding var isEditing: Bool
     let onOpenConversation: (Conversation) -> Void
     let achievementService: AchievementService
-
+    
     var body: some View {
         if isEditing {
             JournalEntryEditor(entry: entry, achievementService: achievementService)
@@ -17,10 +17,12 @@ struct JournalEntryDetailView: View {
 }
 
 struct JournalEntryReader: View {
+    @Environment(\.modelContext) private var modelContext
+    @State private var isHoveringViewConversation = false
+    
     let entry: JournalEntry
     let onEdit: () -> Void
     let onOpenConversation: (Conversation) -> Void
-    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -34,8 +36,6 @@ struct JournalEntryReader: View {
                 .lineSpacing(4)
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Theme.fieldBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.border, lineWidth: 0.5))
             
             if !entry.tags.isEmpty || entry.sourceConversation != nil {
@@ -73,8 +73,8 @@ struct JournalEntryReader: View {
                     .font(Typography.iconButton)
                     .foregroundStyle(Theme.textMuted)
                     .frame(width: 28, height: 28)
-                    .background(Theme.fieldBackground)
                     .clipShape(Circle())
+                    .hoverBorder(Circle())
             }
             .buttonStyle(.plain)
             
@@ -83,8 +83,8 @@ struct JournalEntryReader: View {
                     .font(Typography.iconButton)
                     .foregroundStyle(Theme.textMuted)
                     .frame(width: 28, height: 28)
-                    .background(Theme.fieldBackground)
                     .clipShape(Circle())
+                    .hoverBorder(Circle())
             }
             .buttonStyle(.plain)
         }
@@ -111,9 +111,10 @@ struct JournalEntryReader: View {
                         Text(L10n.JournalDetail.viewConversation)
                     }
                     .font(Typography.label)
-                    .foregroundStyle(Theme.textMuted)
+                    .foregroundStyle(isHoveringViewConversation ? Theme.textPrimary : Theme.textMuted)
                 }
                 .buttonStyle(.plain)
+                .trackHover($isHoveringViewConversation)
             }
         }
     }

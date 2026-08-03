@@ -14,6 +14,8 @@ struct SelfLetterRevealView: View {
 
     @Environment(\.modelContext) private var modelContext
     @State private var stage: RevealStage = .sealed
+    @State private var isHoveringSeal = false
+    @State private var isHoveringClose = false
 
     var body: some View {
         ZStack {
@@ -32,11 +34,12 @@ struct SelfLetterRevealView: View {
 
                     Text(L10n.SelfLetterReveal.tapToOpen)
                         .font(Typography.caption)
-                        .foregroundStyle(Theme.textFaint)
+                        .foregroundStyle(isHoveringSeal ? Theme.textMuted : Theme.textFaint)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
                 .onTapGesture(perform: breakSeal)
+                .trackHover($isHoveringSeal)
 
             case .revealing, .revealed:
                 VStack(alignment: .leading, spacing: 20) {
@@ -46,9 +49,12 @@ struct SelfLetterRevealView: View {
                             Button(action: onDismiss) {
                                 Image(systemName: "xmark")
                                     .font(Typography.iconButton)
-                                    .foregroundStyle(Theme.textFaint)
+                                    .foregroundStyle(isHoveringClose ? Theme.textMuted : Theme.textFaint)
+                                    .frame(width: 28, height: 28)
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .trackHover($isHoveringClose)
                         }
                     }
 

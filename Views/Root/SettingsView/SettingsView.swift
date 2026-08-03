@@ -125,7 +125,6 @@ struct SettingsView: View {
                     .font(Typography.iconButton)
                     .foregroundStyle(Theme.textMuted)
                     .frame(width: 24, height: 24)
-                    .background(Theme.fieldBackground)
                     .clipShape(Circle())
                     .hoverBorder(Circle())
             }

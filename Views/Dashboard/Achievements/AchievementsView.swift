@@ -36,12 +36,7 @@ struct AchievementsView: View {
 
     private var header: some View {
         HStack(spacing: 10) {
-            Button(action: onBack) {
-                Image(systemName: "chevron.left")
-                    .font(Typography.iconButton)
-                    .foregroundStyle(Theme.textMuted)
-            }
-            .buttonStyle(.plain)
+            BackButton(action: onBack)
 
             Text(L10n.Dashboard.achievementsLabel)
                 .font(Typography.title)

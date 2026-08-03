@@ -1,5 +1,4 @@
 import SwiftUI
-import AppKit
 
 struct ExpandableDescription: View {
     let short: String
@@ -25,14 +24,7 @@ struct ExpandableDescription: View {
                 .foregroundStyle(isHovering ? Theme.textMuted : Theme.textFaint)
             }
             .buttonStyle(.plain)
-            .onHover { hovering in
-                isHovering = hovering
-                if hovering {
-                    NSCursor.pointingHand.push()
-                } else {
-                    NSCursor.pop()
-                }
-            }
+            .trackHover($isHovering)
 
             if isExpanded {
                 Text(detail)

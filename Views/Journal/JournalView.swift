@@ -19,6 +19,7 @@ struct JournalView: View {
     @State private var searchText: String = ""
     @State private var isSearchExpanded = false
     @State private var isSearchHovering = false
+    @State private var isArchiveHovering = false
     @State private var searchIncludesArchive = false
     @State private var isViewingArchive = false
     @FocusState private var isSearchFocused: Bool
@@ -101,17 +102,10 @@ struct JournalView: View {
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
-                        .background(Theme.fieldBackground)
-                        .clipShape(Capsule())
                         .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
                     } else {
                         if activeEntry != nil {
-                            Button(action: goBack) {
-                                Image(systemName: "chevron.left")
-                                    .font(Typography.iconButton)
-                                    .foregroundStyle(Theme.textMuted)
-                            }
-                            .buttonStyle(.plain)
+                            BackButton(action: goBack)
                         }
 
                         Text(L10n.Journal.title)
@@ -128,8 +122,14 @@ struct JournalView: View {
                                     .font(Typography.iconButton)
                                     .foregroundStyle(Theme.textMuted)
                                     .frame(width: 24, height: 24)
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(isArchiveHovering ? Theme.border : .clear, lineWidth: 1)
+                                    )
                             }
                             .buttonStyle(.plain)
+                            .trackHover($isArchiveHovering)
 
                             Button(action: expandSearch) {
                                 Image(systemName: "magnifyingglass")
@@ -143,9 +143,7 @@ struct JournalView: View {
                                     )
                             }
                             .buttonStyle(.plain)
-                            .onHover { hovering in
-                                isSearchHovering = hovering
-                            }
+                            .trackHover($isSearchHovering)
 
                             Button(action: createNewEntry) {
                                 Image(systemName: "plus")
@@ -159,9 +157,7 @@ struct JournalView: View {
                                     )
                             }
                             .buttonStyle(.plain)
-                            .onHover { hovering in
-                                isPlusHovering = hovering
-                            }
+                            .trackHover($isPlusHovering)
                         }
                     }
                 }

@@ -51,6 +51,8 @@ struct AchievementDetailOverlay: View {
                         .padding(.vertical, 10)
                         .background(Theme.fieldBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
+                        .hoverBorder(cornerRadius: 8)
                 }
                 .buttonStyle(.plain)
             }

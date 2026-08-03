@@ -44,6 +44,7 @@ struct TribunalVerdictOverlay: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
+                .hoverScale()
             }
             .padding(20)
             .frame(maxWidth: 420)
@@ -84,16 +85,29 @@ struct TribunalVerdictOverlay: View {
 
     private func statusToggle(_ verdict: Binding<TribunalVerdict>) -> some View {
         HStack(spacing: 8) {
-            statusOption(L10n.TribunalVerdictOverlay.fulfilled, isBroken: false, isSelected: verdict.wrappedValue.proposedStatus == .fulfilled) {
-                verdict.wrappedValue.proposedStatus = .fulfilled
-            }
-            statusOption(L10n.TribunalVerdictOverlay.broken, isBroken: true, isSelected: verdict.wrappedValue.proposedStatus == .broken) {
-                verdict.wrappedValue.proposedStatus = .broken
-            }
+            StatusOptionView(
+                label: L10n.TribunalVerdictOverlay.fulfilled,
+                isBroken: false,
+                isSelected: verdict.wrappedValue.proposedStatus == .fulfilled,
+                onTap: { verdict.wrappedValue.proposedStatus = .fulfilled }
+            )
+            StatusOptionView(
+                label: L10n.TribunalVerdictOverlay.broken,
+                isBroken: true,
+                isSelected: verdict.wrappedValue.proposedStatus == .broken,
+                onTap: { verdict.wrappedValue.proposedStatus = .broken }
+            )
         }
     }
+}
 
-    private func statusOption(_ label: String, isBroken: Bool, isSelected: Bool, onTap: @escaping () -> Void) -> some View {
+private struct StatusOptionView: View {
+    let label: String
+    let isBroken: Bool
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
         Text(label)
             .font(Typography.caption)
             .foregroundStyle(isSelected ? (isBroken ? Theme.tribunalAccent.opacity(0.9) : Theme.textPrimary) : Theme.textFaint)
@@ -104,6 +118,7 @@ struct TribunalVerdictOverlay: View {
             .overlay(
                 Capsule().stroke(isSelected ? (isBroken ? Theme.tribunalAccent.opacity(0.5) : Theme.borderStrong) : Theme.border, lineWidth: 0.5)
             )
+            .hoverBorder(Capsule())
             .contentShape(Capsule())
             .onTapGesture(perform: onTap)
     }

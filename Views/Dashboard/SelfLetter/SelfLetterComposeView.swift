@@ -21,6 +21,7 @@ struct SelfLetterComposeView: View {
     @FocusState private var focusedField: ComposeField?
     @State private var selectedDelay: SelfLetterDelay = .oneMonth
     @State private var saveTask: Task<Void, Never>?
+    @State private var isHoveringClose = false
 
     private var titleBinding: Binding<String> {
         Binding(
@@ -40,10 +41,13 @@ struct SelfLetterComposeView: View {
                         Button(action: closeCompose) {
                             Image(systemName: "xmark")
                                 .font(Typography.iconButton)
-                                .foregroundStyle(Theme.textFaint)
+                                .foregroundStyle(isHoveringClose ? Theme.textMuted : Theme.textFaint)
+                                .frame(width: 28, height: 28)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-
+                        .trackHover($isHoveringClose)
+                        
                         Spacer()
                     }
                     .padding(20)
@@ -90,6 +94,7 @@ struct SelfLetterComposeView: View {
                                 .padding(.horizontal, 18)
                                 .padding(.vertical, 8)
                                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
+                                .hoverBorder(cornerRadius: 8)
                         }
                         .buttonStyle(.plain)
                         .disabled(letter.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -100,12 +105,7 @@ struct SelfLetterComposeView: View {
             case .sealing:
                 VStack(alignment: .leading, spacing: 0) {
                     HStack {
-                        Button(action: { stage = .writing }) {
-                            Image(systemName: "chevron.left")
-                                .font(Typography.iconButton)
-                                .foregroundStyle(Theme.textFaint)
-                        }
-                        .buttonStyle(.plain)
+                        BackButton(action: { stage = .writing })
 
                         Spacer()
                     }
@@ -120,7 +120,11 @@ struct SelfLetterComposeView: View {
 
                     VStack(alignment: .leading, spacing: 8) {
                         ForEach(SelfLetterDelay.allCases, id: \.self) { delay in
-                            delayOption(delay)
+                            DelayOptionView(
+                                delay: delay,
+                                isSelected: selectedDelay == delay,
+                                onTap: { selectedDelay = delay }
+                            )
                         }
                     }
                     .padding(20)
@@ -139,6 +143,7 @@ struct SelfLetterComposeView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                         .buttonStyle(.plain)
+                        .hoverScale()
                     }
                     .padding(20)
                 }
@@ -148,19 +153,6 @@ struct SelfLetterComposeView: View {
             saveTask?.cancel()
             try? modelContext.save()
         }
-    }
-
-    private func delayOption(_ delay: SelfLetterDelay) -> some View {
-        let isSelected = selectedDelay == delay
-        return Text(delay.displayName)
-            .font(Typography.label)
-            .foregroundStyle(isSelected ? Theme.textPrimary : Theme.textMuted)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(isSelected ? Theme.borderStrong : Theme.border, lineWidth: 0.5))
-            .contentShape(Rectangle())
-            .onTapGesture { selectedDelay = delay }
     }
 
     private func scheduleSave() {
@@ -192,6 +184,25 @@ struct SelfLetterComposeView: View {
         achievementService.checkSelfLetterFirstSealed(modelContext: modelContext)
         achievementService.checkSelfLetterLongestDelay(modelContext: modelContext)
         onDismiss()
+    }
+}
+
+private struct DelayOptionView: View {
+    let delay: SelfLetterDelay
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Text(delay.displayName)
+            .font(Typography.label)
+            .foregroundStyle(isSelected ? Theme.textPrimary : Theme.textMuted)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(isSelected ? Theme.borderStrong : Theme.border, lineWidth: 0.5))
+            .hoverBorder(cornerRadius: 8)
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onTap)
     }
 }
 

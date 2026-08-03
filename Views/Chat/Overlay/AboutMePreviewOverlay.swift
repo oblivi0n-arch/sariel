@@ -8,6 +8,8 @@ struct AboutMePreviewOverlay: View {
     let onRetry: () -> Void
     let onSkip: () -> Void
     
+    @State private var isHoveringSkip = false
+    
     private var trimmedExistingAboutMe: String {
         existingAboutMe.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -81,6 +83,7 @@ struct AboutMePreviewOverlay: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
+                    .hoverScale()
                     .disabled(isRegenerating)
                     
                     Button(action: onRetry) {
@@ -92,6 +95,7 @@ struct AboutMePreviewOverlay: View {
                             .background(Theme.fieldBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
+                            .hoverBorder(cornerRadius: 8)
                     }
                     .buttonStyle(.plain)
                     .disabled(isRegenerating)
@@ -100,10 +104,11 @@ struct AboutMePreviewOverlay: View {
                 Button(action: onSkip) {
                     Text(L10n.AboutMePreview.skip)
                         .font(Typography.caption)
-                        .foregroundStyle(Theme.textMuted)
+                        .foregroundStyle(isHoveringSkip ? Theme.textSecondary : Theme.textMuted)
                         .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .buttonStyle(.plain)
+                .trackHover($isHoveringSkip)
                 .disabled(isRegenerating)
             }
             .padding(24)

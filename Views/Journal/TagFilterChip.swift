@@ -11,9 +11,10 @@ struct TagFilterChip: View {
             .foregroundStyle(isSelected ? Theme.background : Theme.textSecondary)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(isSelected ? Theme.textPrimary : Theme.fieldBackground)
+            .background(isSelected ? Theme.textPrimary : Color.clear)
             .clipShape(Capsule())
-            .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
+            .overlay(Capsule().stroke(isSelected ? Color.clear : Theme.border, lineWidth: 0.5))
+            .hoverBorder(Capsule())
             .contentShape(Capsule())
             .onTapGesture(perform: onToggle)
     }

@@ -6,6 +6,7 @@ struct PinSetupView: View {
 
     @State private var firstPin: String?
     @State private var errorMessage: String?
+    @State private var isHoveringCancel = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -17,7 +18,8 @@ struct PinSetupView: View {
 
             Button(L10n.Settings.cancelButton, action: onCancel)
                 .buttonStyle(.plain)
-                .foregroundStyle(Theme.textMuted)
+                .foregroundStyle(isHoveringCancel ? Theme.textSecondary : Theme.textMuted)
+                .trackHover($isHoveringCancel)
         }
     }
 

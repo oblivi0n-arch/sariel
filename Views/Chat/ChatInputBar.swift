@@ -46,7 +46,7 @@ struct ChatInputBar: View {
             PlaceholderTextField(placeholder: L10n.ChatInput.messagePlaceholder, text: $draft, axis: .vertical)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background((isDeclaration || isTribunal) ? Theme.tribunalAccent.opacity(0.12) : Theme.fieldBackground)
+                .background((isDeclaration || isTribunal) ? Theme.tribunalAccent.opacity(0.12) : .clear)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
