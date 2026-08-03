@@ -13,7 +13,9 @@ struct AchievementServiceTests {
             JournalEntry.self,
             JournalEntryTag.self,
             Commitment.self,
-            AchievementUnlock.self
+            AchievementUnlock.self,
+            SelfLetter.self,
+            MeditationSession.self
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: configuration)
@@ -459,4 +461,228 @@ struct AchievementServiceTests {
         #expect(result.progress == 7)
         #expect(result.unlockedAt == fixedUnlockDate)
     }
+    
+    // MARK: - selfLetterFirstSealed
+
+        @Test @MainActor
+        func sealingALetterUnlocksSelfLetterFirstSealed() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let letter = SelfLetter(content: "treść", openDate: Date().addingTimeInterval(86_400))
+            letter.letterStatus = .sealed
+            context.insert(letter)
+            try context.save()
+
+            service.checkSelfLetterFirstSealed(modelContext: context)
+
+            let result = try #require(unlock(for: .selfLetterFirstSealed, service: service, context: context))
+            #expect(result.isUnlocked == true)
+        }
+
+        @Test @MainActor
+        func onlyDraftLettersDoNotUnlockSelfLetterFirstSealed() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let letter = SelfLetter(content: "treść", openDate: Date().addingTimeInterval(86_400))
+            
+            context.insert(letter)
+            try context.save()
+
+            service.checkSelfLetterFirstSealed(modelContext: context)
+
+            let result = try #require(unlock(for: .selfLetterFirstSealed, service: service, context: context))
+            #expect(result.isUnlocked == false)
+        }
+
+        // MARK: - selfLetterFirstOpened
+
+        @Test @MainActor
+        func openingALetterUnlocksSelfLetterFirstOpened() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let letter = SelfLetter(content: "treść", openDate: Date())
+            letter.letterStatus = .opened
+            context.insert(letter)
+            try context.save()
+
+            service.checkSelfLetterFirstOpened(modelContext: context)
+
+            let result = try #require(unlock(for: .selfLetterFirstOpened, service: service, context: context))
+            #expect(result.isUnlocked == true)
+        }
+
+        @Test @MainActor
+        func sealedButUnopenedLetterDoesNotUnlockSelfLetterFirstOpened() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let letter = SelfLetter(content: "treść", openDate: Date().addingTimeInterval(86_400))
+            letter.letterStatus = .sealed
+            context.insert(letter)
+            try context.save()
+
+            service.checkSelfLetterFirstOpened(modelContext: context)
+
+            let result = try #require(unlock(for: .selfLetterFirstOpened, service: service, context: context))
+            #expect(result.isUnlocked == false)
+        }
+
+        // MARK: - selfLetterLongestDelay
+
+        @Test @MainActor
+        func letterSealedForThreeHundredDaysUnlocksSelfLetterLongestDelay() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let now = Date()
+            let letter = SelfLetter(content: "treść", openDate: Calendar.current.date(byAdding: .day, value: 300, to: now)!)
+            letter.createdAt = now
+            context.insert(letter)
+            try context.save()
+
+            service.checkSelfLetterLongestDelay(modelContext: context)
+
+            let result = try #require(unlock(for: .selfLetterLongestDelay, service: service, context: context))
+            #expect(result.isUnlocked == true)
+        }
+
+        @Test @MainActor
+        func letterSealedForOneMonthDoesNotUnlockSelfLetterLongestDelay() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let now = Date()
+            let letter = SelfLetter(content: "treść", openDate: Calendar.current.date(byAdding: .month, value: 1, to: now)!)
+            letter.createdAt = now
+            context.insert(letter)
+            try context.save()
+
+            service.checkSelfLetterLongestDelay(modelContext: context)
+
+            let result = try #require(unlock(for: .selfLetterLongestDelay, service: service, context: context))
+            #expect(result.isUnlocked == false)
+        }
+
+        // MARK: - meditationConsistency
+
+        @Test @MainActor
+        func threeConsecutiveDaysOfMeditationBuildStreak() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let today = Date()
+            let sessions = (0..<3).map { daysAgo -> MeditationSession in
+                let session = MeditationSession(intention: "spokój", plannedDuration: 600, actualDuration: 600)
+                session.createdAt = Calendar.current.date(byAdding: .day, value: -daysAgo, to: today)!
+                return session
+            }
+            sessions.forEach { context.insert($0) }
+            try context.save()
+
+            service.checkMeditationConsistency(modelContext: context)
+
+            let result = try #require(unlock(for: .meditationConsistency, service: service, context: context))
+            #expect(result.progress == 3)
+        }
+
+        @Test @MainActor
+        func gapInMeditationDaysBreaksTheStreak() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let today = Date()
+            let sessions = [0, 1, 3].map { daysAgo -> MeditationSession in
+                let session = MeditationSession(intention: "spokój", plannedDuration: 600, actualDuration: 600)
+                session.createdAt = Calendar.current.date(byAdding: .day, value: -daysAgo, to: today)!
+                return session
+            }
+            sessions.forEach { context.insert($0) }
+            try context.save()
+
+            service.checkMeditationConsistency(modelContext: context)
+
+            let result = try #require(unlock(for: .meditationConsistency, service: service, context: context))
+            #expect(result.progress == 2)
+        }
+
+        // MARK: - meditationAbandonedPattern
+
+        @Test @MainActor
+        func threeConsecutiveInterruptedSessionsUnlockAbandonedPattern() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let now = Date()
+            let sessions = (0..<3).map { offset -> MeditationSession in
+                let session = MeditationSession(intention: "spokój", plannedDuration: 600, actualDuration: 100)
+                session.createdAt = now.addingTimeInterval(Double(-offset) * 60)
+                return session
+            }
+            sessions.forEach { context.insert($0) }
+            try context.save()
+
+            service.checkMeditationAbandonedPattern(modelContext: context)
+
+            let result = try #require(unlock(for: .meditationAbandonedPattern, service: service, context: context))
+            #expect(result.progress == 3)
+            #expect(result.isUnlocked == true)
+        }
+
+        @Test @MainActor
+        func mostRecentFullSessionResetsAbandonedPatternProgressToZero() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let now = Date()
+            let interruptedOnes = (1..<4).map { offset -> MeditationSession in
+                let session = MeditationSession(intention: "spokój", plannedDuration: 600, actualDuration: 100)
+                session.createdAt = now.addingTimeInterval(Double(-offset) * 60)
+                return session
+            }
+            let mostRecentFullSession = MeditationSession(intention: "spokój", plannedDuration: 600, actualDuration: 600)
+            mostRecentFullSession.createdAt = now
+
+            (interruptedOnes + [mostRecentFullSession]).forEach { context.insert($0) }
+            try context.save()
+
+            service.checkMeditationAbandonedPattern(modelContext: context)
+
+            let result = try #require(unlock(for: .meditationAbandonedPattern, service: service, context: context))
+            #expect(result.progress == 0)
+        }
+
+        // MARK: - meditationFirstFullSession
+
+        @Test @MainActor
+        func completingASessionInFullUnlocksMeditationFirstFullSession() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let session = MeditationSession(intention: "spokój", plannedDuration: 600, actualDuration: 600)
+            context.insert(session)
+            try context.save()
+
+            service.checkMeditationFirstFullSession(modelContext: context)
+
+            let result = try #require(unlock(for: .meditationFirstFullSession, service: service, context: context))
+            #expect(result.isUnlocked == true)
+        }
+
+        @Test @MainActor
+        func onlyInterruptedSessionsDoNotUnlockMeditationFirstFullSession() throws {
+            let context = try makeInMemoryContext()
+            let service = AchievementService()
+
+            let session = MeditationSession(intention: "spokój", plannedDuration: 600, actualDuration: 100)
+            context.insert(session)
+            try context.save()
+
+            service.checkMeditationFirstFullSession(modelContext: context)
+
+            let result = try #require(unlock(for: .meditationFirstFullSession, service: service, context: context))
+            #expect(result.isUnlocked == false)
+        }
 }

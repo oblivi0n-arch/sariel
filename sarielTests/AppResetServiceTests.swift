@@ -80,4 +80,17 @@ struct AppResetServiceTests {
         #expect(UserDefaults.standard.string(forKey: "appTheme") == nil)
         #expect(UserDefaults.standard.bool(forKey: "appThemeFollowsSystem") == false)
     }
+    
+    @Test @MainActor
+    func wipeAllDataDeletesMeditationSessions() throws {
+        let context = try makeInMemoryContext()
+
+        let session = MeditationSession(intention: "spokój", plannedDuration: 600, actualDuration: 600)
+        context.insert(session)
+        try context.save()
+
+        AppResetService.wipeAllData(context: context)
+
+        #expect(try context.fetch(FetchDescriptor<MeditationSession>()).isEmpty)
+    }
 }
