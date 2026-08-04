@@ -25,22 +25,23 @@ struct ChatInputBar: View {
     private var canSend: Bool {
         !draft.trimmingCharacters(in: .whitespaces).isEmpty && !isSendBlocked && !isBlockedByLimit
     }
-    
+
+    private var hintText: String? {
+        if isBlockedByLimit {
+            return L10n.ChatInput.declarationLimitReached(count: Commitment.maxPendingDeclarations)
+        } else if isDeclaration {
+            return L10n.ChatInput.noTakeBacks
+        }
+        return nil
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            if isBlockedByLimit {
-                Text(L10n.ChatInput.declarationLimitReached(count: Commitment.maxPendingDeclarations))
-                    .font(Typography.caption)
-                    .foregroundStyle(Theme.tribunalAccent.opacity(0.75))
-                    .padding(.horizontal, 4)
-                    .transition(.opacity)
-            } else if isDeclaration {
-                Text(L10n.ChatInput.noTakeBacks)
-                    .font(Typography.caption)
-                    .foregroundStyle(Theme.tribunalAccent.opacity(0.75))
-                    .padding(.horizontal, 4)
-                    .transition(.opacity)
-            }
+        if let hintText {
+            Text(hintText)
+                .font(Typography.caption)
+                .foregroundStyle(Theme.tribunalAccent.opacity(0.75))
+                .padding(.horizontal, 4)
+                .transition(.opacity)
         }
         HStack(alignment: .bottom, spacing: 10) {
             PlaceholderTextField(placeholder: L10n.ChatInput.messagePlaceholder, text: $draft, axis: .vertical)
@@ -78,7 +79,7 @@ struct ChatInputBar: View {
             .disabled(!canSend)
         }
         .padding(16)
-        .animation(.easeInOut(duration: 0.15), value: isDeclaration)
+        .animation(.easeInOut(duration: 0.15), value: hintText)
     }
     
     private func handleSend() {

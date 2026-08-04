@@ -374,6 +374,8 @@ struct ContentView: View {
         hasEvaluatedGate = true
 
         if shouldShowTribunalGate {
+            showSplash = false
+            hasEnteredApp = true
             isGateShown = true
         }
     }

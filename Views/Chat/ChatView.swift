@@ -125,6 +125,10 @@ struct ChatView: View {
     private var conversationStartedAt: Date {
         sortedMessages.first?.timestamp ?? conversation.startedAt
     }
+    
+    private var isDeclaration: Bool {
+        !conversation.isTribunal && Commitment.isDeclaration(draft)
+    }
 
     var body: some View {
         contentStack
@@ -235,7 +239,7 @@ struct ChatView: View {
                 endedClosing
             } else {
                 VStack(spacing: 0) {
-                    if sortedMessages.isEmpty {
+                    if sortedMessages.isEmpty && !isDeclaration {
                         HStack(spacing: 8) {
                             StarterChip(icon: "eye", label: L10n.Chat.provocationChip, onTap: startProvocation)
 
@@ -247,6 +251,7 @@ struct ChatView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.top, 12)
+                        .transition(.opacity)
                     }
 
                     if conversation.isTribunal, showSeal, sealDocked {
@@ -256,6 +261,7 @@ struct ChatView: View {
 
                     ChatInputBar(draft: $draft, isLocked: isInputLocked, isSendBlocked: isSendBlocked, isFocused: $isInputFocused, isTribunal: conversation.isTribunal, isDeclarationLimitReached: isDeclarationLimitReached, onSend: sendMessage)
                 }
+                .animation(.easeInOut(duration: 0.15), value: isDeclaration)
             }
         }
     }
