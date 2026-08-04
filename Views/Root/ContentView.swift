@@ -58,6 +58,10 @@ struct ContentView: View {
         return Date().timeIntervalSince(oldest.createdAt) >= Commitment.tribunalUnlockInterval
     }
     
+    private var shouldShowTribunalGate: Bool {
+        isTribunalUnlocked && !isTribunalInProgress
+    }
+    
     var body: some View {
         ZStack {
             HStack(spacing: 0) {
@@ -229,7 +233,7 @@ struct ContentView: View {
             .animation(.easeInOut(duration: 0.25), value: isConversationListOpen)
             .animation(.easeInOut(duration: 0.25), value: isSettingsOpen)
             
-            if showSplash && hasCompletedOnboarding {
+            if showSplash && hasCompletedOnboarding && !shouldShowTribunalGate {
                 SplashView {
                     withAnimation(.easeOut(duration: 0.6)) {
                         showSplash = false
@@ -368,8 +372,8 @@ struct ContentView: View {
         guard hasCompletedOnboarding else { return }
         guard !hasEvaluatedGate else { return }
         hasEvaluatedGate = true
-        
-        if isTribunalUnlocked && !isTribunalInProgress {
+
+        if shouldShowTribunalGate {
             isGateShown = true
         }
     }
