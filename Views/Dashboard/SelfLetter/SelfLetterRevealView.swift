@@ -15,7 +15,6 @@ struct SelfLetterRevealView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var stage: RevealStage = .sealed
     @State private var isHoveringSeal = false
-    @State private var isHoveringClose = false
     @State private var isSealIconVisible = false
     @State private var isSealTitleStarted = false
     @State private var isSealRestVisible = false
@@ -82,12 +81,12 @@ struct SelfLetterRevealView: View {
                             Button(action: onDismiss) {
                                 Image(systemName: "xmark")
                                     .font(Typography.iconButton)
-                                    .foregroundStyle(isHoveringClose ? Theme.textMuted : Theme.textFaint)
-                                    .frame(width: 28, height: 28)
-                                    .contentShape(Rectangle())
+                                    .foregroundStyle(Theme.textMuted)
+                                    .frame(width: 24, height: 24)
+                                    .clipShape(Circle())
+                                    .hoverBorder(Circle())
                             }
                             .buttonStyle(.plain)
-                            .trackHover($isHoveringClose)
                         }
                     }
 

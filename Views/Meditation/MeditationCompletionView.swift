@@ -59,6 +59,7 @@ struct MeditationCompletionView: View {
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 1))
                 }
                 .buttonStyle(.plain)
+                .hoverBorder(cornerRadius: 8)
                 .padding(.bottom, 40)
             }
         }

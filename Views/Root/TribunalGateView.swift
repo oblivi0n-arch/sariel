@@ -9,6 +9,7 @@ struct TribunalGateView: View {
     @State private var isIconVisible = false
     @State private var isTitleStarted = false
     @State private var isRestVisible = false
+    @State private var isHoveringFace = false
 
     private var titleText: String {
         L10n.TribunalGate.title
@@ -53,11 +54,12 @@ struct TribunalGateView: View {
                             .foregroundStyle(Theme.tribunalAccent.opacity(0.9))
                             .padding(.horizontal, 20)
                             .padding(.vertical, 10)
-                            .background(Theme.tribunalAccent.opacity(0.12))
+                            .background(Theme.tribunalAccent.opacity(isHoveringFace ? 0.18 : 0.12))
                             .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.tribunalAccent.opacity(0.4), lineWidth: 0.5))
+                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.tribunalAccent.opacity(isHoveringFace ? 0.7 : 0.4), lineWidth: 0.5))
                     }
                     .buttonStyle(.plain)
+                    .trackHover($isHoveringFace)
                     .padding(.top, 8)
 
                     Text(L10n.TribunalGate.avoidLonger)

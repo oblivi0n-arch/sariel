@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct MessageBubble: View {
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
     let message: ChatMessage
     var showActions: Bool = false
     var onDelete: (() -> Void)? = nil
@@ -31,6 +33,7 @@ struct MessageBubble: View {
 
     private var isGuide: Bool { message.messageRole == .guide }
     private var isError: Bool { isGuide && message.content.hasPrefix("⚠️") }
+    private var isInterrupted: Bool { isGuide && message.content.isEmpty && !isStreaming }
     private var isCommitment: Bool { message.commitment != nil }
     private var isTribunalMessage: Bool { message.conversation?.isTribunal ?? false }
 
@@ -62,7 +65,7 @@ struct MessageBubble: View {
 
     var body: some View {
         VStack(alignment: isGuide ? .leading : .trailing, spacing: 4) {
-            if !isError {
+            if !isError && !isInterrupted {
                 Text(isGuide ? L10n.MessageBubble.sariel : L10n.MessageBubble.you)
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textMuted)
@@ -72,6 +75,8 @@ struct MessageBubble: View {
                 editingBubble
             } else if isError {
                 errorBubble
+            } else if isInterrupted {
+                interruptedBubble
             } else if message.content.isEmpty {
                 TypingIndicatorView()
                     .clipShape(bubbleShape)
@@ -301,6 +306,32 @@ struct MessageBubble: View {
                 .stroke(isTribunalMessage ? Theme.tribunalAccent.opacity(0.4) : Theme.borderStrong, lineWidth: isTribunalMessage ? 1.2 : 1)
         )
     }
+    
+    private var interruptedBubble: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(Typography.label)
+                .foregroundStyle(isTribunalMessage ? Theme.tribunalAccent.opacity(0.85) : Theme.textPrimary)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(L10n.MessageBubble.interruptedDescription)
+                    .font(Theme.uiFont)
+                    .foregroundStyle(isTribunalMessage ? Theme.tribunalAccent.opacity(0.9) : Theme.textPrimary)
+
+                Text(L10n.MessageBubble.interruptedSuggestion).italic()
+                    .font(Typography.caption)
+                    .foregroundStyle(Theme.textMuted)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(isTribunalMessage ? Theme.tribunalAccent.opacity(0.1) : Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(isTribunalMessage ? Theme.tribunalAccent.opacity(0.4) : Theme.borderStrong, lineWidth: isTribunalMessage ? 1.2 : 1)
+        )
+    }
 
     private var bubbleShape: some Shape {
         UnevenRoundedRectangle(
@@ -346,6 +377,20 @@ extension L10n {
             switch lang {
             case .en: return "save"
             case .pl: return "zapisz"
+            }
+        }
+        
+        static var interruptedDescription: String {
+            switch lang {
+            case .en: return "Response was interrupted."
+            case .pl: return "Odpowiedź została przerwana."
+            }
+        }
+
+        static var interruptedSuggestion: String {
+            switch lang {
+            case .en: return "Hover your last message and retry."
+            case .pl: return "Najedź na swoją ostatnią wiadomość i kliknij ponów."
             }
         }
     }

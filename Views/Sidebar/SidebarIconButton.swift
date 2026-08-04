@@ -6,7 +6,7 @@ struct SidebarIconButton: View {
     let isActive: Bool
     var isLocked: Bool = false
     var showAlertBadge: Bool = false
-    var isSolidRed: Bool = false
+    var isSolidAccent: Bool = false
     let onTap: () -> Void
     
     @State private var isHovering = false
@@ -16,7 +16,7 @@ struct SidebarIconButton: View {
     }
     
     private var isPulseActive: Bool {
-        showAlertBadge && !effectivelyLocked && !isSolidRed
+        showAlertBadge && !effectivelyLocked && !isSolidAccent
     }
     
     private var baseForegroundColor: Color {
@@ -35,8 +35,8 @@ struct SidebarIconButton: View {
     
     var body: some View {
         Group {
-            if isSolidRed && !effectivelyLocked {
-                redIcon()
+            if isSolidAccent && !effectivelyLocked {
+                accentIcon()
             } else if isPulseActive {
                 TimelineView(.periodic(from: .now, by: 1.0 / 30.0)) { context in
                     pulsingIcon(intensity: pulseIntensity(at: context.date))
@@ -66,13 +66,13 @@ struct SidebarIconButton: View {
         iconShape(foreground: baseForegroundColor, border: baseBorderColor)
     }
     
-    private func redIcon() -> some View {
-        iconShape(foreground: Color.red.opacity(0.9), border: Color.red.opacity(0.5))
+    private func accentIcon() -> some View {
+        iconShape(foreground: Theme.tribunalAccent.opacity(0.9), border: Theme.tribunalAccent.opacity(0.5))
     }
     
     private func pulsingIcon(intensity: Double) -> some View {
         baseIcon()
-            .overlay(redIcon().opacity(intensity))
+            .overlay(accentIcon().opacity(intensity))
     }
     
     private func iconShape(foreground: Color, border: Color) -> some View {

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ChatInputBar: View {
+    @ObservedObject private var themeManager = ThemeManager.shared
     @Binding var draft: String
     let isLocked: Bool
     let isSendBlocked: Bool
