@@ -5,6 +5,7 @@ private enum MeditationStage {
     case setup
     case breathing(intention: String, duration: MeditationDuration)
     case active(intention: String, duration: MeditationDuration)
+    case finished(session: MeditationSession)
 }
 
 struct MeditationView: View {
@@ -29,13 +30,18 @@ struct MeditationView: View {
             }
         case .active(let intention, let duration):
             MeditationTimerView(plannedDuration: duration.seconds) { actualDuration in
-                saveSession(intention: intention, plannedDuration: duration.seconds, actualDuration: actualDuration)
+                let session = saveSession(intention: intention, plannedDuration: duration.seconds, actualDuration: actualDuration)
+                stage = .finished(session: session)
+            }
+        case .finished(let session):
+            MeditationCompletionView(session: session) {
                 stage = .setup
             }
         }
     }
 
-    private func saveSession(intention: String, plannedDuration: TimeInterval, actualDuration: TimeInterval) {
+    @discardableResult
+    private func saveSession(intention: String, plannedDuration: TimeInterval, actualDuration: TimeInterval) -> MeditationSession {
         let session = MeditationSession(
             intention: intention,
             plannedDuration: plannedDuration,
@@ -47,5 +53,7 @@ struct MeditationView: View {
         achievementService.checkMeditationConsistency(modelContext: modelContext)
         achievementService.checkMeditationAbandonedPattern(modelContext: modelContext)
         achievementService.checkMeditationFirstFullSession(modelContext: modelContext)
+        
+        return session
     }
 }
