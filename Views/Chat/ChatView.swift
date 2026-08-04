@@ -192,6 +192,15 @@ struct ChatView: View {
                         emptyConversationState
                     }
                 }
+                .overlay(alignment: .top) {
+                    LinearGradient(
+                        colors: [Theme.background, Theme.background.opacity(0)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 40)
+                    .allowsHitTesting(false)
+                }
                 .onChange(of: conversation.messages.count) {
                     scrollToBottom(proxy)
                 }
@@ -579,20 +588,6 @@ extension L10n {
             switch lang {
             case .en: return "The mirror is empty.\nSay something true."
             case .pl: return "Lustro jest puste.\nPowiedz coś prawdziwego."
-            }
-        }
-
-        static var verdictsDelivered: String {
-            switch lang {
-            case .en: return "— verdicts delivered —"
-            case .pl: return "— wyroki wydane —"
-            }
-        }
-
-        static var reflectionRecorded: String {
-            switch lang {
-            case .en: return "— reflection recorded —"
-            case .pl: return "— refleksja zapisana —"
             }
         }
         
