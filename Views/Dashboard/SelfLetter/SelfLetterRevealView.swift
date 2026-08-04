@@ -19,6 +19,7 @@ struct SelfLetterRevealView: View {
     @State private var isSealIconVisible = false
     @State private var isSealTitleStarted = false
     @State private var isSealRestVisible = false
+    @State private var isSkipRequested = false
 
     var body: some View {
         ZStack {
@@ -70,10 +71,14 @@ struct SelfLetterRevealView: View {
                 .onTapGesture(perform: breakSeal)
                 .trackHover($isHoveringSeal)
             case .revealing, .revealed:
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(spacing: 20) {
                     HStack {
                         Spacer()
-                        if stage == .revealed {
+                        if stage == .revealing {
+                            Text(L10n.SelfLetterReveal.tapToSkip)
+                                .font(Typography.caption)
+                                .foregroundStyle(Theme.textFaint)
+                        } else if stage == .revealed {
                             Button(action: onDismiss) {
                                 Image(systemName: "xmark")
                                     .font(Typography.iconButton)
@@ -86,36 +91,55 @@ struct SelfLetterRevealView: View {
                         }
                     }
 
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 16) {
-                            if let title = letter.title, !title.isEmpty {
-                                Text(title)
-                                    .font(Typography.sectionTitle)
-                                    .foregroundStyle(Theme.textPrimary)
-                            }
+                    VStack(alignment: .leading, spacing: 0) {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 16) {
+                                if let title = letter.title, !title.isEmpty {
+                                    Text(title)
+                                        .font(Typography.subsectionTitle)
+                                        .foregroundStyle(Theme.textPrimary)
+                                }
 
-                            RevealingText(
-                                fullText: letter.content,
-                                font: Theme.voiceFont,
-                                color: Theme.textPrimary,
-                                charsPerSecond: 60,
-                                onComplete: { stage = .revealed }
-                            )
+                                RevealingText(
+                                    fullText: letter.content,
+                                    font: Theme.voiceFont,
+                                    color: Theme.textPrimary,
+                                    charsPerSecond: 24,
+                                    onComplete: { stage = .revealed },
+                                    skipRequested: $isSkipRequested
+                                )
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-
-                    if stage == .revealed {
-                        HStack(spacing: 4) {
-                            Text(L10n.SelfLetterReveal.writtenOnLabel)
-                            Text(letter.createdAt, style: .date)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            if stage == .revealing { isSkipRequested = true }
                         }
-                        .font(Typography.caption)
-                        .foregroundStyle(Theme.textFaint)
+
+                        if stage == .revealed {
+                            Rectangle()
+                                .fill(Theme.border)
+                                .frame(height: 0.5)
+                                .padding(.top, 4)
+
+                            HStack(spacing: 4) {
+                                Text(L10n.SelfLetterReveal.writtenOnLabel)
+                                Text(letter.createdAt, style: .date)
+                            }
+                            .font(Typography.caption)
+                            .foregroundStyle(Theme.textFaint)
+                            .padding(.top, 12)
+                        }
                     }
+                    .padding(20)
+                    .background(Theme.background)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 0.5))
+                    .shadow(color: .black.opacity(0.6), radius: 40, y: 12)
                 }
                 .padding(24)
+                .frame(maxWidth: 640, maxHeight: .infinity)
             }
         }
         .onAppear(perform: startSealSequence)
@@ -181,6 +205,13 @@ extension L10n {
             switch lang {
             case .en: return "written on"
             case .pl: return "napisano"
+            }
+        }
+        
+        static var tapToSkip: String {
+            switch lang {
+            case .en: return "tap to skip"
+            case .pl: return "dotknij, by pominąć"
             }
         }
     }
