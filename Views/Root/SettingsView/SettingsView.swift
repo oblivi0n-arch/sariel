@@ -106,7 +106,7 @@ struct SettingsView: View {
     
     private var categoryTabBar: some View {
         HStack(spacing: 4) {
-            Image(systemName: "gearshape.fill")
+            Image(systemName: "gearshape")
                 .font(Typography.icon)
                 .foregroundStyle(Theme.textMuted)
                 .padding(.trailing, 6)

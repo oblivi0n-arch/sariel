@@ -12,11 +12,11 @@ enum AppSection: String, CaseIterable, Identifiable {
     var iconName: String {
         switch self {
         case .dashboard:
-            return "moon.stars.fill"
+            return "moon.stars"
         case .chat:
-            return "bubble.left.and.bubble.right.fill"
+            return "bubble.left.and.bubble.right"
         case .journal:
-            return "book.closed.fill"
+            return "book.closed"
         case .tribunal:
             return "seal"
         case .meditation:

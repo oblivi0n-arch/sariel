@@ -28,7 +28,7 @@ struct SidebarView: View {
             Spacer()
 
             SidebarIconButton(
-                iconName: "gearshape.fill",
+                iconName: "gearshape",
                 isActive: isSettingsOpen,
                 onTap: { isSettingsOpen.toggle() }
             )
