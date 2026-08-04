@@ -58,7 +58,7 @@ struct ConversationListView: View {
                 if isSearchExpanded {
                     HStack(spacing: 6) {
                         Image(systemName: "magnifyingglass")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(Typography.iconButton)
                             .foregroundStyle(Theme.textFaint)
 
                         PlaceholderTextField(

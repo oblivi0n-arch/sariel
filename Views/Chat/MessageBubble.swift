@@ -100,7 +100,7 @@ struct MessageBubble: View {
                     .overlay(alignment: .topTrailing) {
                         if isCommitment {
                             Image(systemName: "seal.fill")
-                                .font(.system(size: 13))
+                                .font(Typography.iconSmall)
                                 .foregroundStyle(Theme.tribunalAccent.opacity(0.9))
                                 .opacity(stampProgress)
                                 .scaleEffect(0.4 + 0.6 * stampProgress)

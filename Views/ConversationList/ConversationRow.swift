@@ -32,7 +32,7 @@ struct ConversationRow: View {
                 HStack(spacing: 6) {
                     if conversation.isProvocation {
                         Image(systemName: "eye")
-                            .font(.system(size: 11))
+                            .font(Typography.caption)
                             .foregroundStyle(Theme.textFaint)
                     }
                     HighlightedText(
@@ -46,13 +46,13 @@ struct ConversationRow: View {
                     
                     if conversation.containsCommitments {
                         Image(systemName: "seal.fill")
-                            .font(.system(size: 11))
+                            .font(Typography.caption)
                             .foregroundStyle(Theme.textFaint)
                     }
                     
                     if isEnded {
                         Image(systemName: "book.closed")
-                            .font(.system(size: 11))
+                            .font(Typography.caption)
                             .foregroundStyle(Theme.textFaint)
                     }
                 }

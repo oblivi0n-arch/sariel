@@ -285,7 +285,7 @@ private struct SettingsCategoryTabButton: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 Image(systemName: category.icon)
-                    .font(.system(size: 12))
+                    .font(Typography.label)
                 Text(category.title)
                     .font(Typography.label)
             }

@@ -25,7 +25,7 @@ struct AchievementIconView: View {
                 }
 
                 Image(systemName: kind?.symbolName ?? "questionmark")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(Typography.icon)
                     .foregroundStyle(unlock.isUnlocked ? Theme.textPrimary : Theme.textFaint)
             }
             .frame(width: 44, height: 44)

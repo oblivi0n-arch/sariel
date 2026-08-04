@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct Typography {
+    static let sidebarIcon = Font.system(size: 18)
     static let title = Font.system(size: 18, weight: .semibold)
     static let sectionTitle = Font.system(size: 24, weight: .bold, design: .rounded)
     static let subsectionTitle = Font.system(size: 16, weight: .semibold, design: .rounded)

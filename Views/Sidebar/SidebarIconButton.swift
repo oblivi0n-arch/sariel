@@ -77,7 +77,7 @@ struct SidebarIconButton: View {
     
     private func iconShape(foreground: Color, border: Color) -> some View {
         Image(systemName: iconName)
-            .font(.system(size: 18))
+            .font(Typography.sidebarIcon)
             .foregroundStyle(foreground)
             .frame(width: 36, height: 36)
             .clipShape(RoundedRectangle(cornerRadius: 8))
