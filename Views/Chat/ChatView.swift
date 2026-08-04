@@ -121,6 +121,10 @@ struct ChatView: View {
     private var isRegeneratingAboutMeDraft: Bool {
         chatService.isGeneratingAboutMeDraft.contains(conversation.id)
     }
+    
+    private var conversationStartedAt: Date {
+        sortedMessages.first?.timestamp ?? conversation.startedAt
+    }
 
     var body: some View {
         contentStack
@@ -218,7 +222,11 @@ struct ChatView: View {
             }
 
             if isEnded {
-                endedClosing
+                if conversation.isAcquaintance && isRegeneratingAboutMeDraft {
+                    generatingProfileClosing
+                } else {
+                    endedClosing
+                }
             } else {
                 VStack(spacing: 0) {
                     if sortedMessages.isEmpty {
@@ -359,10 +367,60 @@ struct ChatView: View {
         .frame(maxWidth: 260)
     }
 
+    private var spansMultipleDays: Bool {
+        guard let end = conversationEndedAt else { return false }
+        return conversationStartedAt.dayKey != end.dayKey
+    }
+
+    private func formattedTimestamp(_ date: Date) -> String {
+        spansMultipleDays
+            ? date.formatted(date: .abbreviated, time: .shortened)
+            : date.formatted(date: .omitted, time: .shortened)
+    }
+
     private var endedClosing: some View {
-        HStack {
+        HStack(spacing: 0) {
+            summaryStat(label: L10n.Chat.startedLabel, value: formattedTimestamp(conversationStartedAt))
+            summaryDivider
+            summaryStat(label: L10n.Chat.endedLabel, value: conversationEndedAt.map(formattedTimestamp) ?? "—")
+            summaryDivider
+            summaryStat(label: L10n.Chat.exchangesLabel, value: "\(successfulExchangeCount)")
+            summaryDivider
+            summaryStat(label: L10n.Chat.durationLabel, value: conversationDurationText)
+        }
+        .padding(.vertical, 18)
+        .frame(maxWidth: .infinity)
+        .overlay(alignment: .top) {
+            Rectangle().fill(Theme.border).frame(height: 0.5)
+        }
+    }
+
+    private var summaryDivider: some View {
+        Rectangle()
+            .fill(Theme.border)
+            .frame(width: 0.5, height: 22)
+    }
+
+    private func summaryStat(label: String, value: String) -> some View {
+        VStack(spacing: 3) {
+            Text(value)
+                .font(Typography.label)
+                .foregroundStyle(Theme.textSecondary)
+            Text(label)
+                .font(Typography.caption)
+                .foregroundStyle(Theme.textFaint)
+                .textCase(.uppercase)
+                .kerning(0.4)
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    private var generatingProfileClosing: some View {
+        HStack(spacing: 8) {
             Spacer()
-            Text(conversation.isTribunal ? L10n.Chat.verdictsDelivered : L10n.Chat.reflectionRecorded)
+            ProgressView()
+                .controlSize(.small)
+            Text(L10n.Chat.generatingProfile)
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
             Spacer()
@@ -371,6 +429,16 @@ struct ChatView: View {
         .overlay(alignment: .top) {
             Rectangle().fill(Theme.border).frame(height: 0.5)
         }
+    }
+    
+    private var conversationEndedAt: Date? {
+        conversation.isTribunal ? conversation.tribunalResolvedAt : conversation.journalEntry?.createdAt
+    }
+
+    private var conversationDurationText: String {
+        guard let end = conversationEndedAt else { return "—" }
+        let minutes = max(Int(end.timeIntervalSince(conversationStartedAt) / 60), 0)
+        return "\(minutes) min"
     }
 
     private func sendMessage() {
@@ -525,6 +593,38 @@ extension L10n {
             switch lang {
             case .en: return "— reflection recorded —"
             case .pl: return "— refleksja zapisana —"
+            }
+        }
+        
+        static var generatingProfile: String {
+            switch lang {
+            case .en: return "building your profile…"
+            case .pl: return "tworzę Twój profil…"
+            }
+        }
+        
+        static var startedLabel: String {
+            switch lang {
+            case .en: return "started"
+            case .pl: return "start"
+            }
+        }
+        static var endedLabel: String {
+            switch lang {
+            case .en: return "ended"
+            case .pl: return "koniec"
+            }
+        }
+        static var exchangesLabel: String {
+            switch lang {
+            case .en: return "exchanges"
+            case .pl: return "wymian"
+            }
+        }
+        static var durationLabel: String {
+            switch lang {
+            case .en: return "duration"
+            case .pl: return "czas"
             }
         }
     }
