@@ -22,7 +22,8 @@ struct MeditationView: View {
                 sessions: sessions,
                 onStart: { intention, duration in
                     stage = .breathing(intention: intention, duration: duration)
-                }
+                },
+                onDelete: deleteSession
             )
         case .breathing(let intention, let duration):
             MeditationBreathingView {
@@ -55,5 +56,10 @@ struct MeditationView: View {
         achievementService.checkMeditationFirstFullSession(modelContext: modelContext)
         
         return session
+    }
+    
+    private func deleteSession(_ session: MeditationSession) {
+        modelContext.delete(session)
+        try? modelContext.save()
     }
 }

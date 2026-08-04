@@ -4,6 +4,9 @@ struct MeditationSessionRow: View {
     @ObservedObject private var themeManager = ThemeManager.shared
     
     let session: MeditationSession
+    let onDelete: () -> Void
+    
+    @State private var isHovering = false
 
     private var durationText: String {
         let plannedMinutes = Int(session.plannedDuration / 60)
@@ -27,6 +30,21 @@ struct MeditationSessionRow: View {
             Text(session.createdAt, style: .date)
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
+
+            Menu {
+                Button(role: .destructive, action: onDelete) {
+                    Label(L10n.MeditationHistory.delete, systemImage: "trash")
+                }
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(Typography.caption)
+                    .foregroundStyle(Theme.textMuted)
+                    .frame(width: 20, height: 20)
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .opacity(isHovering ? 1 : 0)
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -38,5 +56,12 @@ struct MeditationSessionRow: View {
                 .frame(width: 3)
         }
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .contextMenu {
+            Button(role: .destructive, action: onDelete) {
+                Label(L10n.MeditationHistory.delete, systemImage: "trash")
+            }
+        }
+        .trackHover($isHovering)
+        .animation(.easeInOut(duration: 0.15), value: isHovering)
     }
 }

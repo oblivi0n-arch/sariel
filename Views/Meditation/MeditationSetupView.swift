@@ -3,6 +3,7 @@ import SwiftUI
 struct MeditationSetupView: View {
     let sessions: [MeditationSession]
     let onStart: (String, MeditationDuration) -> Void
+    let onDelete: (MeditationSession) -> Void
     
     @State private var intention: String = ""
     @State private var selectedDuration: MeditationDuration = .tenMinutes
@@ -156,7 +157,7 @@ struct MeditationSetupView: View {
                 ScrollView {
                     LazyVStack(spacing: 8) {
                         ForEach(sessions) { session in
-                            MeditationSessionRow(session: session)
+                            MeditationSessionRow(session: session, onDelete: { onDelete(session) })
                         }
                     }
                 }
@@ -371,8 +372,15 @@ extension L10n {
         
         static var noIntention: String {
             switch lang {
-            case .en: return "(no intention)"
-            case .pl: return "(brak intencji)"
+            case .en: return "no intention set"
+            case .pl: return "bez intencji"
+            }
+        }
+        
+        static var delete: String {
+            switch lang {
+            case .en: return "Delete"
+            case .pl: return "Usuń"
             }
         }
     }
