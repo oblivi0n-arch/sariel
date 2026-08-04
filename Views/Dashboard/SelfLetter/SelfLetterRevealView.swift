@@ -16,6 +16,9 @@ struct SelfLetterRevealView: View {
     @State private var stage: RevealStage = .sealed
     @State private var isHoveringSeal = false
     @State private var isHoveringClose = false
+    @State private var isSealIconVisible = false
+    @State private var isSealTitleStarted = false
+    @State private var isSealRestVisible = false
 
     var body: some View {
         ZStack {
@@ -23,24 +26,49 @@ struct SelfLetterRevealView: View {
 
             switch stage {
             case .sealed:
-                VStack(spacing: 16) {
-                    Image(systemName: "seal.fill")
-                        .font(.system(size: 40))
-                        .foregroundStyle(Theme.textMuted)
+                ZStack {
+                    AmbientRingsView()
 
-                    Text(L10n.SelfLetterReveal.waitedText(daysWaited))
-                        .font(Typography.label)
-                        .foregroundStyle(Theme.textFaint)
+                    VStack(spacing: 22) {
+                        Image(systemName: "envelope")
+                            .font(.system(size: 34))
+                            .foregroundStyle(Theme.textMuted)
+                            .opacity(isSealIconVisible ? 1 : 0)
+                            .scaleEffect(isSealIconVisible ? 1 : 0.7)
 
-                    Text(L10n.SelfLetterReveal.tapToOpen)
-                        .font(Typography.caption)
-                        .foregroundStyle(isHoveringSeal ? Theme.textMuted : Theme.textFaint)
+                        Group {
+                            if isSealTitleStarted {
+                                RevealingText(
+                                    fullText: L10n.SelfLetterReveal.sealedTitle,
+                                    font: Theme.voiceFont,
+                                    color: Theme.textPrimary,
+                                    charsPerSecond: 22,
+                                    onComplete: revealSealRest
+                                )
+                            } else {
+                                Text(" ")
+                                    .font(Theme.voiceFont)
+                            }
+                        }
+                        .multilineTextAlignment(.center)
+
+                        VStack(spacing: 10) {
+                            Text(L10n.SelfLetterReveal.waitedText(daysWaited))
+                                .font(Typography.label)
+                                .foregroundStyle(Theme.textFaint)
+
+                            Text(L10n.SelfLetterReveal.tapToOpen)
+                                .font(Typography.caption)
+                                .foregroundStyle(isHoveringSeal ? Theme.textMuted : Theme.textFaint)
+                        }
+                        .opacity(isSealRestVisible ? 1 : 0)
+                    }
+                    .frame(maxWidth: 320)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
                 .onTapGesture(perform: breakSeal)
                 .trackHover($isHoveringSeal)
-
             case .revealing, .revealed:
                 VStack(alignment: .leading, spacing: 20) {
                     HStack {
@@ -90,6 +118,23 @@ struct SelfLetterRevealView: View {
                 .padding(24)
             }
         }
+        .onAppear(perform: startSealSequence)
+    }
+    
+    private func startSealSequence() {
+        withAnimation(.easeOut(duration: 0.5)) {
+            isSealIconVisible = true
+        }
+        Task {
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            isSealTitleStarted = true
+        }
+    }
+
+    private func revealSealRest() {
+        withAnimation(.easeIn(duration: 0.4)) {
+            isSealRestVisible = true
+        }
     }
 
     private func breakSeal() {
@@ -111,6 +156,13 @@ struct SelfLetterRevealView: View {
 
 extension L10n {
     enum SelfLetterReveal {
+        static var sealedTitle: String {
+            switch lang {
+            case .en: return "Sealed by someone you no longer are."
+            case .pl: return "Zapieczętowane przez kogoś, kim już nie jesteś."
+            }
+        }
+        
         static func waitedText(_ days: Int) -> String {
             switch lang {
             case .en: return days == 1 ? "waited 1 day" : "waited \(days) days"

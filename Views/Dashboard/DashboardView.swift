@@ -18,7 +18,7 @@ struct DashboardView: View {
     @State private var selectedUnlock: AchievementUnlock?
     @State private var isAchievementsScreenShown = false
     @State private var activeDraft: SelfLetter?
-    @State private var letterBeingRead: SelfLetter?
+    @Binding var letterBeingRead: SelfLetter?
     @Query private var selfLetters: [SelfLetter]
     @State private var isArchiveShown = false
     @State private var isHovering = false
@@ -156,14 +156,6 @@ struct DashboardView: View {
             
             if let activeDraft {
                 SelfLetterComposeView(letter: activeDraft, onDismiss: { self.activeDraft = nil }, achievementService: achievementService)
-            }
-            
-            if let letterBeingRead {
-                SelfLetterRevealView(
-                    letter: letterBeingRead,
-                    onDismiss: { self.letterBeingRead = nil },
-                    achievementService: achievementService
-                )
             }
             
             if isArchiveShown {

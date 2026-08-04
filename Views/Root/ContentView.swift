@@ -40,6 +40,7 @@ struct ContentView: View {
     @State private var showSplash = true
     @State private var hasEnteredApp = false
     @State private var isGateShown = false
+    @State private var letterBeingRead: SelfLetter?
     @State private var hasEvaluatedGate = false
     @State private var isDimmed = false
     @State private var hasFinishedNarrativeOnboarding = false
@@ -72,7 +73,11 @@ struct ContentView: View {
                     Group {
                         switch selectedSection {
                         case .dashboard:
-                            DashboardView(toastManager: toastManager, achievementService: achievementService)
+                            DashboardView(
+                                toastManager: toastManager,
+                                achievementService: achievementService,
+                                letterBeingRead: $letterBeingRead
+                            )
                             
                         case .chat:
                             ZStack(alignment: .leading) {
@@ -267,6 +272,14 @@ struct ContentView: View {
                     onDismiss: {
                         isGateShown = false
                     }
+                )
+            }
+            
+            if let letterBeingRead {
+                SelfLetterRevealView(
+                    letter: letterBeingRead,
+                    onDismiss: { self.letterBeingRead = nil },
+                    achievementService: achievementService
                 )
             }
         }
