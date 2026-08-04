@@ -29,7 +29,7 @@ struct SidebarIconButton: View {
     private var baseBorderColor: Color {
         if effectivelyLocked { return .clear }
         if isActive { return Theme.borderStrong }
-        if isHovering { return Theme.border }
+        if isHovering { return Theme.textPrimary.opacity(0.45) }
         return .clear
     }
     
