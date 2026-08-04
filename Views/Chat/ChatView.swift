@@ -231,11 +231,7 @@ struct ChatView: View {
             }
 
             if isEnded {
-                if conversation.isAcquaintance && isRegeneratingAboutMeDraft {
-                    generatingProfileClosing
-                } else {
-                    endedClosing
-                }
+                endedClosing
             } else {
                 VStack(spacing: 0) {
                     if sortedMessages.isEmpty {
@@ -424,22 +420,6 @@ struct ChatView: View {
         .frame(maxWidth: .infinity)
     }
     
-    private var generatingProfileClosing: some View {
-        HStack(spacing: 8) {
-            Spacer()
-            ProgressView()
-                .controlSize(.small)
-            Text(L10n.Chat.generatingProfile)
-                .font(Typography.caption)
-                .foregroundStyle(Theme.textFaint)
-            Spacer()
-        }
-        .padding(.vertical, 18)
-        .overlay(alignment: .top) {
-            Rectangle().fill(Theme.border).frame(height: 0.5)
-        }
-    }
-    
     private var conversationEndedAt: Date? {
         conversation.isTribunal ? conversation.tribunalResolvedAt : conversation.journalEntry?.createdAt
     }
@@ -588,13 +568,6 @@ extension L10n {
             switch lang {
             case .en: return "The mirror is empty.\nSay something true."
             case .pl: return "Lustro jest puste.\nPowiedz coś prawdziwego."
-            }
-        }
-        
-        static var generatingProfile: String {
-            switch lang {
-            case .en: return "building your profile…"
-            case .pl: return "tworzę Twój profil…"
             }
         }
         
