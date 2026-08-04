@@ -148,6 +148,7 @@ struct MessageBubble: View {
                         }
                     }
                     .padding(6)
+                    .transition(.opacity)
                 } else if showRewind, let onRewind {
                     Button(action: onRewind) {
                         Image(systemName: "arrow.uturn.backward")
@@ -155,9 +156,11 @@ struct MessageBubble: View {
                             .foregroundStyle(Theme.textMuted)
                     }
                     .buttonStyle(.plain)
+                    .transition(.opacity)
                 }
             }
         }
+        .animation(.easeInOut(duration: 0.15), value: isHovering)
         .contentShape(Rectangle())
         .onHover { hovering in isHovering = hovering }
         .onChange(of: isEditing) { _, editing in
