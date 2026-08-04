@@ -1,6 +1,6 @@
 # Sariel
 
-_Regarding v1.17.4_
+_Regarding v1.21.3_
 
 A local-first SwiftUI app for confronting your own rationalizations, powered by on-device AI (Ollama).
 
@@ -12,6 +12,8 @@ Sariel is not a gentle personal-growth coach. It's a mirror: a space to talk thr
 - **Automatic journaling** — closing a conversation triggers the AI to synthesize it into an honest, first-person journal entry, tagged and saved locally.
 - **The Tribunal** — declare a commitment mid-conversation ("I declare...") and face a dedicated session later where the AI holds you to account: fulfilled or broken, no soft verdicts.
 - **Credibility tracking** — the AI can factor your track record of kept vs. broken commitments into its tone toward you.
+- **Meditation** — timed breathing sessions with an optional intention set beforehand; completed and interrupted sessions are both tracked, feeding into the achievement system.
+- **Self Letters** — write a letter to your future self, sealed until a chosen date, then revealed through the same confrontational lens as the rest of the app.
 - **Non-linear achievements** — unlocks based on real behavioral patterns (writing streaks, returning after silence, recovering credibility after a bad streak), not simple counters.
 - **Full personalization** — configurable Ollama host/model, custom personality prompt override, keyboard shortcuts, light/dark theme.
 - **Data ownership** — export/import all your data to JSON, with schema versioning for safe migrations.
