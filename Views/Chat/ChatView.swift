@@ -144,6 +144,7 @@ struct ChatView: View {
             .overlay { sealCenterOverlayContent }
             .animation(.easeInOut(duration: 0.2), value: isMoodPromptShown)
             .animation(.easeInOut(duration: 0.2), value: isShowingProgressBar)
+            .animation(.easeOut(duration: 0.35), value: isEnded)
     }
 
     @ViewBuilder
@@ -398,6 +399,7 @@ struct ChatView: View {
         .overlay(alignment: .top) {
             Rectangle().fill(Theme.border).frame(height: 0.5)
         }
+        .transition(.opacity.combined(with: .move(edge: .bottom)))
     }
 
     private var summaryDivider: some View {
