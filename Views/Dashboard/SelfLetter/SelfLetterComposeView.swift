@@ -93,6 +93,7 @@ struct SelfLetterComposeView: View {
                                 .foregroundStyle(Theme.textPrimary)
                                 .padding(.horizontal, 18)
                                 .padding(.vertical, 8)
+                                .contentShape(Rectangle())
                                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
                                 .hoverBorder(cornerRadius: 8)
                         }

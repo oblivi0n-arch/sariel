@@ -134,6 +134,7 @@ struct SettingsView: View {
                     .frame(width: 24, height: 24)
                     .clipShape(Circle())
                     .hoverBorder(Circle())
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
         }

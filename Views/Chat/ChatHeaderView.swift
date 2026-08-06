@@ -3,6 +3,7 @@ import SwiftUI
 struct ChatHeaderView: View {
     let title: String
     @Binding var isConversationListOpen: Bool
+    @State private var isHoveringSidebarToggle = false
     let isConnected: Bool
     let isInputLocked: Bool
     
@@ -35,9 +36,17 @@ struct ChatHeaderView: View {
                     Button(action: { isConversationListOpen.toggle() }) {
                         Image(systemName: "sidebar.left")
                             .font(.system(size: 16))
-                            .foregroundStyle(Theme.textMuted)
+                            .foregroundStyle(isHoveringSidebarToggle ? Theme.textPrimary : Theme.textMuted)
+                            .frame(width: 28, height: 28)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(isHoveringSidebarToggle ? Theme.border : .clear, lineWidth: 1)
+                            )
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .trackHover($isHoveringSidebarToggle)
                     .opacity(isConversationListOpen ? 0 : 1)
                     .disabled(isConversationListOpen)
                 }
@@ -128,6 +137,7 @@ struct ChatHeaderView: View {
         .foregroundStyle(color)
         .padding(.horizontal, 12)
         .padding(.vertical, 7)
+        .contentShape(Rectangle())
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
     }
 }

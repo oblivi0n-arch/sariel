@@ -56,6 +56,7 @@ struct MeditationCompletionView: View {
                         .foregroundStyle(Theme.textPrimary)
                         .padding(.horizontal, 24)
                         .padding(.vertical, 12)
+                        .contentShape(Rectangle())
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 1))
                 }
                 .buttonStyle(.plain)

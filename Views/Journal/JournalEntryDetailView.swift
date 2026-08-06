@@ -75,6 +75,7 @@ struct JournalEntryReader: View {
                     .frame(width: 28, height: 28)
                     .clipShape(Circle())
                     .hoverBorder(Circle())
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             
@@ -85,6 +86,7 @@ struct JournalEntryReader: View {
                     .frame(width: 28, height: 28)
                     .clipShape(Circle())
                     .hoverBorder(Circle())
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
         }

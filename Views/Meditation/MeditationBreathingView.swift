@@ -41,6 +41,7 @@ struct MeditationBreathingView: View {
                     .kerning(0.5)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
+                    .contentShape(Rectangle())
                     .overlay(Capsule().stroke(Theme.border, lineWidth: 0.5))
                     .hoverBorder(Capsule())
             }
