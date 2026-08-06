@@ -18,6 +18,12 @@ private struct HoverTracking: ViewModifier {
 
 extension View {
     func trackHover(_ isHovering: Binding<Bool>) -> some View {
-        modifier(HoverTracking(isHovering: isHovering))
+        trackHover(isHovering, shape: Rectangle())
+    }
+
+    func trackHover<S: Shape>(_ isHovering: Binding<Bool>, shape: S) -> some View {
+        self
+            .contentShape(shape)
+            .modifier(HoverTracking(isHovering: isHovering))
     }
 }

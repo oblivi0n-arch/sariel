@@ -64,14 +64,13 @@ struct MeditationTimerView: View {
                         .foregroundStyle(Theme.textPrimary)
                 }
                 .frame(width: 280, height: 280)
-                .contentShape(Circle())
                 .onTapGesture {
                     hasInteractedWithCircle = true
                     withAnimation(.easeInOut(duration: 0.25)) {
                         isMenuShown.toggle()
                     }
                 }
-                .trackHover($isHoveringCircle)
+                .trackHover($isHoveringCircle, shape: Circle())
                 
                 if !isMenuShown && !hasInteractedWithCircle {
                     Text(L10n.MeditationTimer.tapHint)
