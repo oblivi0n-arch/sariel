@@ -131,6 +131,8 @@ struct TribunalView: View {
                         .font(Typography.icon)
                         .foregroundStyle(isHoveringInfo ? Theme.textPrimary : Theme.textMuted)
                         .frame(width: 28, height: 28)
+                        .clipShape(Circle())
+                        .hoverBorder(Circle())
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
