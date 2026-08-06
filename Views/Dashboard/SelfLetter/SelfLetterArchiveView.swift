@@ -93,6 +93,7 @@ struct SelfLetterArchiveView: View {
                                 RoundedRectangle(cornerRadius: 6)
                                     .stroke(isSearchHovering ? Theme.border : .clear, lineWidth: 1)
                             )
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .trackHover($isSearchHovering)

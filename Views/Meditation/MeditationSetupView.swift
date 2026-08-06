@@ -35,6 +35,7 @@ struct MeditationSetupView: View {
                                 RoundedRectangle(cornerRadius: 6)
                                     .stroke(isHoveringInfo ? Theme.border : .clear, lineWidth: 1)
                             )
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .trackHover($isHoveringInfo)
@@ -49,6 +50,7 @@ struct MeditationSetupView: View {
                                 RoundedRectangle(cornerRadius: 6)
                                     .stroke(isHoveringHistory ? Theme.border : .clear, lineWidth: 1)
                             )
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .trackHover($isHoveringHistory)

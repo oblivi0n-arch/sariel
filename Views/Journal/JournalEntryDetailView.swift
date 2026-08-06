@@ -112,6 +112,7 @@ struct JournalEntryReader: View {
                     }
                     .font(Typography.label)
                     .foregroundStyle(isHoveringViewConversation ? Theme.textPrimary : Theme.textMuted)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .trackHover($isHoveringViewConversation)

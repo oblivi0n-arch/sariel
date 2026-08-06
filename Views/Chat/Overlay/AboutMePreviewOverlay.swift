@@ -106,6 +106,7 @@ struct AboutMePreviewOverlay: View {
                         .font(Typography.caption)
                         .foregroundStyle(isHoveringSkip ? Theme.textSecondary : Theme.textMuted)
                         .frame(maxWidth: .infinity, alignment: .center)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .trackHover($isHoveringSkip)

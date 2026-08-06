@@ -20,6 +20,7 @@ struct DisclosureLinkButton: View {
             }
             .font(Typography.caption)
             .foregroundStyle(isHovering ? Theme.textPrimary : Theme.textMuted)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .trackHover($isHovering)

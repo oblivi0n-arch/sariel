@@ -127,6 +127,7 @@ struct JournalView: View {
                                         RoundedRectangle(cornerRadius: 6)
                                             .stroke(isArchiveHovering ? Theme.border : .clear, lineWidth: 1)
                                     )
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .trackHover($isArchiveHovering)
@@ -141,6 +142,7 @@ struct JournalView: View {
                                         RoundedRectangle(cornerRadius: 6)
                                             .stroke(isSearchHovering ? Theme.border : .clear, lineWidth: 1)
                                     )
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .trackHover($isSearchHovering)
@@ -155,6 +157,7 @@ struct JournalView: View {
                                         RoundedRectangle(cornerRadius: 6)
                                             .stroke(isPlusHovering ? Theme.border : .clear, lineWidth: 1)
                                     )
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .trackHover($isPlusHovering)
