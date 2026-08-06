@@ -45,6 +45,7 @@ struct ContentView: View {
     @State private var isDimmed = false
     @State private var hasFinishedNarrativeOnboarding = false
     @State private var isUnlocked = false
+    @State private var isMeditationInProgress = false
     @StateObject private var chatService = ChatService()
     @StateObject private var toastManager = ToastManager()
     @StateObject private var achievementService = AchievementService()
@@ -70,6 +71,7 @@ struct ContentView: View {
                     isSettingsOpen: $isSettingsOpen,
                     isTribunalLocked: isTribunalInProgress,
                     isTribunalAwaitingJudgment: isTribunalUnlocked,
+                    isMeditationLocked: isMeditationInProgress,
                     onSelectSection: switchSection
                 )
                 
@@ -124,7 +126,8 @@ struct ContentView: View {
                                 onOpenConversation: openConversation
                             )
                         case .meditation:
-                            MeditationView(achievementService: achievementService)
+                            MeditationView( isSessionActive: $isMeditationInProgress,
+                                achievementService: achievementService)
                         }
                     }
                     Theme.background
@@ -167,29 +170,7 @@ struct ContentView: View {
                         .hidden()
                 }
                 .overlay(alignment: .topTrailing) {
-                    VStack(alignment: .trailing, spacing: 8) {
-                        ForEach(toastManager.toasts) { toast in
-                            ToastView(toast: toast) {
-                                switch toast.kind {
-                                case .journalEntrySaved(let entry):
-                                    activeEntry = entry
-                                    selectedSection = .journal
-                                case .declarationLimitBlocked:
-                                    selectedSection = .tribunal
-                                case .declarationRequiresNewMessage:
-                                    break
-                                case .achievementUnlocked:
-                                    selectedSection = .dashboard
-                                case .selfLetterAvailable:
-                                    selectedSection = .dashboard
-                                }
-                                toastManager.dismiss(toast)
-                            }
-                            .transition(.move(edge: .trailing).combined(with: .opacity))
-                        }
-                    }
-                    .padding(16)
-                    .animation(.easeInOut(duration: 0.25), value: toastManager.toasts.map(\.id))
+                    toastOverlay
                 }
             }
             .frame(minWidth: 760, minHeight: 660)
@@ -290,6 +271,36 @@ struct ContentView: View {
         .environment(\.colorScheme, themeManager.resolved.baseColorScheme)
     }
     
+    private var toastOverlay: some View {
+        VStack(alignment: .trailing, spacing: 8) {
+            ForEach(toastManager.toasts) { toast in
+                ToastView(toast: toast) {
+                    handleToastTap(toast)
+                }
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+            }
+        }
+        .padding(16)
+        .animation(.easeInOut(duration: 0.25), value: toastManager.toasts.map(\.id))
+    }
+
+    private func handleToastTap(_ toast: Toast) {
+        switch toast.kind {
+        case .journalEntrySaved(let entry):
+            activeEntry = entry
+            selectedSection = .journal
+        case .declarationLimitBlocked:
+            selectedSection = .tribunal
+        case .declarationRequiresNewMessage:
+            break
+        case .achievementUnlocked:
+            selectedSection = .dashboard
+        case .selfLetterAvailable:
+            selectedSection = .dashboard
+        }
+        toastManager.dismiss(toast)
+    }
+    
     private func setupConversation() {
         guard activeConversation == nil else { return }
         
@@ -383,6 +394,7 @@ struct ContentView: View {
     private func switchSection(to section: AppSection) {
         guard section != selectedSection else { return }
         guard !(isTribunalInProgress && section != .tribunal) else { return }
+        guard !(isMeditationInProgress && section != .meditation) else { return }
         
         withAnimation(.easeInOut(duration: 0.18)) {
             isDimmed = true

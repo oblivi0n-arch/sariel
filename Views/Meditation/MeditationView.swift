@@ -12,7 +12,8 @@ struct MeditationView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \MeditationSession.createdAt, order: .reverse) private var sessions: [MeditationSession]
     @State private var stage: MeditationStage = .setup
-    
+    @Binding var isSessionActive: Bool
+
     let achievementService: AchievementService
 
     var body: some View {
@@ -22,6 +23,7 @@ struct MeditationView: View {
                 sessions: sessions,
                 onStart: { intention, duration in
                     stage = .breathing(intention: intention, duration: duration)
+                    isSessionActive = true
                 },
                 onDelete: deleteSession
             )
@@ -33,6 +35,7 @@ struct MeditationView: View {
             MeditationTimerView(plannedDuration: duration.seconds) { actualDuration in
                 let session = saveSession(intention: intention, plannedDuration: duration.seconds, actualDuration: actualDuration)
                 stage = .finished(session: session)
+                isSessionActive = false
             }
         case .finished(let session):
             MeditationCompletionView(session: session) {

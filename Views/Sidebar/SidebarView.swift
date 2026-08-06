@@ -8,6 +8,7 @@ struct SidebarView: View {
     
     let isTribunalLocked: Bool
     let isTribunalAwaitingJudgment: Bool
+    let isMeditationLocked: Bool
     let onSelectSection: (AppSection) -> Void
 
     var body: some View {
@@ -18,7 +19,7 @@ struct SidebarView: View {
                 SidebarIconButton(
                     iconName: section.iconName,
                     isActive: section == selectedSection,
-                    isLocked: isTribunalLocked && section != .tribunal,
+                    isLocked: (isTribunalLocked && section != .tribunal) || (isMeditationLocked && section != .meditation),
                     showAlertBadge: section == .tribunal && isTribunalAwaitingJudgment,
                     isSolidAccent: section == .tribunal && isTribunalLocked,
                     onTap: { onSelectSection(section) }
