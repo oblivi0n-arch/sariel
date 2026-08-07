@@ -60,7 +60,6 @@ struct AboutMePreviewOverlay: View {
                         .padding(12)
                 }
                 .frame(maxHeight: 180)
-                .background(Theme.fieldBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
                 .opacity(isRegenerating ? 0.4 : 1)
@@ -92,8 +91,8 @@ struct AboutMePreviewOverlay: View {
                             .foregroundStyle(Theme.textPrimary)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
-                            .background(Theme.fieldBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .contentShape(Rectangle())
                             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
                             .hoverBorder(cornerRadius: 8)
                     }
