@@ -28,6 +28,11 @@ extension SettingsView {
                 isValid: host.isEmpty || isHostValid,
                 errorMessage: L10n.Settings.hostFieldError
             )
+
+            if isHostValid && !isHostLocal {
+                remoteHostWarning
+            }
+
             modelPicker
         }
     }
@@ -46,6 +51,22 @@ extension SettingsView {
     private var isHostValid: Bool {
         guard let url = URL(string: host), let scheme = url.scheme else { return false }
         return (scheme == "http" || scheme == "https") && url.host != nil
+    }
+    
+    private var isHostLocal: Bool {
+        guard let hostname = URL(string: host)?.host?.lowercased() else { return false }
+        return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1"
+    }
+
+    private var remoteHostWarning: some View {
+        HStack(alignment: .top, spacing: 6) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(Typography.caption)
+            Text(L10n.Settings.remoteHostWarning)
+                .font(Typography.caption)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .foregroundStyle(Color.orange.opacity(0.85))
     }
     
     private var modelPicker: some View {
@@ -323,6 +344,13 @@ extension L10n.Settings {
         switch L10n.lang {
         case .en: return "Enter a valid URL, e.g. http://localhost:11434"
         case .pl: return "Podaj prawidłowy adres URL, np. http://localhost:11434"
+        }
+    }
+    
+    static var remoteHostWarning: String {
+        switch L10n.lang {
+        case .en: return "This is not a local address. Your conversations will leave this device and be sent to that server."
+        case .pl: return "To nie jest adres lokalny. Twoje rozmowy opuszczą to urządzenie i zostaną wysłane na ten serwer."
         }
     }
     

@@ -18,6 +18,11 @@ struct OllamaStepView: View {
         guard let url = URL(string: host), let scheme = url.scheme else { return false }
         return (scheme == "http" || scheme == "https") && url.host != nil
     }
+    
+    private var isHostLocal: Bool {
+        guard let hostname = URL(string: host)?.host?.lowercased() else { return false }
+        return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1"
+    }
 
     private var finishLabel: String {
         connectionMonitor.isConnected ? L10n.Wizard.finish : L10n.Wizard.skipForNow
@@ -50,6 +55,17 @@ struct OllamaStepView: View {
                     Text(L10n.Settings.hostFieldError)
                         .font(Typography.caption)
                         .foregroundStyle(Color.red.opacity(0.8))
+                }
+                
+                if isHostValid && !isHostLocal {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(Typography.caption)
+                        Text(L10n.Settings.remoteHostWarning)
+                            .font(Typography.caption)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .foregroundStyle(Color.orange.opacity(0.85))
                 }
             }
             .frame(maxWidth: 320)
