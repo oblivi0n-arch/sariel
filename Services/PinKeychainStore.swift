@@ -26,6 +26,7 @@ enum PinKeychainStore {
 
         var newItem = query
         newItem[kSecValueData as String] = data
+        newItem[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
 
         let status = SecItemAdd(newItem as CFDictionary, nil)
         return status == errSecSuccess

@@ -13,6 +13,7 @@ enum AppResetService {
         try? context.save()
 
         PinKeychainStore.removePin()
+        PinAttemptStore.reset()
         UserDefaults.standard.set(false, forKey: "appLockEnabled")
         UserDefaults.standard.set(OllamaDefaults.host, forKey: "ollamaHost")
         UserDefaults.standard.set(OllamaDefaults.model, forKey: "ollamaModel")
