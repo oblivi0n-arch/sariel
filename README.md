@@ -1,6 +1,6 @@
 # Sariel
 
-_Regarding v1.23.0_
+_Regarding v1.25.0_
 
 A local-first SwiftUI app for confronting your own rationalizations, powered by on-device AI (Ollama).
 
@@ -17,8 +17,8 @@ Everything runs on your machine. No account, no server, no telemetry, no third-p
 - **Meditation** — timed breathing sessions with an optional intention set beforehand; completed and interrupted sessions are both tracked, feeding into the achievement system.
 - **Self Letters** — write a letter to your future self, sealed until a chosen date, then revealed through the same confrontational lens as the rest of the app.
 - **Non-linear achievements** — unlocks based on real behavioral patterns (writing streaks, returning after silence, recovering credibility after a bad streak), not simple counters.
-- **App lock** — optional 4-digit PIN with Touch ID unlock, plus auto-wipe after a configurable period of inactivity.
-- **Personalization** — configurable Ollama host and model, keyboard shortcuts, light/dark theme, persistent "about me" profile distilled from a getting-acquainted conversation.
+- **App lock** — optional 4-digit PIN with Touch ID unlock, rate-limited against guessing, plus auto-wipe after a configurable period of inactivity.
+- **Personalization** — configurable Ollama host and model, remappable keyboard shortcuts, light/dark theme, persistent "about me" profile distilled from a getting-acquainted conversation.
 - **Data ownership** — export/import all your data to JSON, with schema versioning for safe migrations.
 - **Multi-language UI** — English and Polish, switchable at any time.
 
@@ -57,6 +57,18 @@ This is also why there's **no user-facing prompt editor**. An earlier version ha
 
 Long conversations are handled without dropping facts: up to 30 recent messages go to the model directly, and once more than 10 messages are unsummarized, a separate call folds them into a running third-person summary while the raw window shrinks to the last 8. Deleting messages reconciles the summary, so the model can't "remember" something you erased.
 
+### When things go wrong
+
+Failure paths get the same attention as the happy path, because in a local-first app there is no server-side log to fall back on:
+
+- **A corrupted data store shows a recovery screen, not a crash.** If the SwiftData container can't be opened, the app explains what happened, states plainly that your data hasn't been deleted, and offers to reveal the store in Finder.
+- **Ollama failures surface in the UI.** Connection, missing-model, and server errors become in-conversation messages with a concrete next step ("Run `ollama serve` in terminal"), and the response can be retried without losing your input.
+- **Non-critical failures are logged, not swallowed.** Title generation, summary refresh, and Ollama launch report to the unified log via `os.Logger` under the app's bundle identifier. Log output deliberately never includes conversation content — only the fact and cause of the failure.
+
+```bash
+log stream --predicate 'subsystem == "oblivi0n-arch.sariel"' --level error
+```
+
 ## Tech Stack
 
 - **SwiftUI** — declarative UI, macOS target
@@ -64,6 +76,7 @@ Long conversations are handled without dropping facts: up to 30 recent messages 
 - **Ollama** — local LLM runtime; the app talks to it over HTTP
 - **Swift Testing** — unit tests (see [Testing](#testing))
 - **CryptoKit / Keychain / LocalAuthentication** — PIN hashing, secure storage, Touch ID
+- **OSLog** — diagnostics for non-fatal failures
 
 **Zero third-party dependencies.** Everything above ships with the platform. For an app whose main promise is that your data stays put, there's no third-party code to audit for telemetry.
 
@@ -73,19 +86,19 @@ The project is organized by responsibility rather than by feature:
 
 ```
 sariel/
-├── Core/             # App-wide constants, navigation enum, transient UI state (AppLimits, AppSection, Toast)
+├── Core/             # App-wide constants, navigation enum, logging, transient UI state
 ├── DesignSystem/     # Colors, typography, localization strings
 ├── Models/
 │   ├── Persistence/  # SwiftData @Model classes (Conversation, JournalEntry, Commitment, etc.)
 │   ├── Domain/       # Pure domain enums with no persistence (AchievementKind, CredibilityBand, JournalStyle, TribunalVerdict)
 │   └── DTO/          # Codable snapshot types used for export/import
-├── Services/         # Business logic: chat orchestration, Ollama client, prompt building
+├── Services/         # Business logic: chat orchestration, Ollama client, prompt building, policies
 ├── Utilities/        # Non-UI helpers used across the app (e.g. Date+DayKey)
 └── Views/            # SwiftUI views, grouped by feature (Chat, Journal, Dashboard, Onboarding, Tribunal,
                       # Meditation, PinEntry, Sidebar), plus a Shared/ subfolder for reused components
 ```
 
-Splitting `Domain` from `Persistence` keeps business rules (credibility thresholds, achievement conditions, interruption logic) testable without spinning up a SwiftData container. Splitting `DTO` from both lets the export file format be versioned independently of the database schema.
+Splitting `Domain` from `Persistence` keeps business rules (credibility thresholds, achievement conditions, interruption logic) testable without spinning up a SwiftData container. Splitting `DTO` from both lets the export file format be versioned independently of the database schema. Policies that are pure functions of their inputs — `AutoDeletePolicy`, `PinLockoutPolicy` — live in `Services/` with no state of their own, so their edge cases can be asserted directly.
 
 `ChatService` follows the same by-mode split as `PromptBuilder` (`ChatService+Provocation`, `+Acquaintance`, `+Tribunal`).
 
@@ -111,11 +124,11 @@ Default: `gemma4:e4b`. The model picker in Settings lists whatever you've pulled
 
 ### Keyboard shortcuts
 
-`⌘1` Dashboard · `⌘2` Chat · `⌘3` Journal · `⌘4` Tribunal · `⌘5` Meditation — all remappable in Settings.
+`⌘1` Dashboard · `⌘2` Chat · `⌘3` Journal · `⌘4` Tribunal · `⌘5` Meditation — all remappable in Settings. A shortcut already assigned to another section is rejected rather than silently stolen.
 
 ## Testing
 
-Sariel uses [Swift Testing](https://developer.apple.com/documentation/testing) (not XCTest) for unit tests, run against an in-memory SwiftData container so no real user data is touched. **140 automated test cases across 18 test suites**, plus a documented manual test protocol for anything that depends on real LLM output.
+Sariel uses [Swift Testing](https://developer.apple.com/documentation/testing) (not XCTest) for unit tests, run against an in-memory SwiftData container so no real user data is touched. **146 automated test cases across 19 test suites**, plus a manual test protocol — maintained in the project documentation rather than this repository — covering anything that depends on real LLM output.
 
 Run tests with `Cmd+U` in Xcode, or `xcodebuild test` from the command line.
 
@@ -137,10 +150,11 @@ Run tests with `Cmd+U` in Xcode, or `xcodebuild test` from the command line.
 - `SelfLetterServiceTests` — sealed→available availability transitions around the openDate boundary, and that other statuses (draft/available/opened) are left untouched
 - `MeditationSessionTests` — the `wasInterrupted` boundary (shorter/equal/longer than planned duration)
 - `AutoDeletePolicyTests` — inactivity-wipe threshold logic, including the exact-boundary case and a safe fallback when the threshold is misconfigured to zero
+- `PinLockoutPolicyTests` — lockout escalation after failed PIN attempts, countdown behavior, the exact expiry boundary, and resistance to the system clock being moved backwards
 - `PinKeychainStoreTests` — PIN hashing correctness (determinism, distinctness, format)
 - `AppResetServiceTests` — full data wipe correctness: all SwiftData model types (including self letters and meditation sessions) are cleared, and the PIN/app-lock state is reset
 
-**Not automated, by design:** AI response quality — prompt behavior, edge cases, and adherence to the crisis-safety boundary — is not something a unit test can meaningfully assert, since it depends on the LLM's output. These are validated manually against a documented test protocol instead. UI tests (XCUITest) are likewise out of scope for this release; see the project's test-plan documentation for the reasoning.
+**Not automated, by design:** AI response quality — prompt behavior, edge cases, and adherence to the crisis-safety boundary — is not something a unit test can meaningfully assert, since it depends on the LLM's output. These are validated manually against a written protocol instead, covering conversation flow, the Tribunal cycle, the crisis-safety boundary, privacy, and data export/import. UI tests (XCUITest) are likewise out of scope for this release.
 
 > **Note:** `AppResetServiceTests` touches the real macOS Keychain (there is currently no mocking layer for `PinKeychainStore`). It's safe on a dev machine with no PIN in daily use, but is a known limitation worth revisiting if that changes.
 >
@@ -156,27 +170,32 @@ Where things live:
 |---|---|---|---|
 | Conversations, journal, commitments, letters, sessions, achievements | SwiftData (local store) | yes | yes |
 | Settings, profile, shortcuts, preferences | `UserDefaults` | yes | yes |
-| App-lock PIN (SHA-256 hash) | Keychain | **no** | yes |
+| App-lock PIN (SHA-256 hash) | Keychain, `WhenUnlockedThisDeviceOnly` | **no** | yes |
 
-There is no account system, no sync service, no crash reporting, and no analytics. The `.gitignore` excludes SwiftData store files outright, so user data can't be committed by accident.
+There is no account system, no sync service, no crash reporting, and no analytics. The `.gitignore` excludes SwiftData store files outright, so user data can't be committed by accident. The PIN hash is marked device-only, keeping it out of iCloud Keychain and backups.
 
 **One honest caveat:** the Ollama host is user-configurable and accepts any `http`/`https` address, not just `localhost`. Pointing it at a remote server will send your conversations to that server. The app warns you when the configured host isn't local, but the choice is yours — the "stays on this device" guarantee describes the default configuration, not a hard technical constraint.
 
 ## Known Limitations
 
 - **App Sandbox is disabled.** Automatically launching the Ollama server as a subprocess at a filesystem path outside the app's container isn't possible under App Sandbox without fragile temporary-exception entitlements that Apple's App Store review rejects in practice. This is a deliberate trade-off for a locally-run, non-App-Store tool — it means the app can, in principle, access the filesystem and spawn processes beyond its own container.
-- **The app lock is a door, not a vault.** The PIN is a 4-digit code hashed with a single pass of SHA-256 and stored in the Keychain, with no rate limiting on attempts. It stops someone from casually opening your journal; it will not stop anyone determined who has access to your Keychain.
+- **The app lock is a door, not a vault.** Guessing is rate-limited — three free attempts, then escalating lockouts that survive a restart — and the hash is device-only in the Keychain. But it is still a 4-digit code hashed with a single pass of SHA-256, with no salt or key-derivation function. It stops casual access to your journal. It is not meaningful protection against anyone who already has access to your user account, who could read the unencrypted store file directly regardless.
+- **The data store itself is not encrypted.** SwiftData writes a plain SQLite file under Application Support. Full-disk encryption (FileVault) is the layer that protects it at rest.
 - **No schema migration plan yet.** SwiftData models aren't versioned with `VersionedSchema`/`SchemaMigrationPlan`. Breaking model changes may require an export → reset → import cycle.
-- **No logging.** Failures in non-critical paths (title generation, summary refresh, Ollama launch) are swallowed silently, which makes diagnosing issues on someone else's machine difficult.
+- **Save failures are still silent.** Non-critical AI paths now log through `os.Logger`, but `try? modelContext.save()` throughout the service layer discards write errors without surfacing them.
 - **Context window is counted in messages, not tokens.** With a small-context model and long messages, overflow is still possible.
 
 ## Troubleshooting
 
 **"Cannot connect to Ollama."** The server isn't running. Either enable auto-start in Settings, or run `ollama serve` yourself. The connection indicator in Settings polls every few seconds.
 
-**Auto-start doesn't work.** Sariel looks for the binary at `/opt/homebrew/bin/ollama`, `/usr/local/bin/ollama`, and `/Applications/Ollama.app/Contents/Resources/ollama`. If yours is elsewhere, set the path manually under "Can't find Ollama?" in Settings.
+**Auto-start doesn't work.** Sariel looks for the binary at `/opt/homebrew/bin/ollama`, `/usr/local/bin/ollama`, and `/Applications/Ollama.app/Contents/Resources/ollama`. If yours is elsewhere, set the path manually under "Can't find Ollama?" in Settings. Check the log for the exact failure: `log stream --predicate 'subsystem == "oblivi0n-arch.sariel"' --level error`.
 
 **"Model 'x' not found."** Pull it with `ollama pull <model>`, then refresh the model list in Settings.
+
+**"Couldn't open your data" on launch.** The local store couldn't be read. Your data hasn't been deleted. Use "Show in Finder" to reach the store file, move it aside, and restart — then import from a previous export if you have one.
+
+**Locked out of the app.** Failed PIN attempts trigger an escalating cooldown that persists across restarts. Touch ID is deliberately not rate-limited, so use it if you have it enabled.
 
 **Sariel accuses me of avoiding things when I'm just thinking.** The prompt explicitly instructs the model that uncertainty and short replies are not evidence of avoidance — but weaker models don't always follow it. This is usually a sign to try a model with stronger system-role adherence.
 
