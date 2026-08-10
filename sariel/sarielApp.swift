@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import AppKit
+import os
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -16,21 +17,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 @main
 struct SarielApp: App {
-    let container: ModelContainer
+    let container: ModelContainer?
+    let containerError: Error?
+
     @StateObject private var connectionMonitor = ConnectionMonitor()
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     init() {
+        var created: ModelContainer?
+        var failure: Error?
+
         do {
-            container = try ModelContainer(for: Conversation.self, ChatMessage.self, JournalEntry.self, JournalEntryTag.self, Commitment.self, AchievementUnlock.self, SelfLetter.self, MeditationSession.self)
+            created = try ModelContainer(for: Conversation.self, ChatMessage.self, JournalEntry.self, JournalEntryTag.self, Commitment.self, AchievementUnlock.self, SelfLetter.self, MeditationSession.self)
         } catch {
-            fatalError("Cannot initialize container: \(error)")
+            failure = error
+            Log.data.fault("ModelContainer initialization failed: \(error.localizedDescription, privacy: .public)")
         }
 
-        checkAutoDeleteOnLaunch()
+        container = created
+        containerError = failure
+
+        if let created {
+            checkAutoDeleteOnLaunch(context: created.mainContext)
+        }
     }
 
-    private func checkAutoDeleteOnLaunch() {
+    private func checkAutoDeleteOnLaunch(context: ModelContext) {
         let defaults = UserDefaults.standard
         defer { defaults.set(Date(), forKey: "lastActiveDate") }
 
@@ -42,17 +54,21 @@ struct SarielApp: App {
         )
 
         if shouldWipe {
-            AppResetService.wipeAllData(context: container.mainContext)
+            AppResetService.wipeAllData(context: context)
         }
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(connectionMonitor)
+            if let container {
+                ContentView()
+                    .environmentObject(connectionMonitor)
+                    .modelContainer(container)
+            } else {
+                LaunchFailureView(message: containerError?.localizedDescription ?? "")
+            }
         }
         .windowStyle(.hiddenTitleBar)
-        .modelContainer(container)
         .defaultSize(width: 700, height: 560)
     }
 }
