@@ -15,8 +15,8 @@ struct LanguageStepView: View {
 
             VStack(spacing: 10) {
                 HStack(spacing: 10) {
-                    languageOption(.pl, label: "PL")
-                    languageOption(.en, label: "EN")
+                    LanguageOptionButton(language: .pl, label: "PL")
+                    LanguageOptionButton(language: .en, label: "EN")
                 }
 
                 Text(L10n.Wizard.languageOllamaHint)
@@ -33,24 +33,6 @@ struct LanguageStepView: View {
                 .padding(.top, 24)
         }
         .frame(maxWidth: 420)
-    }
-
-    private func languageOption(_ language: AppLanguage, label: String) -> some View {
-        let isSelected = languageManager.current == language
-
-        return Button(action: { languageManager.current = language }) {
-            Text(label)
-                .font(Typography.label)
-                .foregroundStyle(isSelected ? Theme.textPrimary : Theme.textMuted)
-                .frame(width: 52, height: 32)
-                .contentShape(Rectangle())
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(isSelected ? Theme.borderStrong : Theme.border, lineWidth: isSelected ? 1 : 0.5)
-                )
-                .hoverBorder(cornerRadius: 8)
-        }
-        .buttonStyle(.plain)
     }
 }
 
