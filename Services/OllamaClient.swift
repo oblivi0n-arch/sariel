@@ -15,6 +15,7 @@ enum OllamaError: LocalizedError {
     case modelNotFound(String)
     case serverError(Int)
     case invalidResponse
+    case invalidHost
 
     var errorDescription: String? {
         switch self {
@@ -26,6 +27,8 @@ enum OllamaError: LocalizedError {
             return "Ollama returned an error (\(code))."
         case .invalidResponse:
             return "Ollama returned an invalid response."
+        case .invalidHost:
+            return "Invalid Ollama host URL."
         }
     }
 
@@ -37,6 +40,8 @@ enum OllamaError: LocalizedError {
             return "Pull it or pick another one in Settings."
         case .serverError, .invalidResponse:
             return nil
+        case .invalidHost:
+            return "Check Ollama host URL in Settings."
         }
     }
 }
@@ -147,3 +152,37 @@ struct OllamaClient {
     }
 }
 
+extension OllamaClient {
+
+    static func isValidHost(_ host: String) -> Bool {
+        guard let url = URL(string: host), let scheme = url.scheme else { return false }
+        return (scheme == "http" || scheme == "https") && url.host != nil
+    }
+
+    static func isLocalHost(_ host: String) -> Bool {
+        guard let hostname = URL(string: host)?.host?.lowercased() else { return false }
+        return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1"
+    }
+
+    static func fetchAvailableModels(host: String) async throws -> [String] {
+        guard isValidHost(host), let url = URL(string: "\(host)/api/tags") else {
+            throw OllamaError.invalidHost
+        }
+
+        let (data, response) = try await URLSession.shared.data(from: url)
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+            throw OllamaError.connectionFailed
+        }
+
+        let decoded = try JSONDecoder().decode(TagsResponse.self, from: data)
+        return decoded.models.map { $0.name }
+    }
+
+    private struct TagsResponse: Codable {
+        let models: [ModelInfo]
+    }
+
+    private struct ModelInfo: Codable {
+        let name: String
+    }
+}

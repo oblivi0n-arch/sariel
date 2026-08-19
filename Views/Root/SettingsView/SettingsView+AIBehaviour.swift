@@ -49,13 +49,28 @@ extension SettingsView {
     }
     
     private var isHostValid: Bool {
-        guard let url = URL(string: host), let scheme = url.scheme else { return false }
-        return (scheme == "http" || scheme == "https") && url.host != nil
+        OllamaClient.isValidHost(host)
     }
-    
+
     private var isHostLocal: Bool {
-        guard let hostname = URL(string: host)?.host?.lowercased() else { return false }
-        return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1"
+        OllamaClient.isLocalHost(host)
+    }
+
+    func fetchAvailableModels() async {
+        isLoadingModels = true
+        modelsLoadError = nil
+
+        do {
+            availableModels = try await OllamaClient.fetchAvailableModels(host: host)
+        } catch OllamaError.invalidHost {
+            modelsLoadError = L10n.Settings.modelsLoadErrorHostInvalid
+            availableModels = []
+        } catch {
+            modelsLoadError = L10n.Settings.modelsLoadErrorGeneric
+            availableModels = []
+        }
+
+        isLoadingModels = false
     }
 
     private var remoteHostWarning: some View {
@@ -156,38 +171,6 @@ extension SettingsView {
                     .foregroundStyle(Color.red.opacity(0.8))
             }
         }
-    }
-    
-    private struct OllamaTagsResponse: Codable {
-        let models: [OllamaModelInfo]
-    }
-    
-    private struct OllamaModelInfo: Codable {
-        let name: String
-    }
-    
-    func fetchAvailableModels() async {
-        guard isHostValid, let url = URL(string: "\(host)/api/tags") else {
-            modelsLoadError = L10n.Settings.modelsLoadErrorHostInvalid
-            return
-        }
-        
-        isLoadingModels = true
-        modelsLoadError = nil
-        
-        do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-                throw URLError(.badServerResponse)
-            }
-            let decoded = try JSONDecoder().decode(OllamaTagsResponse.self, from: data)
-            availableModels = decoded.models.map { $0.name }
-        } catch {
-            modelsLoadError = L10n.Settings.modelsLoadErrorGeneric
-            availableModels = []
-        }
-        
-        isLoadingModels = false
     }
     
     var contextSection: some View {
