@@ -44,7 +44,6 @@ struct OllamaStepView: View {
 
                 PlaceholderTextField(placeholder: L10n.Settings.hostFieldLabel, text: $host)
                     .padding(10)
-                    .background(Theme.fieldBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)

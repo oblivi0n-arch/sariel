@@ -32,7 +32,6 @@ struct NicknameStepView: View {
             PlaceholderTextField(placeholder: L10n.Settings.usernamePlaceholder, text: $username)
                 .multilineTextAlignment(.center)
                 .padding(10)
-                .background(Theme.fieldBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 0.5))
                 .frame(maxWidth: 240)
