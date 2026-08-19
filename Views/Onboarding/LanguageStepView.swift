@@ -41,14 +41,14 @@ struct LanguageStepView: View {
         return Button(action: { languageManager.current = language }) {
             Text(label)
                 .font(Typography.label)
-                .foregroundStyle(isSelected ? Theme.background : Theme.textPrimary)
+                .foregroundStyle(isSelected ? Theme.textPrimary : Theme.textMuted)
                 .frame(width: 52, height: 32)
-                .background(isSelected ? Theme.textPrimary : Theme.fieldBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .contentShape(Rectangle())
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(isSelected ? Color.clear : Theme.border, lineWidth: 0.5)
+                        .stroke(isSelected ? Theme.borderStrong : Theme.border, lineWidth: isSelected ? 1 : 0.5)
                 )
+                .hoverBorder(cornerRadius: 8)
         }
         .buttonStyle(.plain)
     }
