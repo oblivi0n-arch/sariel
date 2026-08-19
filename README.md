@@ -1,7 +1,5 @@
 # Sariel
 
-_Regarding v1.25.0_
-
 A local-first SwiftUI app for confronting your own rationalizations, powered by on-device AI (Ollama).
 
 Sariel is not a gentle personal-growth coach. It's a mirror: a space to talk through your thoughts where the AI is built to name avoidance and rationalization directly, rather than offer comfort. Conversations can be closed into honest, first-person journal entries — and a running record of self-declared commitments (the Tribunal) holds you accountable to what you said you'd do.
