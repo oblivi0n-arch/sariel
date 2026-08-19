@@ -196,6 +196,7 @@ private struct TimerMenuButton: View {
             }
             .foregroundStyle(isHovering ? Theme.textPrimary : Theme.textMuted)
             .frame(width: 64)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .trackHover($isHovering)
