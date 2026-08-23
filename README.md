@@ -205,4 +205,4 @@ This boundary is stated to the user on first launch and enforced as a hard overr
 
 ## License
 
-Sariel is licensed under the [GNU General Public License v3.0](LICENSE). You're free to use, study, modify, and redistribute it, including commercially — but any distributed copy or modified version must remain under the same license, with source code made available to its recipients.
+Sariel is proprietary software. All rights reserved. No part of this project may be used, copied, modified, or redistributed without explicit written permission from the author.
