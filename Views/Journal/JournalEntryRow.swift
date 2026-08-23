@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 struct JournalEntryRow: View {
     let entry: JournalEntry
@@ -8,6 +9,7 @@ struct JournalEntryRow: View {
     let onTogglePin: () -> Void
     let onArchive: () -> Void
 
+    @Environment(\.modelContext) private var modelContext
     @State private var isHovering = false
     
     private var isProvocationEntry: Bool {
@@ -100,11 +102,19 @@ struct JournalEntryRow: View {
                 }
             }
 
-            Button(role: .destructive, action: onDelete) {
+            Button(role: .destructive, action: deleteEntry) {
                 Label(L10n.JournalRow.delete, systemImage: "trash")
-                //FIXME: doesn't remove attached tags to the entry; the result is intrusive, because the left tags can't be deleted until the reset of entire app
             }
         }
+    }
+    
+    private func deleteEntry() {
+        let attachedTags = entry.tags
+        onDelete()
+        for tag in attachedTags {
+            JournalEntryTag.deleteIfOrphaned(tag, modelContext: modelContext)
+        }
+        try? modelContext.save()
     }
 }
 
