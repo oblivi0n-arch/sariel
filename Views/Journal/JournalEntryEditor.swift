@@ -6,7 +6,7 @@ private enum Field {
     case content
 }
 
-struct JournalEntryEditor: View {       //FIXME: if tags were added to the entry, and the entry was left empty, the entry doesn't save but the tags do
+struct JournalEntryEditor: View {
     @Bindable var entry: JournalEntry
     let achievementService: AchievementService
     @FocusState private var focusedField: Field?
@@ -61,12 +61,26 @@ struct JournalEntryEditor: View {       //FIXME: if tags were added to the entry
                 .overlay(dashedBorder(cornerRadius: 10))
                 .onDisappear {
                     saveTask?.cancel()
-                    try? modelContext.save()
-                    achievementService.checkNightOwl(modelContext: modelContext)
-                    achievementService.checkConsistencyStreak(modelContext: modelContext)
-                    achievementService.checkReturnedAfterSilence(modelContext: modelContext)
-                    achievementService.checkWritingSpiral(modelContext: modelContext)
-                    achievementService.checkRecurringTag(modelContext: modelContext)
+
+                    let isEmpty = entry.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        && entry.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+                    if isEmpty {
+                        let attachedTags = entry.tags
+                        entry.tags.removeAll()
+                        modelContext.delete(entry)
+                        for tag in attachedTags {
+                            JournalEntryTag.deleteIfOrphaned(tag, modelContext: modelContext)
+                        }
+                        try? modelContext.save()
+                    } else {
+                        try? modelContext.save()
+                        achievementService.checkNightOwl(modelContext: modelContext)
+                        achievementService.checkConsistencyStreak(modelContext: modelContext)
+                        achievementService.checkReturnedAfterSilence(modelContext: modelContext)
+                        achievementService.checkWritingSpiral(modelContext: modelContext)
+                        achievementService.checkRecurringTag(modelContext: modelContext)
+                    }
                 }
             }
 
