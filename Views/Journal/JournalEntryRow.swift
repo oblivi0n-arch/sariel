@@ -102,6 +102,7 @@ struct JournalEntryRow: View {
 
             Button(role: .destructive, action: onDelete) {
                 Label(L10n.JournalRow.delete, systemImage: "trash")
+                //FIXME: doesn't remove attached tags to the entry; the result is intrusive, because the left tags can't be deleted until the reset of entire app
             }
         }
     }

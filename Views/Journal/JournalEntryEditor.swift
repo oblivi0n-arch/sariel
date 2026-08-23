@@ -6,7 +6,7 @@ private enum Field {
     case content
 }
 
-struct JournalEntryEditor: View {
+struct JournalEntryEditor: View {       //FIXME: if tags were added to the entry, and the entry was left empty, the entry doesn't save but the tags do
     @Bindable var entry: JournalEntry
     let achievementService: AchievementService
     @FocusState private var focusedField: Field?
