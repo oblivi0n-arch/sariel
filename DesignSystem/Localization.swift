@@ -30,6 +30,16 @@ final class LanguageManager: ObservableObject {
     }
 }
 
+extension AppLanguage {
+    var locale: Locale {
+        Locale(identifier: rawValue)
+    }
+}
+
+extension LanguageManager {
+    var locale: Locale { current.locale }
+}
+
 enum L10n {
     static var lang: AppLanguage { LanguageManager.shared.current }
 }

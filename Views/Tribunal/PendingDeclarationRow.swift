@@ -4,6 +4,7 @@ struct PendingDeclarationRow: View {
     let commitment: Commitment
     let onSelect: () -> Void
 
+    @ObservedObject var languageManager = LanguageManager.shared
     @State private var isHovering = false
 
     private var isSelectable: Bool {
@@ -17,7 +18,10 @@ struct PendingDeclarationRow: View {
                 .foregroundStyle(Theme.textSecondary)
                 .lineLimit(2)
 
-            Text(commitment.createdAt, style: .date)
+            Text(commitment.createdAt.formatted(
+                .dateTime.day().month().year()
+                .locale(LanguageManager.shared.locale)
+            ))
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
         }
