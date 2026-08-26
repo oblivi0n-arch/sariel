@@ -20,28 +20,28 @@ enum OllamaError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .connectionFailed:
-            return "Cannot connect to Ollama."
+            return L10n.OllamaClient.connectionFailed
         case .modelNotFound(let model):
-            return "Model '\(model)' not found."
+            return L10n.OllamaClient.modelNotFound + "\(model)"
         case .serverError(let code):
-            return "Ollama returned an error (\(code))."
+            return L10n.OllamaClient.serverError + "(\(code))"
         case .invalidResponse:
-            return "Ollama returned an invalid response."
+            return L10n.OllamaClient.invalidResponse
         case .invalidHost:
-            return "Invalid Ollama host URL."
+            return L10n.OllamaClient.invalidHost
         }
     }
 
     var recoverySuggestion: String? {
         switch self {
         case .connectionFailed:
-            return "Run 'ollama serve' in terminal."
+            return L10n.OllamaClient.connectionFailedHint
         case .modelNotFound:
-            return "Pull it or pick another one in Settings."
+            return L10n.OllamaClient.modelNotFoundHint
         case .serverError, .invalidResponse:
             return nil
         case .invalidHost:
-            return "Check Ollama host URL in Settings."
+            return L10n.OllamaClient.invalidHostHint
         }
     }
 }
@@ -184,5 +184,65 @@ extension OllamaClient {
 
     private struct ModelInfo: Codable {
         let name: String
+    }
+}
+
+extension L10n {
+    enum OllamaClient {
+        static var connectionFailed: String {
+            switch lang {
+            case .en: return "Cannot connect to Ollama."
+            case .pl: return "Błąd połączenia z Ollama."
+            }
+        }
+        
+        static var modelNotFound: String {
+            switch lang {
+            case .en: return "Cannot find a model: "
+            case .pl: return "Nie znaleziono modelu: "
+            }
+        }
+        
+        static var serverError: String {
+            switch lang {
+            case .en: return "Server error "
+            case .pl: return "Błąd serwera "
+            }
+        }
+        
+        static var invalidResponse: String {
+            switch lang {
+            case .en: return "Ollama returned an invalid response."
+            case .pl: return "Ollama zwróciła nieprawidłową odpowiedź."
+            }
+        }
+        
+        static var invalidHost: String {
+            switch lang {
+            case .en: return "Invalid Ollama host URL."
+            case .pl: return "Nieprawidłowy adres serwera Ollama."
+            }
+        }
+        
+        static var connectionFailedHint: String {
+            switch lang {
+            case .en: return "Run 'ollama serve' in terminal."
+            case .pl: return "Uruchom 'ollama serve' w terminalu."
+            }
+        }
+        
+        static var modelNotFoundHint: String {
+            switch lang {
+            case .en: return "Pull it or pick another one in Settings."
+            case .pl: return "Pobierz lub wybierz inny w Ustawieniach."
+            }
+        }
+        
+        static var invalidHostHint: String {
+            switch lang {
+            case .en: return "Check Ollama host URL in Settings."
+            case .pl: return "Sprawdź adres serwera Ollama w Ustawieniach."
+            }
+        }
     }
 }
