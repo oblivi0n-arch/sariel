@@ -18,7 +18,7 @@ extension SettingsView {
             ExpandableDescription(
                 short: L10n.Settings.autoStartOllamaShortDescription,
                 detail: L10n.Settings.autoStartOllamaDescription
-      )
+            )
             
             manualOllamaPathDisclosure
             
@@ -28,11 +28,11 @@ extension SettingsView {
                 isValid: host.isEmpty || isHostValid,
                 errorMessage: L10n.Settings.hostFieldError
             )
-
+            
             if isHostValid && !isHostLocal {
                 remoteHostWarning
             }
-
+            
             modelPicker
         }
     }
@@ -51,15 +51,15 @@ extension SettingsView {
     private var isHostValid: Bool {
         OllamaClient.isValidHost(host)
     }
-
+    
     private var isHostLocal: Bool {
         OllamaClient.isLocalHost(host)
     }
-
+    
     func fetchAvailableModels() async {
         isLoadingModels = true
         modelsLoadError = nil
-
+        
         do {
             availableModels = try await OllamaClient.fetchAvailableModels(host: host)
         } catch OllamaError.invalidHost {
@@ -69,10 +69,10 @@ extension SettingsView {
             modelsLoadError = L10n.Settings.modelsLoadErrorGeneric
             availableModels = []
         }
-
+        
         isLoadingModels = false
     }
-
+    
     private var remoteHostWarning: some View {
         HStack(alignment: .top, spacing: 6) {
             Image(systemName: "exclamationmark.triangle")
@@ -90,9 +90,9 @@ extension SettingsView {
                 Text(L10n.Settings.modelFieldLabel)
                     .font(Typography.label)
                     .foregroundStyle(Theme.textMuted)
-
+                
                 Spacer()
-
+                
                 RefreshModelsButton(isLoading: isLoadingModels) {
                     Task { await fetchAvailableModels() }
                 }
@@ -121,10 +121,10 @@ extension SettingsView {
             }
             
             ExpandableDescription(
-                            short: L10n.Settings.modelRecommendationShortText,
-                            detail: L10n.Settings.modelRecommendationText
-                        )
-                        .padding(.top, 2)
+                short: L10n.Settings.modelRecommendationShortText,
+                detail: L10n.Settings.modelRecommendationText
+            )
+            .padding(.top, 2)
         }
     }
     
@@ -135,7 +135,7 @@ extension SettingsView {
     private var manualOllamaPathDisclosure: some View {
         VStack(alignment: .leading, spacing: 8) {
             DisclosureLinkButton(title: L10n.Settings.cantFindOllama, isExpanded: $isManualPathShown)
-
+            
             if isManualPathShown {
                 labeledField(
                     title: L10n.Settings.manualPathLabel,
@@ -143,7 +143,7 @@ extension SettingsView {
                     isValid: isManualPathValid,
                     errorMessage: L10n.Settings.manualPathError
                 )
-
+                
                 Text(L10n.Settings.manualPathHint)
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)
@@ -156,7 +156,7 @@ extension SettingsView {
             Text(title)
                 .font(Typography.label)
                 .foregroundStyle(Theme.textMuted)
-
+            
             PlaceholderTextField(placeholder: title, text: text)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
@@ -164,7 +164,7 @@ extension SettingsView {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(isValid ? Theme.border : Color.red.opacity(0.6), lineWidth: isValid ? 0.5 : 1)
                 )
-
+            
             if !isValid, let errorMessage {
                 Text(errorMessage)
                     .font(Typography.caption)
@@ -188,9 +188,9 @@ extension SettingsView {
             .tint(Theme.textPrimary)
             
             ExpandableDescription(
-            short: L10n.Settings.journalContextShortDescription(count: PromptBuilder.journalContextEntryCount),
-                            detail: L10n.Settings.journalContextDescription(count: PromptBuilder.journalContextEntryCount)
-                        )
+                short: L10n.Settings.journalContextShortDescription(count: PromptBuilder.journalContextEntryCount),
+                detail: L10n.Settings.journalContextDescription(count: PromptBuilder.journalContextEntryCount)
+            )
         }
     }
     
@@ -209,9 +209,9 @@ extension SettingsView {
             .tint(Theme.textPrimary)
             
             ExpandableDescription(
-                          short: L10n.Settings.credibilityShortDescription,
-                           detail: L10n.Settings.credibilityDescription(minimum: CredibilityBand.sampleMinimum)
-                        )
+                short: L10n.Settings.credibilityShortDescription,
+                detail: L10n.Settings.credibilityDescription(minimum: CredibilityBand.sampleMinimum)
+            )
         }
     }
     
@@ -220,29 +220,29 @@ extension SettingsView {
             sectionHeader(icon: "text.alignleft", title: L10n.JournalStyle.sectionTitle) {
                 EmptyView()
             }
-
+            
             VStack(spacing: 8) {
                 ForEach(JournalStyle.allCases, id: \.self) { style in
                     journalStyleOption(style)
                 }
             }
-
+            
             Text(L10n.JournalStyle.sectionHint)
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
         }
     }
-
+    
     private func journalStyleOption(_ style: JournalStyle) -> some View {
         let isSelected = journalStyle == style
-
+        
         return Button(action: { journalStyle = style }) {
             HStack(alignment: .top, spacing: 10) {
                 Image(systemName: isSelected ? "largecircle.fill.circle" : "circle")
                     .font(.system(size: 14))
                     .foregroundStyle(isSelected ? Theme.textPrimary : Theme.textFaint)
                     .padding(.top, 2)
-
+                
                 VStack(alignment: .leading, spacing: 2) {
                     Text(style.displayName)
                         .font(Theme.uiFont)
@@ -251,7 +251,7 @@ extension SettingsView {
                         .font(Typography.caption)
                         .foregroundStyle(Theme.textFaint)
                 }
-
+                
                 Spacer()
             }
             .padding(10)
@@ -270,7 +270,7 @@ private struct RefreshModelsButton: View {
     let isLoading: Bool
     let action: () -> Void
     @State private var isHovering = false
-
+    
     var body: some View {
         Button(action: action) {
             HStack(spacing: 4) {
@@ -388,8 +388,8 @@ extension L10n.Settings {
     
     static var modelRecommendationText: String {
         switch L10n.lang {
-        case .en: return "Recommended: gemma4:e4b — natively supports system-role instructions, which this app relies on heavily (personality prompt, journal context, conversation summary). Smaller or older models may struggle with memory and long context."
-        case .pl: return "Zalecany: gemma4:e4b — natywnie wspiera instrukcje typu system-role, na których ta aplikacja mocno się opiera (prompt osobowości, kontekst dziennika, podsumowanie rozmowy). Mniejsze lub starsze modele mogą mieć problemy z pamięcią i długim kontekstem."
+        case .en: return "Heavily recommended: gemma 4:e4b – natively supports system-role instructions, which this app relies on heavily (personality prompt, journal context, conversation summary). Smaller or older models may struggle with memory and long context. More critically: some models fail to recognize crisis situations (e.g. expressions of self-harm risk) and may continue roleplaying instead of breaking character to direct the user toward real help.\n\nREMEMBER: DO NOT TRUST ANYTHING THE MODEL SAYS AS FACT. IT IS AI, NOT A HUMAN. If you are experiencing a mental health crisis, do not rely on the model's response – please contact a crisis line or emergency services immediately."
+        case .pl: return "Zdecydowanie zalecane: gemma4:e4b — natywnie wspiera instrukcje typu system-role, na których ta aplikacja mocno się opiera (prompt osobowości, kontekst dziennika, podsumowanie rozmowy). Mniejsze lub starsze modele mogą mieć problemy z pamięcią i długim kontekstem. Poważniejszy problem: niektóre modele nie rozpoznają sytuacji kryzysowych i mogą kontynuować roleplay zamiast przerwać go i skierować użytkownika po realną pomoc.\n\nPAMIĘTAJ: NIE TRAKTUJ NICZEGO, CO MÓWI MODEL, JAKO FAKTU. TO SZTUCZNA INTELIGENCJA, NIE CZŁOWIEK. Jeśli przeżywasz kryzys psychiczny, nie polegaj na odpowiedziach modelu – skontaktuj się z linią kryzysową lub pomocą doraźną."
         }
     }
     
@@ -483,21 +483,21 @@ extension L10n.Settings {
         case .pl: return "Automatycznie uruchamia i zatrzymuje serwer Ollamy."
         }
     }
-
+    
     static var modelRecommendationShortText: String {
         switch L10n.lang {
-        case .en: return "Recommended: gemma4:e4b"
-        case .pl: return "Zalecany: gemma4:e4b"
+        case .en: return "Heavily recommended: gemma4:e4b"
+        case .pl: return "Zdecydowanie zalecany: gemma4:e4b"
         }
     }
-
+    
     static func journalContextShortDescription(count: Int) -> String {
         switch L10n.lang {
         case .en: return "Sariel sees your last \(count) journal entries."
         case .pl: return "Sariel widzi Twoje ostatnie \(count) wpisy."
         }
     }
-
+    
     static var credibilityShortDescription: String {
         switch L10n.lang {
         case .en: return "Sariel adjusts its tone based on your track record."

@@ -86,6 +86,11 @@ struct OllamaStepView: View {
 
             modelPicker
                 .frame(maxWidth: 320)
+            
+            ExpandableDescription(
+                short: L10n.Settings.modelRecommendationShortText,
+                detail: L10n.Settings.modelRecommendationText
+            )
 
             Text(L10n.Wizard.skipHint)
                 .font(Typography.caption)
