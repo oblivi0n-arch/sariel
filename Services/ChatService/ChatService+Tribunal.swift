@@ -11,8 +11,7 @@ extension ChatService {
         guard !pending.isEmpty else { return nil }
 
         let sessionNumber = fetchTribunalSessionCount(modelContext: modelContext) + 1
-        let dateString = Date().formatted(date: .abbreviated, time: .omitted)
-        let conversation = Conversation(title: "Tribunal — session \(sessionNumber) — \(dateString)")
+        let conversation = Conversation(title: L10n.TribunalSession.sessionTitle(sessionNumber: sessionNumber, date: Date()))
         conversation.isTribunal = true
         modelContext.insert(conversation)
 
@@ -110,7 +109,7 @@ extension ChatService {
         }
 
         if failedCount > 0 {
-            verdictErrors[conversation.id] = "Could not get a valid verdict for \(failedCount) of \(pending.count) commitment\(pending.count == 1 ? "" : "s")."
+            verdictErrors[conversation.id] = L10n.TribunalSession.verdictError(failedCount: failedCount, total: pending.count)
         }
 
         return verdicts
@@ -162,5 +161,32 @@ extension ChatService {
             predicate: #Predicate<Conversation> { $0.isTribunal }
         )
         return (try? modelContext.fetchCount(descriptor)) ?? 0
+    }
+}
+
+extension L10n {
+    enum TribunalSession {
+        static func sessionTitle(sessionNumber: Int, date: Date) -> String {
+            switch lang {
+            case .en:
+                let dateString = date.formatted(date: .abbreviated, time: .omitted)
+                return "Tribunal – session \(sessionNumber) – \(dateString)"
+            case .pl:
+                let dateString = date.formatted(
+                    .dateTime.day().month(.abbreviated).year()
+                    .locale(LanguageManager.shared.locale)
+                )
+                return "Trybunał – sesja \(sessionNumber) – \(dateString)"
+            }
+        }
+        
+        static func verdictError(failedCount: Int, total: Int) -> String {
+            switch lang {
+            case .en: return "Could not get a valid verdict for \(failedCount) of \(total) commitment\(total == 1 ? "" : "s")."
+            case .pl:
+                let noun = total == 1 ? "Zobowiązania" : "Zobowiązań"
+                return "Nie udało się uzyskać poprawnego wyroku dla \(failedCount) z \(total) \(noun)."
+            }
+        }
     }
 }
