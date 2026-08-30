@@ -27,7 +27,10 @@ struct MeditationSessionRow: View {
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
 
-            Text(session.createdAt, style: .date)
+            Text(session.createdAt.formatted(
+                .dateTime.day().month().year()
+                .locale(LanguageManager.shared.locale)
+            ))
                 .font(Typography.caption)
                 .foregroundStyle(Theme.textFaint)
 
