@@ -81,6 +81,8 @@ struct DashboardView: View {
                     font: .system(size: 26, weight: .medium, design: .serif),
                     color: Theme.textPrimary
                 )
+                .fixedSize(horizontal: false, vertical: true)
+                .layoutPriority(1)
                 .id(greetingText)
                 
                 LazyVGrid(columns: [
@@ -190,11 +192,11 @@ struct DashboardView: View {
         }
         
         let greetings = L10n.Dashboard.greetings
-            let safeIndex = min(greetingIndex, greetings.count - 1)
-
-            let name = username.isEmpty ? L10n.Dashboard.fallbackName : username
-            greetingText = greetings[safeIndex]
-                .replacingOccurrences(of: "{name}", with: name)
+        let safeIndex = min(greetingIndex, greetings.count - 1)
+        
+        let name = username.isEmpty ? L10n.Dashboard.fallbackName : username
+        greetingText = greetings[safeIndex]
+            .replacingOccurrences(of: "{name}", with: name)
     }
     
     private func weekdayLabel(for date: Date) -> String {
