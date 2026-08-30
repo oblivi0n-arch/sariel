@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PinUnlockView: View {
     var title: String = L10n.Privacy.unlockTitle
+    var showsBackground: Bool = true
     let onUnlock: () -> Void
     
     @AppStorage("appLockUseBiometrics") private var useBiometrics: Bool = true
@@ -14,7 +15,9 @@ struct PinUnlockView: View {
     
     var body: some View {
         ZStack {
-            Theme.background.ignoresSafeArea()
+            if showsBackground {
+                Theme.background.ignoresSafeArea()
+            }
             
             VStack(spacing: 20) {
                 Image(systemName: "lock.shield")

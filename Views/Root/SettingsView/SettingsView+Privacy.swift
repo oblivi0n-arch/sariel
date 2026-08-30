@@ -116,7 +116,7 @@ extension SettingsView {
                 .ignoresSafeArea()
                 .onTapGesture { pendingPinAction = nil }
             
-            PinUnlockView(title: L10n.Privacy.confirmCurrentPin) {
+            PinUnlockView(title: L10n.Privacy.confirmCurrentPin, showsBackground: false) {
                 pendingPinAction = nil
                 switch action {
                 case .change:
