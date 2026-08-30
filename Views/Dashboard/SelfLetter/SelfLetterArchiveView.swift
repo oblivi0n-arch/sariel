@@ -131,10 +131,18 @@ struct SelfLetterArchiveView: View {
                 if let openedAt = letter.openedAt {
                     HStack(spacing: 4) {
                         Text(L10n.SelfLetterReveal.writtenOnLabel)
-                        Text(letter.createdAt, style: .date)
+                        Text(letter.createdAt.formatted(
+                            .dateTime.day().month().year()
+                            .locale(LanguageManager.shared.locale)
+                        ))
+
                         Text("·")
                         Text(L10n.SelfLetterArchive.openedOnLabel)
-                        Text(openedAt, style: .date)
+                        Text(openedAt.formatted(
+                            .dateTime.day().month().year()
+                            .locale(LanguageManager.shared.locale)
+                        ))
+
                     }
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)

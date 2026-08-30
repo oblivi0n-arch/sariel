@@ -125,7 +125,11 @@ struct SelfLetterRevealView: View {
 
                             HStack(spacing: 4) {
                                 Text(L10n.SelfLetterReveal.writtenOnLabel)
-                                Text(letter.createdAt, style: .date)
+                                Text(letter.createdAt.formatted(
+                                    .dateTime.day().month().year()
+                                    .locale(LanguageManager.shared.locale)
+                                ))
+
                             }
                             .font(Typography.caption)
                             .foregroundStyle(Theme.textFaint)
