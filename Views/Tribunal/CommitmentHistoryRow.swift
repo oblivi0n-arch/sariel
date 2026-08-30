@@ -45,7 +45,10 @@ struct CommitmentHistoryRow: View {
             }
 
             if let resolvedAt = commitment.resolvedAt {
-                Text(resolvedAt, style: .date)
+                Text(resolvedAt.formatted(
+                    .dateTime.day().month().year()
+                    .locale(LanguageManager.shared.locale)
+                ))
                     .font(Typography.caption)
                     .foregroundStyle(Theme.textFaint)
             }
