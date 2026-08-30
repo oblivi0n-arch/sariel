@@ -180,7 +180,6 @@ There is no account system, no sync service, no crash reporting, and no analytic
 - **The app lock is a door, not a vault.** Guessing is rate-limited — three free attempts, then escalating lockouts that survive a restart — and the hash is device-only in the Keychain. But it is still a 4-digit code hashed with a single pass of SHA-256, with no salt or key-derivation function. It stops casual access to your journal. It is not meaningful protection against anyone who already has access to your user account, who could read the unencrypted store file directly regardless.
 - **The data store itself is not encrypted.** SwiftData writes a plain SQLite file under Application Support. Full-disk encryption (FileVault) is the layer that protects it at rest.
 - **No schema migration plan yet.** SwiftData models aren't versioned with `VersionedSchema`/`SchemaMigrationPlan`. Breaking model changes may require an export → reset → import cycle.
-- **Save failures are still silent.** Non-critical AI paths now log through `os.Logger`, but `try? modelContext.save()` throughout the service layer discards write errors without surfacing them.
 - **Context window is counted in messages, not tokens.** With a small-context model and long messages, overflow is still possible.
 
 ## Troubleshooting
@@ -203,6 +202,10 @@ Sariel is not therapy or a crisis service, and was never designed to be one. Its
 
 This boundary is stated to the user on first launch and enforced as a hard override in **every** system prompt that can produce user-facing text — chat, Tribunal, verdicts, and all three journal styles. In each case the instruction is explicit that it overrides every other rule without exception: drop the mirror persona, respond with direct warmth, and point toward professional help. The journal prompts go further and require a calm, grounding entry that does not dwell on or amplify crisis content, because a journal entry is something you come back to.
 
+## Design
+
+**App icon** is an original custom artwork created by the author using Apple Freeform. All icon assets are proprietary and covered under full copyright.
+
 ## License
 
-Sariel is proprietary software. All rights reserved. No part of this project may be used, copied, modified, or redistributed without explicit written permission from the author.
+Sariel is proprietary software. All rights reserved. No part of this project, including the source code, architecture, binaries, and visual design elements, may be used, copied, modified, merged or redistributed without explicit written permission from the author.
