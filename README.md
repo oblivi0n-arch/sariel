@@ -16,7 +16,7 @@ Everything runs on your machine. No account, no server, no telemetry, no third-p
 - **Self Letters** — write a letter to your future self, sealed until a chosen date, then revealed through the same confrontational lens as the rest of the app.
 - **Non-linear achievements** — unlocks based on real behavioral patterns (writing streaks, returning after silence, recovering credibility after a bad streak), not simple counters.
 - **App lock** — optional 4-digit PIN with Touch ID unlock, rate-limited against guessing, plus auto-wipe after a configurable period of inactivity.
-- **Personalization** — configurable Ollama host and model, remappable keyboard shortcuts, light/dark theme, persistent "about me" profile distilled from a getting-acquainted conversation.
+- **Personalization** — configurable Ollama host and model, remappable keyboard shortcuts, original light/dark and custom themes, persistent "about me" profile distilled from a getting-acquainted conversation.
 - **Data ownership** — export/import all your data to JSON, with schema versioning for safe migrations.
 - **Multi-language UI** — English and Polish, switchable at any time.
 
@@ -35,7 +35,7 @@ Sariel runs four kinds of conversation, each with its own system prompt:
 
 ### Keeping the model out of the driver's seat
 
-Small local models hallucinate. Since Sariel lets AI output influence *persistent user data* — journal entries, commitment verdicts, your profile — the app is built on one rule: **the model proposes, the app validates, you confirm, and only then does anything get written.**
+Small local models tend to hallucinate. Since Sariel lets AI output influence *persistent user data* — journal entries, commitment verdicts, your profile — the app is built on one rule: **the model proposes, the app validates, you confirm, and only then does anything get written.**
 
 Concretely:
 
@@ -53,7 +53,7 @@ This is also why there's **no user-facing prompt editor**. An earlier version ha
 
 ### Context window management
 
-Long conversations are handled without dropping facts: up to 30 recent messages go to the model directly, and once more than 10 messages are unsummarized, a separate call folds them into a running third-person summary while the raw window shrinks to the last 8. Deleting messages reconciles the summary, so the model can't "remember" something you erased.
+Long conversations are handled without dropping facts: up to 30 recent messages go to the model directly, and once more than 10 messages are unsummarized, a separate call folds them into a running third-person summary while the raw window shrinks to the last 8. Deleting messages reconciles the summary, so the model can't refer to something you erased.
 
 ### When things go wrong
 
@@ -126,7 +126,7 @@ Default: `gemma4:e4b`. The model picker in Settings lists whatever you've pulled
 
 ## Testing
 
-Sariel uses [Swift Testing](https://developer.apple.com/documentation/testing) (not XCTest) for unit tests, run against an in-memory SwiftData container so no real user data is touched. **146 automated test cases across 19 test suites**, plus a manual test protocol — maintained in the project documentation rather than this repository — covering anything that depends on real LLM output.
+Sariel uses [Swift Testing](https://developer.apple.com/documentation/testing) for unit tests, run against an in-memory SwiftData container so no real user data is touched. **146 automated test cases across 19 test suites**, plus a manual test protocol — maintained in the project documentation rather than this repository — covering anything that depends on real LLM output.
 
 Run tests with `Cmd+U` in Xcode, or `xcodebuild test` from the command line.
 
@@ -201,6 +201,8 @@ There is no account system, no sync service, no crash reporting, and no analytic
 Sariel is not therapy or a crisis service, and was never designed to be one. Its confrontational tone is a deliberate design choice for self-reflection, not a substitute for professional support. If you are in crisis or having thoughts of self-harm, please reach out to a mental health professional or a crisis line.
 
 This boundary is stated to the user on first launch and enforced as a hard override in **every** system prompt that can produce user-facing text — chat, Tribunal, verdicts, and all three journal styles. In each case the instruction is explicit that it overrides every other rule without exception: drop the mirror persona, respond with direct warmth, and point toward professional help. The journal prompts go further and require a calm, grounding entry that does not dwell on or amplify crisis content, because a journal entry is something you come back to.
+
+**Heavily recommended: gemma 4:e4b** – natively supports system-role instructions, which this app relies on heavily (personality prompt, journal context, conversation summary). Smaller or older models may struggle with memory and long context. More critically: some models fail to recognize crisis situations (e.g. expressions of self-harm risk) and may continue roleplaying instead of breaking character to direct the user toward real help.
 
 ## Design
 
